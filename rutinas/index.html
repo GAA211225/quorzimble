@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mis Rutinas Gym</title>
+<meta name="theme-color" content="#0d0e12">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Rutinas">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0d0e12;color:#e8e9ec;padding:16px;max-width:680px;margin:0 auto;padding-bottom:110px;}
+.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.hdr h1{font-size:20px;font-weight:800;}
+.hdr .fecha{font-size:12px;color:#8b93a3;}
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.nav-btn{padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #2c2f38;background:#1a1c22;color:#8b93a3;transition:all .15s;white-space:nowrap;}
+.nav-btn.active{background:#F43F5E;color:#fff;border-color:#F43F5E;}
+.sec-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8b93a3;margin:0 0 8px;}
+.card{background:#1a1c22;border:1px solid #2c2f38;border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+.card.done{border-color:#10B981;background:#122420;}
+.ex-hdr{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px;}
+.ex-name{font-size:15px;font-weight:700;color:#f3f4f6;}
+.card.done .ex-name{color:#34D399;}
+.ex-meta{font-size:12px;color:#8b93a3;white-space:nowrap;font-weight:600;}
+.serie-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.set-dot{width:38px;height:38px;border-radius:50%;border:2px solid #34363f;background:#21232b;color:#7d8590;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;user-select:none;transition:all .12s;flex-shrink:0;}
+.set-dot.on{background:#F43F5E;border-color:#F43F5E;color:#fff;}
+.peso-input{width:78px;padding:7px 9px;border:1.5px solid #34363f;border-radius:8px;font-size:14px;font-weight:700;color:#f3f4f6;background:#21232b;}
+.peso-input.reps{width:66px;}
+.x-sep{color:#5b6270;font-size:13px;font-weight:600;}
+.prb{font-size:11px;color:#FBBF24;background:rgba(251,191,36,.12);padding:2px 7px;border-radius:12px;font-weight:700;margin-left:6px;white-space:nowrap;}
+.ex-nota{font-size:12px;color:#8b93a3;font-style:italic;margin-top:7px;padding-top:7px;border-top:1px solid #262933;}
+.prog{background:#1a1c22;border:1px solid #2c2f38;border-radius:12px;padding:12px 16px;margin-bottom:12px;}
+.prog-txt{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:7px;}
+.prog-bar{height:8px;background:#21232b;border-radius:8px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,#F43F5E,#FB923C);border-radius:8px;transition:width .25s;width:0%;}
+.btn-main{width:100%;padding:13px;border:none;border-radius:10px;background:#F43F5E;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;}
+.btn-main:disabled{background:#23252c;color:#5b6270;cursor:default;}
+.btn-sec{padding:8px 14px;border:1.5px solid #F43F5E;border-radius:8px;background:#1a1c22;color:#FB7185;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-mini{padding:6px 10px;border:1.5px solid #34363f;border-radius:8px;background:#21232b;color:#c7cbd4;font-size:13px;font-weight:700;cursor:pointer;}
+.hl{border-left:3px solid #10B981;background:rgba(16,185,129,.10);border-radius:0 8px 8px 0;padding:10px 12px;font-size:13px;color:#34D399;margin-bottom:10px;}
+.info{border-left:3px solid #3B82F6;background:rgba(59,130,246,.10);border-radius:0 8px 8px 0;padding:10px 12px;font-size:13px;color:#60A5FA;margin-bottom:10px;}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;margin:2px;}
+.p-rose{background:rgba(244,63,94,.15);color:#FB7185;}
+.p-gray{background:#21232b;color:#8b93a3;border:1px solid #34363f;}
+.edit-input{width:100%;padding:8px 10px;border:1.5px solid #34363f;border-radius:8px;font-size:14px;color:#f3f4f6;background:#21232b;margin-bottom:6px;}
+.edit-grid{display:grid;grid-template-columns:1fr 46px 62px 56px;gap:6px;margin-bottom:6px;}
+.edit-grid input{padding:8px 8px;border:1.5px solid #34363f;border-radius:8px;font-size:13px;background:#21232b;color:#f3f4f6;width:100%;}
+.edit-actions{display:flex;gap:6px;justify-content:flex-end;}
+.hist-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.hist-fecha{font-size:12px;color:#8b93a3;}
+.hist-dia{font-size:14px;font-weight:700;}
+.hist-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:2px 10px;padding:5px 0;border-bottom:1px solid #262933;font-size:13px;}
+.hist-row:last-child{border-bottom:none;}
+.sel{width:100%;padding:9px 10px;border:1.5px solid #34363f;border-radius:8px;background:#21232b;color:#f3f4f6;font-size:13px;font-weight:600;}
+.seg{display:flex;gap:6px;margin:10px 0;}
+.seg-btn{flex:1;padding:8px;border-radius:8px;border:1.5px solid #34363f;background:#21232b;color:#8b93a3;font-size:12px;font-weight:700;cursor:pointer;}
+.seg-btn.active{background:#F43F5E;border-color:#F43F5E;color:#fff;}
+.ob-card{cursor:pointer;transition:border-color .15s;}
+.ob-card:active{border-color:#F43F5E;}
+.ob-title{font-size:15px;font-weight:800;}
+.ob-days{font-size:11px;color:#FB7185;font-weight:700;white-space:nowrap;}
+.ob-info{font-size:12px;color:#8b93a3;margin-top:4px;}
+.ob-prev{font-size:11px;color:#5b6270;margin-top:6px;}
+.timer{position:fixed;bottom:18px;right:16px;z-index:50;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.timer-panel{display:none;background:#1a1c22;border:1.5px solid #2c2f38;border-radius:14px;padding:10px;box-shadow:0 6px 20px rgba(0,0,0,.5);gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:280px;}
+.timer-panel.open{display:flex;}
+.timer-opt{padding:9px 13px;border-radius:10px;border:1.5px solid #34363f;background:#21232b;font-size:13px;font-weight:700;color:#c7cbd4;cursor:pointer;}
+.timer-btn{width:62px;height:62px;border-radius:50%;border:none;background:#F43F5E;color:#fff;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px rgba(244,63,94,.4);}
+.timer-btn.run{background:#3B82F6;box-shadow:0 6px 16px rgba(59,130,246,.4);}
+.empty{text-align:center;color:#8b93a3;font-size:13px;padding:30px 10px;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;}
+.overlay-card{background:#16181d;border:1px solid #34363f;border-radius:16px;padding:18px 16px;max-width:480px;width:100%;max-height:82vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.6);}
+.rec-row{padding:9px 0;border-bottom:1px solid #262933;font-size:13px;}
+.rec-row:last-child{border-bottom:none;}
+.perfil-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.perfil-grid label{font-size:11px;color:#8b93a3;font-weight:700;display:flex;flex-direction:column;gap:5px;}
+.perfil-grid input,.perfil-grid select{padding:9px 10px;border:1.5px solid #34363f;border-radius:8px;background:#21232b;color:#f3f4f6;font-size:14px;font-weight:700;width:100%;}
+.lvl-bar{display:flex;gap:4px;margin-top:8px;}
+.lvl-seg{flex:1;height:8px;border-radius:4px;}
+.count-card{background:linear-gradient(135deg,rgba(251,146,60,.18),#16181d 65%);border:1px solid rgba(251,146,60,.4);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center;}
+.count-num{font-size:44px;font-weight:900;color:#FB923C;line-height:1;}
+.count-lbl{font-size:12px;color:#8b93a3;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;}
+.count-sub{font-size:13px;color:#e8e9ec;margin-top:10px;font-weight:600;}
+.metric{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #262933;font-size:13px;}
+.metric:last-child{border-bottom:none;}
+.metric b{color:#f3f4f6;font-weight:800;}
+.tip{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #262933;}
+.tip:last-child{border-bottom:none;}
+.tip-ico{font-size:20px;flex-shrink:0;line-height:1.2;}
+.tip-h{font-size:14px;font-weight:800;color:#f3f4f6;}
+.tip-b{font-size:12.5px;color:#a9b0bd;line-height:1.5;margin-top:2px;}
+.frase-card{background:linear-gradient(135deg,rgba(244,63,94,.16),#1a1c22 60%);border:1px solid rgba(244,63,94,.35);border-left:4px solid #F43F5E;border-radius:12px;padding:14px 16px;margin-bottom:12px;}
+.frase-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#FB7185;margin-bottom:7px;}
+.frase-txt{font-size:14px;font-weight:600;color:#e8e9ec;font-style:italic;line-height:1.5;}
+.frase-autor{font-size:12px;color:#FB7185;font-weight:700;margin-top:8px;}
+.frase-autor span{color:#8b93a3;font-weight:500;}
+.frase-btn{margin-top:10px;padding:7px 13px;border:1.5px solid rgba(244,63,94,.5);border-radius:20px;background:transparent;color:#FB7185;font-size:12px;font-weight:700;cursor:pointer;}
+.sec-block{padding:0;overflow:hidden;border-left-width:4px;}
+.sec-hd{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer;gap:8px;}
+.sec-t{font-size:14px;font-weight:800;color:#f3f4f6;}
+.sec-s{font-size:11px;color:#8b93a3;margin-top:2px;}
+.sec-meta{font-size:12px;color:#8b93a3;font-weight:700;white-space:nowrap;}
+.sec-body{padding:0 14px 8px;}
+.chk-row{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid #262933;cursor:pointer;}
+.chk{width:24px;height:24px;border-radius:7px;border:2px solid #34363f;background:#21232b;color:#34D399;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chk.on{background:rgba(52,211,153,.16);border-color:#34D399;}
+.chk-txt{font-size:13px;padding-top:1px;}
+.chk-n{font-weight:700;color:#e8e9ec;}
+.chk-row.on .chk-n{color:#8b93a3;text-decoration:line-through;}
+.chk-d{color:#60A5FA;font-weight:600;font-size:12px;}
+.chk-nota{font-size:11px;color:#8b93a3;font-style:italic;margin-top:2px;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div><h1>🏋️ Mis Rutinas</h1><p class="fecha" id="fecha-hoy"></p></div>
+  <button class="btn-sec" id="btn-edit" onclick="toggleEdit()">✏️ Editar</button>
+</div>
+
+<div id="install-bar" style="display:none;justify-content:space-between;align-items:center;gap:10px;background:rgba(244,63,94,.12);border:1.5px solid #F43F5E;border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+  <span style="font-size:13px;color:#FB7185;font-weight:600;">📲 Instala esta página como app en tu teléfono</span>
+  <button onclick="doInstall()" style="padding:8px 16px;border:none;border-radius:8px;background:#F43F5E;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">Instalar</button>
+</div>
+
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;background:rgba(59,130,246,.10);border:1.5px solid #3B82F6;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#60A5FA;">
+  <span>🔥 <strong>Déficit para definición:</strong> mantén la carga en tus ejercicios grandes — así conservas músculo mientras pierdes grasa.</span>
+  <a href="../dieta.html" style="white-space:nowrap;font-weight:700;color:#60A5FA;">🥗 Mi dieta →</a>
+</div>
+
+<div class="frase-card">
+  <p class="frase-label">🔥 Motivación del día</p>
+  <p id="frase-txt" class="frase-txt"></p>
+  <p id="frase-autor" class="frase-autor"></p>
+  <button class="frase-btn" onclick="otraFrase()">Otra frase ↻</button>
+</div>
+
+<div class="nav" id="nav"></div>
+<div id="contenido"></div>
+
+<div class="timer">
+  <div class="timer-panel" id="timer-panel">
+    <button class="timer-opt" id="timer-auto" onclick="toggleAuto()">Auto ✓</button>
+    <button class="timer-opt" onclick="startTimer(60)">1:00</button>
+    <button class="timer-opt" onclick="startTimer(90)">1:30</button>
+    <button class="timer-opt" onclick="startTimer(120)">2:00</button>
+    <button class="timer-opt" onclick="startTimer(180)">3:00</button>
+    <button class="timer-opt" style="background:rgba(244,63,94,.15);color:#FB7185;border-color:rgba(244,63,94,.15);" onclick="stopTimer()">✕ Parar</button>
+  </div>
+  <button class="timer-btn" id="timer-btn" onclick="toggleTimerPanel()">⏱️<br>Desc.</button>
+</div>
+
+<script>
+/* ===== Plantillas de rutina (desc = descanso en segundos) ===== */
+const RUTINA_DEFAULT=[
+ {nombre:'Empuje 🫸',ejercicios:[
+  {n:'Press de banca',s:4,r:'8-10',desc:120,nota:'Baja controlado, pausa arriba.'},
+  {n:'Press inclinado con mancuernas',s:3,r:'10-12',desc:90,nota:''},
+  {n:'Press militar',s:3,r:'8-10',desc:120,nota:''},
+  {n:'Elevaciones laterales',s:3,r:'12-15',desc:60,nota:'Peso ligero, técnica limpia.'},
+  {n:'Fondos o extensión de tríceps en polea',s:3,r:'10-12',desc:90,nota:''},
+  {n:'Extensión de tríceps sobre cabeza',s:3,r:'12',desc:60,nota:''}]},
+ {nombre:'Jalón 🫷',ejercicios:[
+  {n:'Jalón al pecho o dominadas',s:4,r:'8-10',desc:120,nota:''},
+  {n:'Remo con barra',s:4,r:'8-10',desc:120,nota:'Espalda recta siempre.'},
+  {n:'Remo en polea baja',s:3,r:'10-12',desc:90,nota:''},
+  {n:'Face pull',s:3,r:'15',desc:60,nota:'Cuida los hombros — no lo saltes.'},
+  {n:'Curl de bíceps con barra',s:3,r:'10',desc:90,nota:''},
+  {n:'Curl martillo',s:3,r:'12',desc:60,nota:''}]},
+ {nombre:'Pierna 🦵',ejercicios:[
+  {n:'Sentadilla',s:4,r:'6-8',desc:150,nota:'Calienta con 2 series ligeras antes.'},
+  {n:'Prensa',s:3,r:'10-12',desc:120,nota:''},
+  {n:'Peso muerto rumano',s:3,r:'8-10',desc:120,nota:''},
+  {n:'Zancadas',s:3,r:'12',desc:90,nota:'12 por pierna.'},
+  {n:'Curl femoral',s:3,r:'12',desc:90,nota:''},
+  {n:'Pantorrilla de pie',s:4,r:'15',desc:60,nota:''},
+  {n:'Plancha',s:3,r:'45s',desc:60,nota:''}]},
+ {nombre:'Full body 🔁',ejercicios:[
+  {n:'Peso muerto',s:3,r:'5',desc:180,nota:'Pesado pero con técnica perfecta.'},
+  {n:'Press militar con mancuernas',s:3,r:'10',desc:90,nota:''},
+  {n:'Jalón agarre cerrado',s:3,r:'10',desc:90,nota:''},
+  {n:'Elevaciones laterales',s:4,r:'15',desc:60,nota:''},
+  {n:'Curl + tríceps en superserie',s:3,r:'12',desc:60,nota:'Sin descanso entre los dos.'},
+  {n:'Crunch en polea',s:3,r:'12',desc:60,nota:''}]}
+];
+const TORSO_PIERNA=[
+ {nombre:'Torso A 💪',ejercicios:[
+  {n:'Press de banca',s:4,r:'8-10',desc:120,nota:''},
+  {n:'Remo con barra',s:4,r:'8-10',desc:120,nota:''},
+  {n:'Press militar',s:3,r:'10',desc:90,nota:''},
+  {n:'Jalón al pecho',s:3,r:'10-12',desc:90,nota:''},
+  {n:'Curl de bíceps con barra',s:3,r:'12',desc:60,nota:''},
+  {n:'Extensión de tríceps en polea',s:3,r:'12',desc:60,nota:''}]},
+ {nombre:'Pierna A 🦵',ejercicios:[
+  {n:'Sentadilla',s:4,r:'6-8',desc:150,nota:'Calienta con 2 series ligeras antes.'},
+  {n:'Prensa',s:3,r:'10-12',desc:120,nota:''},
+  {n:'Curl femoral',s:3,r:'12',desc:90,nota:''},
+  {n:'Pantorrilla de pie',s:4,r:'15',desc:60,nota:''},
+  {n:'Plancha',s:3,r:'45s',desc:60,nota:''}]},
+ {nombre:'Torso B 🔥',ejercicios:[
+  {n:'Press inclinado con mancuernas',s:4,r:'10',desc:90,nota:''},
+  {n:'Jalón al pecho o dominadas',s:4,r:'8-10',desc:120,nota:''},
+  {n:'Press militar con mancuernas',s:3,r:'10',desc:90,nota:''},
+  {n:'Remo en polea baja',s:3,r:'12',desc:90,nota:''},
+  {n:'Elevaciones laterales',s:3,r:'15',desc:60,nota:''},
+  {n:'Curl martillo',s:3,r:'12',desc:60,nota:''}]},
+ {nombre:'Pierna B ⚡',ejercicios:[
+  {n:'Peso muerto rumano',s:4,r:'8-10',desc:120,nota:''},
+  {n:'Zancadas',s:3,r:'12',desc:90,nota:'12 por pierna.'},
+  {n:'Extensión de cuádriceps',s:3,r:'12-15',desc:60,nota:''},
+  {n:'Curl femoral',s:3,r:'12',desc:90,nota:''},
+  {n:'Pantorrilla sentado',s:4,r:'15',desc:60,nota:''}]}
+];
+const FULL_BODY=[
+ {nombre:'Full body A 💪',ejercicios:[
+  {n:'Sentadilla',s:4,r:'6-8',desc:150,nota:'Calienta con 2 series ligeras antes.'},
+  {n:'Press de banca',s:4,r:'8-10',desc:120,nota:''},
+  {n:'Remo con barra',s:3,r:'10',desc:120,nota:''},
+  {n:'Elevaciones laterales',s:3,r:'15',desc:60,nota:''},
+  {n:'Plancha',s:3,r:'45s',desc:60,nota:''}]},
+ {nombre:'Full body B 🔥',ejercicios:[
+  {n:'Peso muerto rumano',s:4,r:'8-10',desc:120,nota:''},
+  {n:'Press militar',s:4,r:'8-10',desc:120,nota:''},
+  {n:'Jalón al pecho',s:3,r:'10-12',desc:90,nota:''},
+  {n:'Curl de bíceps con barra',s:3,r:'12',desc:60,nota:''},
+  {n:'Pantorrilla de pie',s:4,r:'15',desc:60,nota:''}]},
+ {nombre:'Full body C ⚡',ejercicios:[
+  {n:'Prensa',s:4,r:'10-12',desc:120,nota:''},
+  {n:'Press inclinado con mancuernas',s:3,r:'10',desc:90,nota:''},
+  {n:'Remo en polea baja',s:3,r:'12',desc:90,nota:''},
+  {n:'Extensión de tríceps en polea',s:3,r:'12',desc:60,nota:''},
+  {n:'Crunch en polea',s:3,r:'12',desc:60,nota:''}]}
+];
+function copia(o){return JSON.parse(JSON.stringify(o));}
+const PLANTILLAS={
+ ppl4:{nombre:'Empuje / Jalón / Pierna + Full body',dias:'4 días/sem',info:'La más completa: cada músculo se trabaja 2 veces por semana.',get:function(){return copia(RUTINA_DEFAULT);}},
+ ppl3:{nombre:'Push / Pull / Legs',dias:'3 días/sem',info:'El clásico split de empuje, jalón y pierna.',get:function(){return copia(RUTINA_DEFAULT.slice(0,3));}},
+ torso:{nombre:'Torso / Pierna',dias:'4 días/sem',info:'Frecuencia 2 por músculo con sesiones más balanceadas.',get:function(){return copia(TORSO_PIERNA);}},
+ full:{nombre:'Full body',dias:'3 días/sem',info:'Todo el cuerpo cada sesión — ideal si tienes poco tiempo.',get:function(){return copia(FULL_BODY);}},
+ cero:{nombre:'Crear desde cero',dias:'a tu medida',info:'Empiezas con un día vacío y armas tu propia rutina.',get:function(){return [{nombre:'Día 1 💪',ejercicios:[{n:'Nuevo ejercicio',s:3,r:'10',desc:90,nota:''}]}];}}
+};
+
+/* ===== Estado + migraciones ===== */
+function hoyStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+let onboarding=!localStorage.getItem('rutinasData');
+let rutina=JSON.parse(localStorage.getItem('rutinasData')||'null')||copia(RUTINA_DEFAULT);
+let hist=JSON.parse(localStorage.getItem('rutinasHist')||'[]');
+let ultPesos=JSON.parse(localStorage.getItem('rutinasUlt')||'{}');
+let prs=JSON.parse(localStorage.getItem('rutinasPRs')||'{}');
+let vista=parseInt(localStorage.getItem('rutinasVista')||'0');
+let autoTimer=localStorage.getItem('rutinasAutoT')!=='0';
+let editMode=false;
+let progEx=null,progMet='peso';
+let perfil=JSON.parse(localStorage.getItem('rutinasPerfil')||'{}');
+let meta=JSON.parse(localStorage.getItem('rutinasMeta')||'null')||{inicioBF:33.6,actualBF:33.6,metaBF:15,deadline:'2026-10-31'};
+
+/* Migración: historial viejo {peso,hechas} → {sets:[{p,r}]} + vol */
+hist.forEach(function(s){
+ let v=0;
+ (s.ejercicios||[]).forEach(function(e){
+  if(!e.sets){
+   e.sets=[];
+   const nn=e.hechas||0;
+   for(let k=0;k<nn;k++)e.sets.push({p:e.peso||'',r:''});
+   delete e.peso;delete e.hechas;
+  }
+  e.sets.forEach(function(st){const p=parseFloat(st.p),r=parseInt(st.r);if(p&&r)v+=p*r;});
+ });
+ if(s.vol===undefined)s.vol=Math.round(v);
+});
+/* Migración: últimos pesos viejos "60" → {sets:[{p,r}]} */
+Object.keys(ultPesos).forEach(function(k){
+ if(typeof ultPesos[k]!=='object'||!ultPesos[k].sets)ultPesos[k]={sets:[{p:String(ultPesos[k]),r:''}]};
+});
+/* Sembrar PRs desde el historial si aún no existen */
+if(!Object.keys(prs).length&&hist.length){
+ for(let i=hist.length-1;i>=0;i--){
+  hist[i].ejercicios.forEach(function(e){
+   e.sets.forEach(function(st){
+    const p=parseFloat(st.p);
+    if(p&&(!prs[e.n]||p>prs[e.n].p))prs[e.n]={p:p,r:st.r||null,fecha:hist[i].fecha};
+   });
+  });
+ }
+}
+/* Sesión del día: migrar formato viejo sets:[bool]+pesos */
+let ses=JSON.parse(localStorage.getItem('rutinasSes')||'null');
+if(!ses||ses.fecha!==hoyStr())ses={fecha:hoyStr(),dias:{}};
+else Object.keys(ses.dias).forEach(function(d){
+ const sd=ses.dias[d];
+ Object.keys(sd.sets||{}).forEach(function(i){
+  sd.sets[i]=(sd.sets[i]||[]).map(function(x){
+   if(x&&typeof x==='object')return x;
+   return x?{ok:true,p:(sd.pesos&&sd.pesos[i])||'',r:''}:null;
+  });
+ });
+ delete sd.pesos;
+});
+
+function saveAll(){
+ if(onboarding)return; // no persistir hasta que elija plantilla
+ localStorage.setItem('rutinasData',JSON.stringify(rutina));
+ localStorage.setItem('rutinasHist',JSON.stringify(hist));
+ localStorage.setItem('rutinasUlt',JSON.stringify(ultPesos));
+ localStorage.setItem('rutinasPRs',JSON.stringify(prs));
+ localStorage.setItem('rutinasSes',JSON.stringify(ses));
+ localStorage.setItem('rutinasVista',String(vista));
+ localStorage.setItem('rutinasPerfil',JSON.stringify(perfil));
+ localStorage.setItem('rutinasMeta',JSON.stringify(meta));
+}
+saveAll(); // persiste las migraciones de formato al cargar
+function sesDia(i){
+ if(!ses.dias[i])ses.dias[i]={sets:{}};
+ return ses.dias[i];
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(v){return Number(v).toLocaleString('es-MX',{maximumFractionDigits:1});}
+function fmtF(f){const p=String(f).split('-');return p.length===3?parseInt(p[2])+'/'+parseInt(p[1]):f;}
+function repSug(r){const m=String(r).match(/\d+(\.\d+)?/);return m?m[0]:'';}
+
+/* ===== Perfil y estándares de fuerza =====
+   Umbrales de 1RM en múltiplos de peso corporal (hombre, 18-35 años),
+   basados en tablas tipo Strength Level / Kilgore. Se ajustan por sexo,
+   edad y modo natural/ciclo con factorPerfil(). */
+const NIVELES=['Principiante','Novato','Intermedio','Avanzado','Élite'];
+const NIVEL_ICO=['🌱','🌿','💪','🔥','👑'];
+const NIVEL_COL=['#9CA3AF','#60A5FA','#34D399','#FB923C','#FBBF24'];
+const STD=[
+ {k:['peso muerto rumano','rumano'],v:[0.60,0.90,1.30,1.80,2.30]},
+ {k:['peso muerto'],v:[1.00,1.25,1.75,2.25,2.75]},
+ {k:['press de banca','press banca','bench'],v:[0.50,0.75,1.00,1.50,2.00]},
+ {k:['sentadilla','squat'],v:[0.75,1.00,1.50,2.00,2.50]},
+ {k:['press militar','militar'],v:[0.35,0.55,0.80,1.05,1.30]},
+ {k:['remo con barra'],v:[0.50,0.75,1.00,1.30,1.60]},
+ {k:['prensa'],v:[1.00,1.75,2.50,3.25,4.00]},
+ {k:['jalón','dominadas'],v:[0.45,0.65,0.85,1.10,1.40]},
+ {k:['curl de bíceps con barra'],v:[0.20,0.35,0.55,0.75,0.95]},
+ {k:['hip thrust'],v:[0.75,1.25,1.75,2.50,3.25]}
+];
+function stdDe(n){
+ const s=String(n).toLowerCase();
+ if(s.indexOf('mancuerna')>=0)return null; // estándares son de barra/máquina
+ for(let i=0;i<STD.length;i++)if(STD[i].k.some(function(k){return s.indexOf(k)>=0;}))return STD[i];
+ return null;
+}
+function perfilOk(){return parseFloat(perfil.peso)>0;}
+function factorPerfil(){
+ let f=1;
+ if(perfil.sexo==='m')f*=0.72;
+ const a=parseInt(perfil.edad);
+ if(a){if(a<18)f*=0.9;else if(a>35)f*=Math.max(0.6,1-(a-35)*0.008);}
+ if(perfil.modo==='ciclo')f*=1.15;
+ return f;
+}
+function est1RM(p,r){p=parseFloat(p);r=parseInt(r)||1;if(!p)return 0;return p*(1+Math.min(r,12)/30);}
+function nivelDe(rm,std){
+ const bw=parseFloat(perfil.peso);
+ if(!bw||!rm)return null;
+ const f=factorPerfil();
+ const ths=std.v.map(function(x){return x*bw*f;});
+ let idx=-1;
+ ths.forEach(function(t,i){if(rm>=t)idx=i;});
+ return {idx:idx,ths:ths,rm:rm,ratio:rm/bw,falta:idx<4?ths[idx+1]-rm:0};
+}
+function nivelTag(nv){
+ if(!nv)return '';
+ return nv.idx<0?'Empezando 🐣':NIVELES[nv.idx]+' '+NIVEL_ICO[nv.idx];
+}
+/* Recomendación de progresión (doble progresión sobre el rango de reps) */
+function recoDe(ex,sets){
+ const m=String(ex.r).match(/(\d+)(?:\s*[-–]\s*(\d+))?/);
+ const conDatos=sets.filter(function(s){return parseFloat(s.p)>0&&parseInt(s.r)>0;});
+ if(!m||!conDatos.length)return {ico:'📝',col:'#8b93a3',txt:'Registra peso y reps para recibir recomendación.'};
+ const lo=parseInt(m[1]),hi=m[2]?parseInt(m[2]):parseInt(m[1]);
+ const maxP=Math.max.apply(null,conDatos.map(function(s){return parseFloat(s.p);}));
+ const topOk=conDatos.length>=ex.s&&conDatos.every(function(s){return parseInt(s.r)>=hi;});
+ const bajo=conDatos.some(function(s){return parseInt(s.r)<lo;});
+ const inc=/sentadilla|peso muerto|prensa/i.test(ex.n)?5:2.5;
+ if(topOk)return {ico:'⬆️',col:'#34D399',txt:'Completaste todas las series al tope de reps. La próxima semana sube a <strong>'+fmt(maxP+inc)+' kg</strong>.'};
+ if(!bajo)return {ico:'➡️',col:'#60A5FA',txt:'Vas dentro del rango. Mantén <strong>'+fmt(maxP)+' kg</strong> y busca '+hi+' reps en todas las series antes de subir.'};
+ return {ico:'🔁',col:'#FB923C',txt:'Quedaste bajo el rango ('+lo+' reps). Mantén <strong>'+fmt(maxP)+' kg</strong> una semana más y consolida la técnica.'};
+}
+function mostrarResumen(html){
+ cerrarResumen();
+ const ov=document.createElement('div');
+ ov.className='overlay';ov.id='resumen-ov';
+ ov.innerHTML='<div class="overlay-card">'+html+'<button class="btn-main" onclick="cerrarResumen()">Seguir 💪</button></div>';
+ document.body.appendChild(ov);
+}
+function cerrarResumen(){const o=document.getElementById('resumen-ov');if(o)o.remove();}
+
+/* ===== Calentamiento, core/espalda baja y estiramiento (checklists globales) ===== */
+const SECCIONES={
+ core:{titulo:'🎯 Core y espalda baja',sub:'2-3 rondas al terminar — protege tu columna',col:'#F43F5E',items:[
+  {n:'Plancha frontal',d:'3 × 30-45s',nota:'Glúteo y abdomen apretados, cadera neutra'},
+  {n:'Plancha lateral',d:'3 × 20-30s por lado'},
+  {n:'Bird-dog (perro de caza)',d:'3 × 10 por lado',nota:'Brazo y pierna opuestos, sin girar la cadera'},
+  {n:'Dead bug (bicho muerto)',d:'3 × 10 por lado',nota:'Espalda baja pegada al suelo siempre'},
+  {n:'Superman / hiperextensión',d:'3 × 12-15',nota:'Fortalece directo la espalda baja'},
+  {n:'Puente de glúteo',d:'3 × 15',nota:'Aprieta arriba 1 seg; cuida la zona lumbar'},
+  {n:'Elevación de piernas (colgado o tumbado)',d:'3 × 12'}
+ ]},
+ enf:{titulo:'🧊 Estiramiento final',sub:'5 min al terminar — 20-30s cada uno, sin rebotes',col:'#60A5FA',items:[
+  {n:'Isquiotibiales',d:'30s por pierna',nota:'Espalda recta, dobla desde la cadera'},
+  {n:'Cuádriceps de pie',d:'30s por pierna'},
+  {n:'Rodillas al pecho tumbado',d:'30s',nota:'Relaja y descomprime la espalda baja'},
+  {n:'Cadera figura 4',d:'30s por lado'},
+  {n:'Pecho en marco de puerta',d:'30s'},
+  {n:'Postura del niño',d:'40s',nota:'Estira espalda y hombros'},
+  {n:'Rotación espinal tumbado',d:'30s por lado',nota:'Descomprime la columna'}
+ ]}
+};
+/* Calentamiento dinámico: se arma según los patrones que entrena el día */
+function warmupCfg(){
+ const dia=rutina[vista];
+ const txt=(dia.nombre+' | '+dia.ejercicios.map(function(e){return e.n;}).join(' | ')).toLowerCase();
+ const push=/press|banca|militar|fondos|empuje|torso|tr[ií]ceps|elevaciones laterales|hombro|apertura/.test(txt);
+ const pull=/jal[oó]n|dominad|remo|face pull|espalda|b[ií]ceps|encogimiento|torso|dorsal|curl(?!\s*(femoral|de pierna))/.test(txt);
+ const legs=/sentadilla|prensa|peso muerto|rumano|zancada|desplante|femoral|cu[aá]driceps|pantorrilla|gemelo|hip thrust|gl[uú]teo|pierna/.test(txt);
+ const items=[
+  {n:'Cardio ligero',d:'2-3 min',nota:'Trote suave, bici o cuerda — sube el pulso'},
+  {n:'Gato-camello',d:'10 reps lentas',nota:'Moviliza la columna'}
+ ];
+ if(push){
+  items.push({n:'Círculos de brazos y hombros',d:'15 por dirección'});
+  items.push({n:'Band pull-apart / dislocates',d:'2 × 15',nota:'Calienta el manguito rotador'});
+  items.push({n:'Flexiones o press sin peso',d:'10-12 reps',nota:'Activa pecho y tríceps'});
+ }
+ if(pull){
+  items.push({n:'Colgarse + retracción escapular',d:'3 × 10s',nota:'Despierta espalda y agarre'});
+  items.push({n:'Face pull o band pull-apart',d:'2 × 15'});
+  items.push({n:'Rotaciones de muñeca y codo',d:'15 por lado',nota:'Protege el codo en los curls'});
+ }
+ if(legs){
+  items.push({n:'Rotaciones de cadera',d:'10 por lado'});
+  items.push({n:'Balanceo de piernas',d:'12 por pierna',nota:'Adelante-atrás y lateral'});
+  items.push({n:'Desplantes caminando con giro',d:'10 total'});
+  items.push({n:'Sentadillas sin peso profundas',d:'15 reps',nota:'Abre cadera y tobillo'});
+ }
+ const primero=(dia.ejercicios[0]&&dia.ejercicios[0].n)||'tu primer ejercicio';
+ items.push({n:'Aproximación: '+primero,d:'2 series al 50-60%',nota:'Sube al peso de trabajo sin fatigarte'});
+ const foco=[];if(push)foco.push('empuje');if(pull)foco.push('jalón');if(legs)foco.push('pierna');
+ const sub=foco.length?'5 min · enfocado en '+foco.join(' + '):'5 min antes — moviliza y activa';
+ return {titulo:'🧘 Calentamiento',sub:sub,col:'#FB923C',items:items};
+}
+let secOpen={cal:false,core:false,enf:false};
+function toggleSec(k){secOpen[k]=!secOpen[k];render();}
+function toggleExtra(sec,i){
+ const sd=sesDia(vista);
+ if(!sd.extra)sd.extra={};
+ if(!sd.extra[sec])sd.extra[sec]={};
+ sd.extra[sec][i]=!sd.extra[sec][i];
+ saveAll();render();
+}
+function renderSeccion(sec){
+ const cfg=(sec==='cal')?warmupCfg():SECCIONES[sec];
+ const sd=sesDia(vista);
+ const chk=(sd.extra&&sd.extra[sec])||{};
+ let done=0;cfg.items.forEach(function(_,i){if(chk[i])done++;});
+ const open=secOpen[sec];
+ let h='<div class="card sec-block" style="border-left-color:'+cfg.col+';">';
+ h+='<div class="sec-hd" onclick="toggleSec(\''+sec+'\')"><div><div class="sec-t">'+cfg.titulo+'</div><div class="sec-s">'+cfg.sub+'</div></div>'
+  +'<div class="sec-meta">'+done+'/'+cfg.items.length+' '+(open?'▲':'▼')+'</div></div>';
+ if(open){
+  h+='<div class="sec-body">';
+  cfg.items.forEach(function(it,i){
+   const on=!!chk[i];
+   h+='<div class="chk-row'+(on?' on':'')+'" onclick="toggleExtra(\''+sec+'\','+i+')">'
+    +'<span class="chk'+(on?' on':'')+'">'+(on?'✓':'')+'</span>'
+    +'<div class="chk-txt"><span class="chk-n">'+esc(it.n)+'</span> <span class="chk-d">'+esc(it.d)+'</span>'
+    +(it.nota?'<div class="chk-nota">'+esc(it.nota)+'</div>':'')
+    +'</div></div>';
+  });
+  h+='</div>';
+ }
+ return h+'</div>';
+}
+
+/* ===== Vínculo con la app de Dieta (mismo origen = mismo localStorage) ===== */
+function actualizarLinkDieta(){
+ if(onboarding||vista<0)return;
+ let li=null;
+ try{li=JSON.parse(localStorage.getItem('linkEntrenoHoy')||'null');}catch(e){li=null;}
+ if(!li||li.fecha!==hoyStr())li={fecha:hoyStr(),dia:rutina[vista].nombre,entrenado:false};
+ else li.dia=rutina[vista].nombre;
+ localStorage.setItem('linkEntrenoHoy',JSON.stringify(li));
+}
+
+/* ===== Nav ===== */
+function renderNav(){
+ const nav=document.getElementById('nav');
+ if(onboarding){nav.innerHTML='';return;}
+ let h='';
+ rutina.forEach(function(d,i){
+  h+='<button class="nav-btn'+(vista===i?' active':'')+'" onclick="setVista('+i+')">'+esc(d.nombre)+'</button>';
+ });
+ h+='<button class="nav-btn'+(vista===-1?' active':'')+'" onclick="setVista(-1)">📈 Progreso</button>';
+ h+='<button class="nav-btn'+(vista===-3?' active':'')+'" onclick="setVista(-3)">🔥 Quema</button>';
+ h+='<button class="nav-btn'+(vista===-2?' active':'')+'" onclick="setVista(-2)">👤 Perfil</button>';
+ nav.innerHTML=h;
+}
+function setVista(i){vista=i;editMode=false;document.getElementById('btn-edit').textContent='✏️ Editar';saveAll();actualizarLinkDieta();render();}
+
+/* ===== Render principal ===== */
+function render(){
+ renderNav();
+ const c=document.getElementById('contenido');
+ document.getElementById('btn-edit').style.display=(onboarding||vista<0)?'none':'';
+ if(onboarding){c.innerHTML=renderOnboard();return;}
+ if(vista===-3){c.innerHTML=renderQuema();return;}
+ if(vista===-2){c.innerHTML=renderPerfil();return;}
+ if(vista===-1){c.innerHTML=renderHist();return;}
+ if(editMode){c.innerHTML=renderEdit();return;}
+ const dia=rutina[vista],sd=sesDia(vista);
+ let hechos=0,totalSets=0,setsOn=0,volLive=0;
+ dia.ejercicios.forEach(function(ex,i){
+  const arr=sd.sets[i]||[];
+  let on=0;
+  arr.forEach(function(x){if(x&&x.ok){on++;const p=parseFloat(x.p),r=parseInt(x.r);if(p&&r)volLive+=p*r;}});
+  totalSets+=ex.s;setsOn+=Math.min(on,ex.s);
+  if(on>=ex.s)hechos++;
+ });
+ let h='<div class="prog"><div class="prog-txt"><span>'+hechos+'/'+dia.ejercicios.length+' ejercicios</span><span>'+setsOn+'/'+totalSets+' series</span></div><div class="prog-bar"><div class="prog-fill" style="width:'+(totalSets?Math.round(setsOn/totalSets*100):0)+'%"></div></div>'
+  +(volLive>0?'<div style="font-size:12px;color:#FB7185;font-weight:700;margin-top:7px;">🏋️ Volumen: '+fmt(volLive)+' kg</div>':'')
+  +'</div>';
+ h+=renderSeccion('cal');
+ dia.ejercicios.forEach(function(ex,i){
+  const arr=sd.sets[i]||[];
+  const on=arr.filter(function(x){return x&&x.ok;}).length;
+  const done=on>=ex.s;
+  const ult=ultPesos[ex.n];
+  const pr=prs[ex.n];
+  let rows='';
+  for(let s=0;s<ex.s;s++){
+   const st=arr[s]||{};
+   let pv=st.p!==undefined?st.p:'';
+   let rv=st.r!==undefined?st.r:'';
+   if(pv===''&&ult&&ult.sets&&ult.sets.length){const u=ult.sets[Math.min(s,ult.sets.length-1)];if(u&&u.p)pv=u.p;}
+   if(rv===''&&ult&&ult.sets&&ult.sets.length){const u=ult.sets[Math.min(s,ult.sets.length-1)];if(u&&u.r)rv=u.r;}
+   if(rv==='')rv=repSug(ex.r);
+   rows+='<div class="serie-row">'
+    +'<button class="set-dot'+(st.ok?' on':'')+'" onclick="toggleSet('+i+','+s+')">'+(s+1)+'</button>'
+    +'<input id="inp-p-'+i+'-'+s+'" class="peso-input" type="number" step="0.5" inputmode="decimal" placeholder="kg" value="'+esc(pv)+'" onchange="setVal('+i+','+s+',\'p\',this.value)">'
+    +'<span class="x-sep">×</span>'
+    +'<input id="inp-r-'+i+'-'+s+'" class="peso-input reps" type="number" inputmode="numeric" placeholder="reps" value="'+esc(rv)+'" onchange="setVal('+i+','+s+',\'r\',this.value)">'
+    +'</div>';
+  }
+  h+='<div class="card'+(done?' done':'')+'">'
+   +'<div class="ex-hdr"><span class="ex-name">'+(done?'✅ ':'')+esc(ex.n)+(pr?'<span class="prb">🏆 '+fmt(pr.p)+'</span>':'')+'</span><span class="ex-meta">'+ex.s+' × '+esc(ex.r)+' · ⏱'+(ex.desc||90)+'s</span></div>'
+   +rows
+   +(ex.nota?'<p class="ex-nota">💡 '+esc(ex.nota)+'</p>':'')
+   +'</div>';
+ });
+ h+=renderSeccion('core');
+ h+=renderSeccion('enf');
+ h+='<button class="btn-main" '+(setsOn===0?'disabled':'')+' onclick="terminar()">✅ Terminar entreno y guardar</button>';
+ c.innerHTML=h;
+}
+
+function toggleSet(i,s){
+ const sd=sesDia(vista);
+ if(!sd.sets[i])sd.sets[i]=[];
+ const st=sd.sets[i][s]||{ok:false};
+ if(st.ok)st.ok=false;
+ else{
+  st.ok=true;
+  const pe=document.getElementById('inp-p-'+i+'-'+s),re=document.getElementById('inp-r-'+i+'-'+s);
+  if(pe)st.p=pe.value;
+  if(re)st.r=re.value;
+ }
+ sd.sets[i][s]=st;
+ saveAll();
+ if(st.ok&&autoTimer){const ex=rutina[vista].ejercicios[i];startTimer(ex.desc||90);}
+ render();
+}
+function setVal(i,s,k,v){
+ const sd=sesDia(vista);
+ if(!sd.sets[i])sd.sets[i]=[];
+ const st=sd.sets[i][s]||{ok:false};
+ st[k]=v;
+ sd.sets[i][s]=st;
+ saveAll();
+}
+
+function terminar(){
+ const dia=rutina[vista],sd=sesDia(vista);
+ const regs=[];let vol=0;
+ dia.ejercicios.forEach(function(ex,i){
+  const arr=sd.sets[i]||[];
+  const sets=[];
+  arr.forEach(function(x){if(x&&x.ok)sets.push({p:x.p||'',r:x.r||''});});
+  if(!sets.length)return;
+  regs.push({n:ex.n,sets:sets,total:ex.s,rec:recoDe(ex,sets)});
+  ultPesos[ex.n]={sets:sets};
+  sets.forEach(function(s2){const p=parseFloat(s2.p),r=parseInt(s2.r);if(p&&r)vol+=p*r;});
+ });
+ if(!regs.length)return;
+ vol=Math.round(vol);
+ /* PRs nuevos */
+ const nuevos=[];
+ regs.forEach(function(e){
+  let maxP=0,maxR=null;
+  e.sets.forEach(function(s2){const p=parseFloat(s2.p);if(p>maxP){maxP=p;maxR=s2.r||null;}});
+  if(maxP>0){
+   const pr=prs[e.n];
+   if(!pr||maxP>pr.p){prs[e.n]={p:maxP,r:maxR,fecha:hoyStr()};nuevos.push(e.n+': '+fmt(maxP)+' kg');}
+  }
+ });
+ hist.unshift({fecha:hoyStr(),dia:dia.nombre,ejercicios:regs,vol:vol});
+ if(hist.length>150)hist.length=150;
+ delete ses.dias[vista];
+ saveAll();
+ try{
+  const li=JSON.parse(localStorage.getItem('linkEntrenoHoy')||'null');
+  if(li&&li.fecha===hoyStr()){li.entrenado=true;localStorage.setItem('linkEntrenoHoy',JSON.stringify(li));}
+ }catch(e){}
+ /* Resumen con recomendaciones de progresión */
+ let rh='<p style="font-size:17px;font-weight:800;margin-bottom:10px;">💪 Entreno guardado — '+esc(dia.nombre)+'</p>';
+ if(vol>0)rh+='<div style="font-size:13px;font-weight:700;color:#FB7185;margin-bottom:8px;">🏋️ Volumen total: '+fmt(vol)+' kg</div>';
+ if(nuevos.length)rh+='<div class="hl">🏆 ¡NUEVO PR! '+esc(nuevos.join(' · '))+'</div>';
+ rh+='<p class="sec-title" style="margin-top:12px;">¿Subo de peso la próxima semana?</p>';
+ regs.forEach(function(e){
+  let nivelTxt='';
+  const std=stdDe(e.n);
+  if(std&&perfilOk()){
+   let best=0;
+   e.sets.forEach(function(s2){const v=est1RM(s2.p,s2.r);if(v>best)best=v;});
+   const nv=nivelDe(best,std);
+   if(nv&&best>0)nivelTxt='<div style="font-size:11px;color:#8b93a3;margin-top:3px;">📊 Nivel: <strong>'+nivelTag(nv)+'</strong> — 1RM est. '+fmt(Math.round(nv.rm))+' kg ('+(Math.round(nv.ratio*100)/100)+'× corporal)</div>';
+  }
+  rh+='<div class="rec-row"><div style="font-weight:700;">'+esc(e.n)+'</div><div style="color:'+e.rec.col+';margin-top:3px;">'+e.rec.ico+' '+e.rec.txt+'</div>'+nivelTxt+'</div>';
+ });
+ if(!perfilOk())rh+='<div class="info" style="margin-top:12px;">👤 Llena tu <strong>Perfil</strong> (peso corporal, edad, natural/ciclo) y aquí te diré también si tus pesos son altos o bajos según estándares de fuerza.</div>';
+ rh+='<p style="font-size:11px;color:#8b93a3;margin:10px 0 12px;">💡 Estás en déficit: mantener tus pesos semana a semana ya es progreso. Sube solo cuando el recuadro esté en verde.</p>';
+ mostrarResumen(rh);
+ render();
+}
+
+/* ===== Onboarding ===== */
+function renderOnboard(){
+ let h='<div class="hl" style="margin-bottom:12px;">👋 <strong>¡Bienvenido!</strong> Elige una rutina para empezar. Después puedes editar todo: días, ejercicios, series, reps y descansos.</div>';
+ Object.keys(PLANTILLAS).forEach(function(k){
+  const p=PLANTILLAS[k];
+  const dias=p.get().map(function(d){return d.nombre;}).join(' · ');
+  h+='<div class="card ob-card" onclick="elegirPlantilla(\''+k+'\')">'
+   +'<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;"><span class="ob-title">'+p.nombre+'</span><span class="ob-days">'+p.dias+'</span></div>'
+   +'<p class="ob-info">'+p.info+'</p>'
+   +'<p class="ob-prev">'+esc(dias)+'</p>'
+   +'</div>';
+ });
+ return h;
+}
+function elegirPlantilla(k){
+ rutina=PLANTILLAS[k].get();
+ onboarding=false;vista=0;editMode=(k==='cero');
+ ses={fecha:hoyStr(),dias:{}};
+ saveAll();actualizarLinkDieta();
+ document.getElementById('btn-edit').textContent=editMode?'✔️ Listo':'✏️ Editar';
+ render();
+}
+
+/* ===== Progreso: gráficas + historial ===== */
+function datosProg(n,met){
+ const pts=[];
+ for(let i=hist.length-1;i>=0;i--){
+  const s=hist[i];
+  let e=null;
+  s.ejercicios.forEach(function(x){if(x.n===n)e=x;});
+  if(!e)continue;
+  let v=0;
+  e.sets.forEach(function(st){
+   const p=parseFloat(st.p),r=parseInt(st.r);
+   if(met==='vol'){if(p&&r)v+=p*r;}
+   else{if(p&&p>v)v=p;}
+  });
+  if(v>0)pts.push({f:s.fecha,v:Math.round(v*10)/10});
+ }
+ return pts;
+}
+function chartSVG(pts,unidad){
+ const W=340,H=170,L=42,R=14,T=18,B=26;
+ let mn=Infinity,mx=-Infinity;
+ pts.forEach(function(p){if(p.v<mn)mn=p.v;if(p.v>mx)mx=p.v;});
+ if(mx===mn){mx+=1;mn=Math.max(0,mn-1);}
+ const pad=(mx-mn)*.15;mn=Math.max(0,mn-pad);mx+=pad;
+ function X(i){return L+(W-L-R)*i/(pts.length-1);}
+ function Y(v){return T+(H-T-B)*(1-(v-mn)/(mx-mn));}
+ let h='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block;" xmlns="http://www.w3.org/2000/svg">';
+ [mn,(mn+mx)/2,mx].forEach(function(v){
+  const y=Y(v);
+  h+='<line x1="'+L+'" y1="'+y+'" x2="'+(W-R)+'" y2="'+y+'" stroke="#2c2f38" stroke-width="1"/>';
+  h+='<text x="'+(L-6)+'" y="'+(y+3)+'" text-anchor="end" font-size="9" fill="#8b93a3">'+fmt(Math.round(v))+'</text>';
+ });
+ let linea='';
+ pts.forEach(function(p,i){linea+=X(i)+','+Y(p.v)+' ';});
+ h+='<polygon points="'+L+','+Y(mn)+' '+linea+(W-R)+','+Y(mn)+'" fill="rgba(244,63,94,.09)"/>';
+ h+='<polyline points="'+linea.trim()+'" fill="none" stroke="#F43F5E" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+ pts.forEach(function(p,i){
+  const last=i===pts.length-1;
+  h+='<circle cx="'+X(i)+'" cy="'+Y(p.v)+'" r="'+(last?4.5:3)+'" fill="'+(last?'#FB7185':'#F43F5E')+'"'+(last?' stroke="#fff" stroke-width="1.5"':'')+'/>';
+ });
+ const lx=X(pts.length-1),ly=Y(pts[pts.length-1].v);
+ h+='<text x="'+Math.min(lx,W-R-2)+'" y="'+Math.max(ly-9,10)+'" text-anchor="end" font-size="11" font-weight="700" fill="#FB7185">'+fmt(pts[pts.length-1].v)+' '+unidad+'</text>';
+ h+='<text x="'+L+'" y="'+(H-6)+'" font-size="9" fill="#8b93a3">'+fmtF(pts[0].f)+'</text>';
+ h+='<text x="'+(W-R)+'" y="'+(H-6)+'" text-anchor="end" font-size="9" fill="#8b93a3">'+fmtF(pts[pts.length-1].f)+'</text>';
+ h+='</svg>';
+ return h;
+}
+function renderHist(){
+ let h='';
+ const nombres=[];
+ hist.forEach(function(s){s.ejercicios.forEach(function(e){if(nombres.indexOf(e.n)<0)nombres.push(e.n);});});
+ if(nombres.length){
+  if(!progEx||nombres.indexOf(progEx)<0)progEx=nombres[0];
+  h+='<div class="card"><p class="sec-title">📊 Progresión</p>';
+  h+='<select class="sel" onchange="progEx=this.value;render()">';
+  nombres.forEach(function(n){h+='<option'+(n===progEx?' selected':'')+' value="'+esc(n)+'">'+esc(n)+'</option>';});
+  h+='</select>';
+  h+='<div class="seg"><button class="seg-btn'+(progMet==='peso'?' active':'')+'" onclick="progMet=\'peso\';render()">Peso máx</button><button class="seg-btn'+(progMet==='vol'?' active':'')+'" onclick="progMet=\'vol\';render()">Volumen</button></div>';
+  const pts=datosProg(progEx,progMet);
+  if(pts.length>=2)h+=chartSVG(pts,'kg');
+  else h+='<p class="empty" style="padding:16px 8px;">Guarda al menos 2 entrenos con peso en este ejercicio para ver la gráfica.</p>';
+  const pr=prs[progEx];
+  if(pr)h+='<p style="font-size:12px;color:#FBBF24;font-weight:700;margin-top:8px;">🏆 PR: '+fmt(pr.p)+' kg'+(pr.r?' × '+esc(pr.r):'')+' <span style="color:#8b93a3;font-weight:500;">('+esc(pr.fecha)+')</span></p>';
+  h+='</div>';
+ }
+ if(!hist.length)return h+'<div class="empty">Aún no hay entrenos guardados.<br>Al terminar tu primer entreno aparecerá aquí. 💪</div>';
+ h+='<p class="sec-title">Últimos entrenos — '+hist.length+' guardados</p>';
+ hist.forEach(function(s,idx){
+  h+='<div class="card"><div class="hist-hdr"><span class="hist-dia">'+esc(s.dia)+'</span><span class="hist-fecha">'+esc(s.fecha)+'</span></div>';
+  s.ejercicios.forEach(function(e){
+   const setsTxt=e.sets.map(function(st){return st.p?(fmt(parseFloat(st.p))+'×'+(st.r||'—')):'✓';}).join(', ');
+   h+='<div class="hist-row"><span>'+esc(e.n)+' <span style="color:#5b6270;">'+e.sets.length+'/'+e.total+'</span></span><span style="font-weight:600;color:#c7cbd4;">'+setsTxt+'</span></div>';
+  });
+  if(s.vol)h+='<div style="font-size:12px;color:#FB7185;font-weight:700;margin-top:8px;">🏋️ Volumen: '+fmt(s.vol)+' kg</div>';
+  h+='<div style="text-align:right;margin-top:8px;"><button class="btn-mini" onclick="borrarHist('+idx+')">🗑️ Borrar</button></div></div>';
+ });
+ return h;
+}
+function borrarHist(i){
+ if(!confirm('¿Borrar este entreno del historial?'))return;
+ hist.splice(i,1);saveAll();render();
+}
+
+/* ===== Perfil ===== */
+function renderPerfil(){
+ let h='<div class="info">Con tu peso corporal, edad, sexo y modo, comparo tus levantamientos contra <strong>estándares de fuerza</strong> (tablas tipo Strength Level / Kilgore, aproximadas) para decirte si el peso que mueves es poco o mucho. El modo natural/ciclo solo ajusta la vara de comparación — no es una recomendación de nada.</div>';
+ h+='<div class="card"><p class="sec-title">👤 Mis datos</p>'
+  +'<div class="perfil-grid">'
+  +'<label>Peso corporal (kg)<input type="number" step="0.5" inputmode="decimal" value="'+esc(perfil.peso||'')+'" onchange="edPerfil(\'peso\',this.value)"></label>'
+  +'<label>Edad<input type="number" min="10" max="99" inputmode="numeric" value="'+esc(perfil.edad||'')+'" onchange="edPerfil(\'edad\',this.value)"></label>'
+  +'<label>Sexo<select onchange="edPerfil(\'sexo\',this.value)"><option value="h"'+(perfil.sexo!=='m'?' selected':'')+'>Hombre</option><option value="m"'+(perfil.sexo==='m'?' selected':'')+'>Mujer</option></select></label>'
+  +'<label>Modo<select onchange="edPerfil(\'modo\',this.value)"><option value="nat"'+(perfil.modo!=='ciclo'?' selected':'')+'>Natural 🌿</option><option value="ciclo"'+(perfil.modo==='ciclo'?' selected':'')+'>En ciclo 💉</option></select></label>'
+  +'</div>'
+  +(perfil.modo==='ciclo'?'<p style="font-size:11px;color:#8b93a3;margin-top:8px;">💉 En ciclo la vara sube ~15%: lo que para un natural es avanzado, con asistencia se espera más. Cuídate — chequeos médicos regulares.</p>':'')
+  +'</div>';
+ if(!perfilOk())return h+'<div class="empty">Pon tu peso corporal para ver tu nivel de fuerza en cada básico. 💪</div>';
+ const items=[];
+ Object.keys(prs).forEach(function(n){
+  const std=stdDe(n);if(!std)return;
+  const rm=est1RM(prs[n].p,prs[n].r);
+  const nv=nivelDe(rm,std);if(!nv||!rm)return;
+  items.push({n:n,nv:nv});
+ });
+ if(!items.length)return h+'<div class="empty">Aún no tienes récords en ejercicios con estándar (banca, sentadilla, peso muerto, militar, remo con barra, prensa, jalón, curl con barra).<br>Registra pesos en tus entrenos y aquí aparecerá tu nivel. 💪</div>';
+ h+='<p class="sec-title">🏋️ Mi nivel de fuerza — según 1RM estimado de tus PRs</p>';
+ items.forEach(function(it){
+  const nv=it.nv;
+  const col=nv.idx<0?'#8b93a3':NIVEL_COL[nv.idx];
+  let segs='';
+  for(let i=0;i<5;i++)segs+='<div class="lvl-seg" style="background:'+(i<=nv.idx?col:'#262933')+'"></div>';
+  h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;"><span style="font-weight:700;">'+esc(it.n)+'</span><span style="font-size:12px;font-weight:800;color:'+col+';white-space:nowrap;">'+nivelTag(nv)+'</span></div>'
+   +'<div class="lvl-bar">'+segs+'</div>'
+   +'<p style="font-size:12px;color:#8b93a3;margin-top:6px;">1RM estimado: <strong style="color:#e8e9ec;">'+fmt(Math.round(nv.rm))+' kg</strong> · '+(Math.round(nv.ratio*100)/100)+'× tu peso corporal'
+   +(nv.idx<4?' · te faltan <strong style="color:#e8e9ec;">'+fmt(Math.ceil(nv.falta))+' kg</strong> para '+NIVELES[nv.idx+1]+' '+NIVEL_ICO[nv.idx+1]:' · nivel máximo 👑')+'</p>'
+   +'</div>';
+ });
+ h+='<p style="font-size:11px;color:#5b6270;margin-top:4px;">Los estándares asumen barra libre con técnica completa. El 1RM se estima con la fórmula de Epley desde tu mejor serie — no necesitas probar tu máximo real.</p>';
+ return h;
+}
+function edPerfil(k,v){perfil[k]=v;saveAll();render();}
+
+/* ===== 🔥 Quema de grasa ===== */
+function diasRestantes(){
+ const hoy=new Date();hoy.setHours(0,0,0,0);
+ const dl=new Date(meta.deadline+'T00:00:00');
+ return Math.max(0,Math.round((dl-hoy)/86400000));
+}
+function edMeta(k,v){meta[k]=(k==='deadline')?v:(parseFloat(v)||0);saveAll();render();}
+function renderQuema(){
+ const dias=diasRestantes();
+ const sem=Math.max(1,Math.round(dias/7));
+ const ini=parseFloat(meta.inicioBF)||0,act=parseFloat(meta.actualBF)||ini,obj=parseFloat(meta.metaBF)||0;
+ const bw=parseFloat(perfil.peso)||0;
+ const puntosTot=ini-obj,puntosVan=ini-act,puntosFalt=act-obj;
+ const pct=puntosTot>0?Math.max(0,Math.min(100,Math.round(puntosVan/puntosTot*100))):0;
+
+ let h='<div class="count-card"><div class="count-num">'+dias+'</div><div class="count-lbl">días para tu meta</div>'
+  +'<div class="count-sub">De <strong style="color:#FB7185;">'+fmt(ini)+'% </strong> a <strong style="color:#34D399;">'+fmt(obj)+'%</strong> de grasa · hoy vas en <strong>'+fmt(act)+'%</strong></div>'
+  +'<div class="prog-bar" style="margin-top:10px;"><div class="prog-fill" style="width:'+pct+'%"></div></div>'
+  +'<div style="font-size:11px;color:#8b93a3;margin-top:6px;">'+pct+'% del camino · fecha meta: '+esc(meta.deadline)+'</div></div>';
+
+ // Datos editables
+ h+='<div class="card"><p class="sec-title">🎯 Mi meta</p><div class="perfil-grid">'
+  +'<label>% grasa inicial<input type="number" step="0.1" inputmode="decimal" value="'+esc(meta.inicioBF)+'" onchange="edMeta(\'inicioBF\',this.value)"></label>'
+  +'<label>% grasa hoy<input type="number" step="0.1" inputmode="decimal" value="'+esc(meta.actualBF)+'" onchange="edMeta(\'actualBF\',this.value)"></label>'
+  +'<label>% grasa meta<input type="number" step="0.1" inputmode="decimal" value="'+esc(meta.metaBF)+'" onchange="edMeta(\'metaBF\',this.value)"></label>'
+  +'<label>Fecha meta<input type="date" value="'+esc(meta.deadline)+'" onchange="edMeta(\'deadline\',this.value)"></label>'
+  +'</div>';
+ if(!bw)h+='<p style="font-size:12px;color:#FB923C;margin-top:8px;">💡 Pon tu peso corporal en <strong>👤 Perfil</strong> para calcular kilos de grasa, déficit y ritmo exactos.</p>';
+ h+='</div>';
+
+ // Proyección con matemática real
+ if(bw&&puntosFalt>0){
+  const lean=bw*(1-act/100);
+  const pesoMeta=lean/(1-obj/100);
+  const grasaBajar=bw-pesoMeta;
+  const kgSem=grasaBajar/sem;
+  const pctSem=kgSem/bw*100;
+  const defDia=Math.round(kgSem*7700/7);
+  let veredicto,vcol;
+  if(pctSem>1.2){veredicto='⚠️ Ritmo MUY agresivo — riesgo real de perder músculo. Prioriza proteína alta y fuerza, y considera dar más semanas.';vcol='#FB7185';}
+  else if(pctSem>1){veredicto='🔥 Ritmo agresivo pero posible si eres estricto. Cuida músculo con proteína y pesado.';vcol='#FB923C';}
+  else{veredicto='✅ Ritmo sostenible. Con constancia esto se logra.';vcol='#34D399';}
+  h+='<div class="card"><p class="sec-title">📉 Lo que exige tu meta</p>'
+   +'<div class="metric"><span>Grasa por bajar</span><b>~'+fmt(Math.round(grasaBajar*10)/10)+' kg</b></div>'
+   +'<div class="metric"><span>Ritmo necesario</span><b>~'+fmt(Math.round(kgSem*100)/100)+' kg/sem ('+fmt(Math.round(pctSem*100)/100)+'%)</b></div>'
+   +'<div class="metric"><span>Déficit diario aprox.</span><b>~'+fmt(defDia)+' kcal</b></div>'
+   +'<div class="metric"><span>Peso corporal meta</span><b>~'+fmt(Math.round(pesoMeta*10)/10)+' kg</b></div>'
+   +'<p style="font-size:12.5px;color:'+vcol+';font-weight:700;margin-top:10px;line-height:1.5;">'+veredicto+'</p>'
+   +'<p style="font-size:11px;color:#5b6270;margin-top:6px;">1 kg de grasa ≈ 7,700 kcal. El % de grasa por báscula/pinza es aproximado; mídelo igual cada 2 semanas y en las mismas condiciones.</p>'
+   +'</div>';
+
+  // Meta de pasos según déficit objetivo
+  const kcalPaso=bw*0.00052; // ~0.04 kcal/paso a 77kg
+  const pasosObj=Math.max(8000,Math.min(15000,Math.round((defDia*0.45)/kcalPaso/500)*500));
+  h+='<div class="card"><p class="sec-title">👟 Tu meta de pasos</p>'
+   +'<div style="text-align:center;padding:6px 0;"><span style="font-size:34px;font-weight:900;color:#60A5FA;">'+fmt(pasosObj)+'</span><span style="font-size:14px;color:#8b93a3;font-weight:700;"> pasos/día</span></div>'
+   +'<p style="font-size:12.5px;color:#a9b0bd;line-height:1.5;">Ese volumen de NEAT (movimiento diario) aporta ~'+fmt(Math.round(pasosObj*kcalPaso))+' kcal y cubre buena parte de tu déficit sin tocar comida. Los pasos son el arma secreta: queman sin fatigar como el cardio duro.</p>'
+   +'</div>';
+ }
+
+ // Consejos de oxidación de grasa
+ h+='<p class="sec-title" style="margin-top:6px;">⚡ Protocolo de quema</p><div class="card">';
+ const tips=[
+  {i:'🚶',h:'Cardio en ayunas (LISS)',b:'20-40 min de caminata rápida o bici suave al despertar, antes del desayuno. Ojo con la verdad: <strong>en 24h no quema más grasa que en otro horario</strong> — lo que suma es el déficit total. Sirve porque es fácil de sostener y no te fatiga para el gym. Toma agua y sal; si haces pesas después, no lo hagas en ayuno.'},
+  {i:'⏳',h:'Ayuno intermitente 16:8',b:'Comer en una ventana de 8h (ej. 12pm-8pm) no es magia: ayuda porque te hace comer menos sin contar tanto. Si te da hambre voraz y terminas comiendo de más, no es para ti. La proteína alta sigue mandando.'},
+  {i:'🏃',h:'Cardio inteligente',b:'150-300 min/semana de zona 2 (puedes hablar entrecortado) + opcional 1-2 sesiones de HIIT de 10-15 min. Más no es mejor: demasiado cardio en déficit se come tu músculo y tu recuperación.'},
+  {i:'🥩',h:'Proteína = tu escudo',b:'En un déficit agresivo la proteína decide si bajas grasa o músculo. Apunta a ~2g por kg de peso. Es lo que hace que la báscula baje de donde debe. Revisa tu <a href="../dieta.html" style="color:#60A5FA;font-weight:700;">plan de dieta</a>.'},
+  {i:'🏋️',h:'Sigue levantando pesado',b:'El error #1 al querer definir: bajar los pesos y hacer "más reps para marcar". Falso. El peso pesado le dice a tu cuerpo que conserve el músculo. Mantén tu fuerza — tu app ya te avisa cuándo mantener.'},
+  {i:'😴',h:'Dormir 7-9h',b:'Poco sueño dispara cortisol y hambre, y frena la pérdida de grasa. Dormir mal puede sabotear el mejor déficit. No es opcional en 119 días.'},
+  {i:'💧',h:'Agua y sal',b:'3-4 L de agua al día controlan el hambre y el rendimiento. En déficit y con cardio en ayunas, una pizca de sal evita mareos.'}
+ ];
+ tips.forEach(function(t){h+='<div class="tip"><span class="tip-ico">'+t.i+'</span><div><div class="tip-h">'+t.h+'</div><div class="tip-b">'+t.b+'</div></div></div>';});
+ h+='</div>';
+
+ h+='<div class="info" style="margin-top:2px;">🧠 <strong>La verdad sin filtro:</strong> 18 puntos de grasa en 119 días es de lo más agresivo que hay. Da todo — pero mide tu progreso cada 2 semanas: si tu <strong>fuerza cae fuerte o el peso se estanca por semanas</strong>, es señal de frenar, no de apretar más. Llegar al 18-20% conservando tu músculo es mejor victoria que tocar 15% quedando plano. Se acabaron los juegos, pero jugamos inteligente. 💪</div>';
+ return h;
+}
+
+/* ===== Modo edición ===== */
+function toggleEdit(){
+ if(vista<0||onboarding)return;
+ editMode=!editMode;
+ document.getElementById('btn-edit').textContent=editMode?'✔️ Listo':'✏️ Editar';
+ render();
+}
+function renderEdit(){
+ const dia=rutina[vista];
+ let h='<div class="info">Modo edición: cambia nombres, series, reps y descanso. Los cambios se guardan solos.</div>';
+ h+='<p class="sec-title">Nombre del día</p><input class="edit-input" value="'+esc(dia.nombre)+'" onchange="edDia(this.value)">';
+ h+='<p class="sec-title" style="margin-top:10px;">Ejercicios — nombre · series · reps · descanso (seg)</p>';
+ dia.ejercicios.forEach(function(ex,i){
+  h+='<div class="card" style="padding:10px 12px;">'
+   +'<div class="edit-grid">'
+   +'<input value="'+esc(ex.n)+'" placeholder="Ejercicio" onchange="edEx('+i+',\'n\',this.value)">'
+   +'<input type="number" min="1" max="10" value="'+ex.s+'" onchange="edEx('+i+',\'s\',this.value)">'
+   +'<input value="'+esc(ex.r)+'" placeholder="reps" onchange="edEx('+i+',\'r\',this.value)">'
+   +'<input type="number" min="15" max="600" step="5" value="'+(ex.desc||90)+'" onchange="edEx('+i+',\'desc\',this.value)">'
+   +'</div>'
+   +'<input class="edit-input" style="margin-bottom:8px;" value="'+esc(ex.nota||'')+'" placeholder="Nota (opcional)" onchange="edEx('+i+',\'nota\',this.value)">'
+   +'<div class="edit-actions">'
+   +'<button class="btn-mini" onclick="moverEx('+i+',-1)">↑</button>'
+   +'<button class="btn-mini" onclick="moverEx('+i+',1)">↓</button>'
+   +'<button class="btn-mini" style="color:#FB7185;" onclick="delEx('+i+')">🗑️</button>'
+   +'</div></div>';
+ });
+ h+='<button class="btn-sec" style="width:100%;margin-bottom:8px;" onclick="addEx()">＋ Agregar ejercicio</button>';
+ h+='<div style="display:flex;gap:8px;">'
+  +'<button class="btn-mini" style="flex:1;" onclick="addDia()">＋ Agregar día</button>'
+  +'<button class="btn-mini" style="flex:1;color:#FB7185;" onclick="delDia()">🗑️ Eliminar este día</button>'
+  +'</div>';
+ return h;
+}
+function limpiarSes(){delete ses.dias[vista];}
+function edDia(v){rutina[vista].nombre=v||'Día';saveAll();renderNav();}
+function edEx(i,k,v){
+ const ex=rutina[vista].ejercicios[i];
+ if(k==='s'){ex.s=Math.max(1,Math.min(10,parseInt(v)||1));limpiarSes();}
+ else if(k==='desc')ex.desc=Math.max(15,Math.min(600,parseInt(v)||90));
+ else ex[k]=v;
+ saveAll();
+}
+function moverEx(i,dir){
+ const arr=rutina[vista].ejercicios,j=i+dir;
+ if(j<0||j>=arr.length)return;
+ const t=arr[i];arr[i]=arr[j];arr[j]=t;
+ limpiarSes();saveAll();render();
+}
+function delEx(i){
+ if(!confirm('¿Quitar este ejercicio?'))return;
+ rutina[vista].ejercicios.splice(i,1);
+ limpiarSes();saveAll();render();
+}
+function addEx(){
+ rutina[vista].ejercicios.push({n:'Nuevo ejercicio',s:3,r:'10',desc:90,nota:''});
+ limpiarSes();saveAll();render();
+}
+function addDia(){
+ rutina.push({nombre:'Nuevo día 💪',ejercicios:[{n:'Nuevo ejercicio',s:3,r:'10',desc:90,nota:''}]});
+ vista=rutina.length-1;saveAll();render();
+}
+function delDia(){
+ if(rutina.length<=1){alert('Debe quedar al menos un día.');return;}
+ if(!confirm('¿Eliminar el día completo "'+rutina[vista].nombre+'"?'))return;
+ rutina.splice(vista,1);
+ ses.dias={};
+ vista=0;editMode=false;
+ document.getElementById('btn-edit').textContent='✏️ Editar';
+ saveAll();render();
+}
+
+/* ===== Cronómetro de descanso ===== */
+let timerInt=null,timerFin=0;
+function toggleTimerPanel(){document.getElementById('timer-panel').classList.toggle('open');}
+function toggleAuto(){
+ autoTimer=!autoTimer;
+ localStorage.setItem('rutinasAutoT',autoTimer?'1':'0');
+ pintarAuto();
+}
+function pintarAuto(){
+ const b=document.getElementById('timer-auto');
+ b.textContent=autoTimer?'Auto ✓':'Auto ✗';
+ b.style.color=autoTimer?'#34D399':'#8b93a3';
+ b.style.borderColor=autoTimer?'rgba(52,211,153,.5)':'#34363f';
+}
+function startTimer(seg){
+ stopTimer(true);
+ timerFin=Date.now()+seg*1000;
+ document.getElementById('timer-panel').classList.remove('open');
+ const b=document.getElementById('timer-btn');
+ b.classList.add('run');
+ timerInt=setInterval(function(){
+  const rest=Math.round((timerFin-Date.now())/1000);
+  if(rest<=0){
+   stopTimer(true);
+   b.innerHTML='✅<br>¡Ya!';
+   if(navigator.vibrate)navigator.vibrate([300,120,300,120,500]);
+   setTimeout(function(){b.innerHTML='⏱️<br>Desc.';},4000);
+   return;
+  }
+  b.innerHTML=Math.floor(rest/60)+':'+String(rest%60).padStart(2,'0');
+ },250);
+}
+function stopTimer(silencio){
+ if(timerInt){clearInterval(timerInt);timerInt=null;}
+ const b=document.getElementById('timer-btn');
+ b.classList.remove('run');
+ if(!silencio){b.innerHTML='⏱️<br>Desc.';document.getElementById('timer-panel').classList.remove('open');}
+}
+
+/* ===== Motivación del día ===== */
+const FRASES=[
+ {t:'Las últimas tres o cuatro repeticiones son las que hacen crecer el músculo. Esa zona de dolor separa a un campeón de alguien que no lo es.',a:'Arnold Schwarzenegger',d:'7× Mr. Olympia'},
+ {t:'La fuerza no viene de ganar. Tus luchas desarrollan tus fuerzas. Cuando pasas por dificultades y decides no rendirte, eso es fuerza.',a:'Arnold Schwarzenegger',d:'7× Mr. Olympia'},
+ {t:'La mente es el límite. Mientras la mente pueda imaginar que puedes hacer algo, puedes hacerlo — siempre que lo creas al 100%.',a:'Arnold Schwarzenegger',d:'7× Mr. Olympia'},
+ {t:'Todo el mundo quiere ser fisicoculturista, pero nadie quiere levantar estos pesos tan pesados.',a:'Ronnie Coleman',d:'8× Mr. Olympia'},
+ {t:'¡Light weight, baby! No es que el peso sea ligero — es que tu cabeza ya decidió que puede con él.',a:'Ronnie Coleman',d:'8× Mr. Olympia'},
+ {t:'No hay fórmula secreta. Trabajo duro, entrenamiento y constancia. Eso es todo.',a:'Ronnie Coleman',d:'8× Mr. Olympia'},
+ {t:'Para ser campeón, primero debes actuar como campeón — en cada comida, en cada serie, en cada descanso.',a:'Franco Columbu',d:'2× Mr. Olympia'},
+ {t:'No se trata de ser el más grande del gym. Se trata de ser el más fuerte kilo por kilo.',a:'Franco Columbu',d:'2× Mr. Olympia'},
+ {t:'Tienes que estar en tu punto más fuerte justo cuando te sientes en tu punto más débil.',a:'Jay Cutler',d:'4× Mr. Olympia'},
+ {t:'El fisicoculturismo son 24 horas. Lo que haces fuera del gym — comer, dormir, recuperarte — cuenta tanto como la sesión.',a:'Jay Cutler',d:'4× Mr. Olympia'},
+ {t:'La serie no empieza hasta que empieza a doler. Ahí es donde comienza el crecimiento.',a:'Tom Platz',d:'leyenda de la sentadilla'},
+ {t:'Yo no contaba repeticiones. Contaba hasta que ya no podía más — y entonces hacía una más.',a:'Tom Platz',d:'leyenda de la sentadilla'},
+ {t:'Estimula el músculo, no lo aniquiles. Entrena para crecer, no para destruirte.',a:'Lee Haney',d:'8× Mr. Olympia'},
+ {t:'El ego levanta pesos; el campeón construye músculo. Deja el ego en la puerta.',a:'Lee Haney',d:'8× Mr. Olympia'},
+ {t:'La repetición que crees que no puedes hacer — esa es la única que de verdad cuenta.',a:'Dorian Yates',d:'6× Mr. Olympia'},
+ {t:'El gym es solo el 30%. El otro 70% es lo que comes y cómo descansas. Ahí se gana o se pierde.',a:'Dorian Yates',d:'6× Mr. Olympia'},
+ {t:'No necesitas motivación si tienes disciplina. La motivación va y viene; la disciplina se presenta todos los días.',a:'Dorian Yates',d:'6× Mr. Olympia'},
+ {t:'No compito contra nadie. Compito contra quien fui ayer.',a:'Flex Wheeler',d:'4× Arnold Classic'},
+ {t:'El talento no sirve de nada sin la voluntad de pulirlo todos los días.',a:'Flex Wheeler',d:'4× Arnold Classic'},
+ {t:'Es mente sobre materia: el cuerpo logra lo que la mente cree posible.',a:'Frank Zane',d:'3× Mr. Olympia'},
+ {t:'No persigas peso, persigue perfección. Una repetición perfecta vale más que cinco a medias.',a:'Frank Zane',d:'3× Mr. Olympia'},
+ {t:'Quizá alguien tenga más genética o más talento. Pero nadie — nadie — va a trabajar más duro que yo.',a:'Rich Gaspari',d:'“The Dragon Slayer”'},
+ {t:'La intensidad no se mide en kilos. Se mide en cuánto estás dispuesto a dar cuando ya no queda nada.',a:'Rich Gaspari',d:'“The Dragon Slayer”'},
+ {t:'El dolor que sientes hoy será la fuerza que sientas mañana. No hay atajos para el músculo real.',a:'Arnold Schwarzenegger',d:'7× Mr. Olympia'},
+ {t:'No cuentes los días, haz que los días cuenten — sobre todo los que entrenas sin ganas.',a:'Arnold Schwarzenegger',d:'7× Mr. Olympia'},
+ {t:'El fracaso no es una opción cuando amas lo que haces lo suficiente para sufrir por ello.',a:'Arnold Schwarzenegger',d:'7× Mr. Olympia'},
+ {t:'Duerme más rápido — hay demasiado por construir como para perder el tiempo descansando de más.',a:'Arnold Schwarzenegger',d:'7× Mr. Olympia'},
+ {t:'Nadie construyó un físico extraordinario sintiéndose cómodo todo el tiempo.',a:'Arnold Schwarzenegger',d:'7× Mr. Olympia'},
+ {t:'Visualiza el físico que quieres antes de tenerlo. La mente entrena antes que el cuerpo.',a:'Arnold Schwarzenegger',d:'7× Mr. Olympia'},
+ {t:'El único lugar donde el éxito viene antes que el trabajo es en el diccionario.',a:'Arnold Schwarzenegger',d:'7× Mr. Olympia'},
+ {t:'Rodéate de gente que también quiera crecer — el ambiente construye tanto como el gimnasio.',a:'Arnold Schwarzenegger',d:'7× Mr. Olympia'},
+ {t:'Si vas a pensar en algo, piensa en grande. No hay razón para hacerlo en pequeño.',a:'Arnold Schwarzenegger',d:'7× Mr. Olympia'},
+ {t:'Cada repetición extra que haces cuando ya no quieres es la que te separa de quien fuiste ayer.',a:'Arnold Schwarzenegger',d:'7× Mr. Olympia'},
+ {t:'Ain’t nothing to it but to do it — deja de pensarlo y levanta la barra.',a:'Ronnie Coleman',d:'8× Mr. Olympia'},
+ {t:'Todos quieren los resultados; pocos quieren repetir la misma serie brutal cada semana durante años.',a:'Ronnie Coleman',d:'8× Mr. Olympia'},
+ {t:'Mi genética ayudó, pero fueron las miles de series feas y pesadas las que construyeron el físico.',a:'Ronnie Coleman',d:'8× Mr. Olympia'},
+ {t:'Yeah buddy — la intensidad no se pide prestada, la pones tú mismo cada vez que entras al gym.',a:'Ronnie Coleman',d:'8× Mr. Olympia'},
+ {t:'No hay temporada baja para la disciplina, aunque sí la haya para el físico.',a:'Ronnie Coleman',d:'8× Mr. Olympia'},
+ {t:'El sudor de hoy es el peso extra que vas a mover el próximo mes.',a:'Ronnie Coleman',d:'8× Mr. Olympia'},
+ {t:'El cuerpo aguanta mucho más de lo que la mente cree — ese es el verdadero secreto.',a:'Ronnie Coleman',d:'8× Mr. Olympia'},
+ {t:'No competía contra los demás en el escenario; competía contra mi peor día en el gym.',a:'Ronnie Coleman',d:'8× Mr. Olympia'},
+ {t:'La consistencia aburrida le gana a la motivación emocionante casi siempre.',a:'Ronnie Coleman',d:'8× Mr. Olympia'},
+ {t:'Fui boxeador antes que fisicoculturista — ahí aprendí que la resistencia mental gana antes que los músculos.',a:'Franco Columbu',d:'2× Mr. Olympia'},
+ {t:'No hace falta ser el más alto del cuarto para levantar lo que otros no pueden.',a:'Franco Columbu',d:'2× Mr. Olympia'},
+ {t:'La técnica perfecta en un peso moderado vale más que el ego cargando algo que no controlas.',a:'Franco Columbu',d:'2× Mr. Olympia'},
+ {t:'Entrené a diario como si el podio ya me estuviera esperando — así se construye la certeza.',a:'Franco Columbu',d:'2× Mr. Olympia'},
+ {t:'Un cuerpo fuerte y funcional siempre le va a ganar a uno que solo se ve bien en la foto.',a:'Franco Columbu',d:'2× Mr. Olympia'},
+ {t:'Aprendí a levantar peso muerto antes que a posar frente a un jurado — la fuerza real no se maquilla.',a:'Franco Columbu',d:'2× Mr. Olympia'},
+ {t:'Cuida tus articulaciones como cuidas tus músculos. De nada sirve un físico grande sobre un cuerpo roto.',a:'Franco Columbu',d:'2× Mr. Olympia'},
+ {t:'El tamaño impresiona un momento; la fuerza y la salud te acompañan toda la vida.',a:'Franco Columbu',d:'2× Mr. Olympia'},
+ {t:'Si tu compañero de entrenamiento no te exige más, busca otro compañero.',a:'Franco Columbu',d:'2× Mr. Olympia'},
+ {t:'Perdí varias veces frente al jurado antes de ganar — ahí aprendí que el fracaso solo es información, no sentencia.',a:'Jay Cutler',d:'4× Mr. Olympia'},
+ {t:'La preparación de un campeón empieza el día después de la derrota, no la semana antes de competir.',a:'Jay Cutler',d:'4× Mr. Olympia'},
+ {t:'No hay atajos en la temporada baja: ahí es donde se construye lo que se muestra en la temporada de definición.',a:'Jay Cutler',d:'4× Mr. Olympia'},
+ {t:'Comer limpio siete días a la semana pesa más en el progreso que cualquier suplemento.',a:'Jay Cutler',d:'4× Mr. Olympia'},
+ {t:'Aprendí a perder con clase para poder ganar con humildad.',a:'Jay Cutler',d:'4× Mr. Olympia'},
+ {t:'El físico cambia en la cocina antes de cambiar en el espejo.',a:'Jay Cutler',d:'4× Mr. Olympia'},
+ {t:'Cada año que regresé más fuerte fue gracias a lo que ajusté después de perder, no antes de competir.',a:'Jay Cutler',d:'4× Mr. Olympia'},
+ {t:'La paciencia no es debilidad — es la estrategia de quien sabe que el músculo tarda en construirse.',a:'Jay Cutler',d:'4× Mr. Olympia'},
+ {t:'Entrenar duro es fácil de decir; comer estricto todos los días es lo que de verdad separa a los campeones.',a:'Jay Cutler',d:'4× Mr. Olympia'},
+ {t:'Nunca dejes que una mala sesión defina tu semana completa de trabajo.',a:'Jay Cutler',d:'4× Mr. Olympia'},
+ {t:'El día de pierna no se negocia — ahí se construye el respeto que te tienes a ti mismo.',a:'Tom Platz',d:'leyenda de la sentadilla'},
+ {t:'Cuando las piernas tiemblan es cuando el cuerpo empieza a escuchar de verdad.',a:'Tom Platz',d:'leyenda de la sentadilla'},
+ {t:'Sentadillas hondas y con reps altas no son masoquismo, son el precio de piernas que nadie olvida.',a:'Tom Platz',d:'leyenda de la sentadilla'},
+ {t:'El dolor en los cuádriceps al subir escaleras al día siguiente es la prueba de que valió la pena.',a:'Tom Platz',d:'leyenda de la sentadilla'},
+ {t:'No hay músculo que se pueda esconder si entrenas piernas como se debe.',a:'Tom Platz',d:'leyenda de la sentadilla'},
+ {t:'Empujar una repetición más cuando el temblor ya empezó es donde nace la leyenda personal.',a:'Tom Platz',d:'leyenda de la sentadilla'},
+ {t:'La sentadilla profunda construye más que piernas — construye la mentalidad para todo lo demás.',a:'Tom Platz',d:'leyenda de la sentadilla'},
+ {t:'Si tu día de pierna no te asusta un poco antes de empezar, probablemente no lo estás haciendo bien.',a:'Tom Platz',d:'leyenda de la sentadilla'},
+ {t:'El volumen en las piernas paga dividendos que ningún otro músculo iguala.',a:'Tom Platz',d:'leyenda de la sentadilla'},
+ {t:'Aprendí a amar la incomodidad de las series largas — ahí es donde el cuerpo deja de fingir.',a:'Tom Platz',d:'leyenda de la sentadilla'},
+ {t:'Entrenar para toda la vida importa más que entrenar para un solo domingo de competencia.',a:'Lee Haney',d:'8× Mr. Olympia'},
+ {t:'La simetría y el equilibrio en el físico reflejan el equilibrio que debes tener también fuera del gym.',a:'Lee Haney',d:'8× Mr. Olympia'},
+ {t:'Ningún trofeo vale una lesión que te saque del deporte para siempre — entrena inteligente.',a:'Lee Haney',d:'8× Mr. Olympia'},
+ {t:'El músculo que construyes con paciencia es el que te dura años; el que fuerzas de más se va rápido.',a:'Lee Haney',d:'8× Mr. Olympia'},
+ {t:'Escucha a tu cuerpo antes que a tu ego — el ego no va a cargar la lesión por ti.',a:'Lee Haney',d:'8× Mr. Olympia'},
+ {t:'Ocho años en la cima no se logran destruyéndote cada semana, se logran administrándote cada semana.',a:'Lee Haney',d:'8× Mr. Olympia'},
+ {t:'La recuperación es parte del entrenamiento, no un premio de consolación.',a:'Lee Haney',d:'8× Mr. Olympia'},
+ {t:'Un físico saludable en el largo plazo le gana a uno espectacular por seis meses.',a:'Lee Haney',d:'8× Mr. Olympia'},
+ {t:'Aprendí que menos series con más intención valen más que más series sin control.',a:'Lee Haney',d:'8× Mr. Olympia'},
+ {t:'El verdadero campeón se nota en cómo entrena a los 50, no solo en cómo posó a los 25.',a:'Lee Haney',d:'8× Mr. Olympia'},
+ {t:'Una serie al fallo total vale más que cinco series a medias — la intensidad manda sobre el volumen.',a:'Dorian Yates',d:'6× Mr. Olympia'},
+ {t:'Nadie te va a regalar el físico; te lo tienes que arrancar tú mismo, serie por serie.',a:'Dorian Yates',d:'6× Mr. Olympia'},
+ {t:'El gimnasio no perdona la mediocridad disfrazada de esfuerzo.',a:'Dorian Yates',d:'6× Mr. Olympia'},
+ {t:'Si sales del gym sin haber llegado al límite, todavía te queda entreno por hacer.',a:'Dorian Yates',d:'6× Mr. Olympia'},
+ {t:'La disciplina se nota en los días en que no tienes ganas — ahí es donde se separan los que sí y los que no.',a:'Dorian Yates',d:'6× Mr. Olympia'},
+ {t:'El dolor muscular del día siguiente es solo el recibo de una factura que ya decidiste pagar.',a:'Dorian Yates',d:'6× Mr. Olympia'},
+ {t:'No hay talento que sustituya la intensidad real en cada serie que entrenas.',a:'Dorian Yates',d:'6× Mr. Olympia'},
+ {t:'El cuerpo se adapta al estrés que le impones — impón poco y te dará poco.',a:'Dorian Yates',d:'6× Mr. Olympia'},
+ {t:'Entrenar duro no es opcional los días que no tienes ánimo; ahí es cuando más cuenta.',a:'Dorian Yates',d:'6× Mr. Olympia'},
+ {t:'La estética se construye con paciencia — un físico bonito de verdad no se apura.',a:'Flex Wheeler',d:'4× Arnold Classic'},
+ {t:'Compito contra mi propio cuerpo cada día, incluso en los días en que la salud no coopera.',a:'Flex Wheeler',d:'4× Arnold Classic'},
+ {t:'El arte de este deporte está en la proporción, no solo en el tamaño.',a:'Flex Wheeler',d:'4× Arnold Classic'},
+ {t:'Seguí entrenando incluso cuando mi cuerpo me daba razones de sobra para detenerme.',a:'Flex Wheeler',d:'4× Arnold Classic'},
+ {t:'La gracia bajo presión es un músculo que también se entrena, no solo se tiene.',a:'Flex Wheeler',d:'4× Arnold Classic'},
+ {t:'Un físico elegante dice tanto de tu disciplina como uno enorme dice de tu volumen.',a:'Flex Wheeler',d:'4× Arnold Classic'},
+ {t:'Aprendí que la adversidad no cancela el progreso, solo cambia la ruta.',a:'Flex Wheeler',d:'4× Arnold Classic'},
+ {t:'No necesitas ser el más grande del escenario para dejar la huella más profunda.',a:'Flex Wheeler',d:'4× Arnold Classic'},
+ {t:'El detalle que nadie nota en el entrenamiento es el que sí nota el jurado en el escenario.',a:'Flex Wheeler',d:'4× Arnold Classic'},
+ {t:'Seguir compitiendo con el cuerpo en tu contra es la definición real de disciplina.',a:'Flex Wheeler',d:'4× Arnold Classic'},
+ {t:'El físico se esculpe con la mente tanto como con el hierro.',a:'Frank Zane',d:'3× Mr. Olympia'},
+ {t:'La conexión mente-músculo vale más que el peso que mueves sin sentirlo.',a:'Frank Zane',d:'3× Mr. Olympia'},
+ {t:'Menos series bien ejecutadas construyen más físico que muchas series mal sentidas.',a:'Frank Zane',d:'3× Mr. Olympia'},
+ {t:'Un cuerpo es una obra de arte que se edita con paciencia, no se apura con impaciencia.',a:'Frank Zane',d:'3× Mr. Olympia'},
+ {t:'Entrenar con inteligencia significa saber cuándo parar, no solo cuándo empujar.',a:'Frank Zane',d:'3× Mr. Olympia'},
+ {t:'La proporción importa más que el tamaño bruto — piensa como escultor, no solo como cargador de pesas.',a:'Frank Zane',d:'3× Mr. Olympia'},
+ {t:'La nutrición precisa construye tanto físico como el entrenamiento mismo.',a:'Frank Zane',d:'3× Mr. Olympia'},
+ {t:'Cada repetición merece tu atención completa, no solo tu fuerza.',a:'Frank Zane',d:'3× Mr. Olympia'},
+ {t:'El equilibrio entre disciplina y disfrute es lo que sostiene una carrera larga en este deporte.',a:'Frank Zane',d:'3× Mr. Olympia'},
+ {t:'Domina la técnica antes de perseguir el número en la barra.',a:'Frank Zane',d:'3× Mr. Olympia'},
+ {t:'Fui el retador toda mi carrera, y eso me hizo trabajar como si nunca tuviera nada asegurado.',a:'Rich Gaspari',d:'“The Dragon Slayer”'},
+ {t:'La definición extrema no se logra con atajos — se logra con semanas que nadie ve.',a:'Rich Gaspari',d:'“The Dragon Slayer”'},
+ {t:'Nunca me conformé con el segundo lugar en el esfuerzo, aunque el marcador dijera otra cosa.',a:'Rich Gaspari',d:'“The Dragon Slayer”'},
+ {t:'El físico más definido en el escenario es el que menos se perdonó en la cocina.',a:'Rich Gaspari',d:'“The Dragon Slayer”'},
+ {t:'Ser el retador te obliga a entrenar como si el título ya fuera de alguien más — con hambre extra.',a:'Rich Gaspari',d:'“The Dragon Slayer”'},
+ {t:'La condición física de nivel élite se paga con meses, no con la última semana antes de competir.',a:'Rich Gaspari',d:'“The Dragon Slayer”'},
+ {t:'Cada rival que admiré también fue el motivo por el que entrené un poco más duro esa semana.',a:'Rich Gaspari',d:'“The Dragon Slayer”'},
+ {t:'El respeto en este deporte se gana en el gimnasio vacío, no en el escenario lleno.',a:'Rich Gaspari',d:'“The Dragon Slayer”'},
+ {t:'Ser subcampeón varias veces no me quitó el hambre — me la multiplicó.',a:'Rich Gaspari',d:'“The Dragon Slayer”'}
+];
+let fraseIdx=(function(){const d=new Date();return Math.round(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000)%FRASES.length;})();
+function pintarFrase(){
+ const f=FRASES[fraseIdx];
+ document.getElementById('frase-txt').textContent='“'+f.t+'”';
+ document.getElementById('frase-autor').innerHTML='— '+esc(f.a)+' <span>· '+esc(f.d)+'</span>';
+}
+function otraFrase(){fraseIdx=(fraseIdx+1)%FRASES.length;pintarFrase();}
+
+/* ===== Inicio ===== */
+const DIAS_SEM=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+(function(){
+ const d=new Date();
+ document.getElementById('fecha-hoy').textContent=DIAS_SEM[d.getDay()]+' '+d.getDate()+' de '+MESES[d.getMonth()];
+ if(vista>=rutina.length)vista=0;
+})();
+actualizarLinkDieta();
+pintarFrase();
+pintarAuto();
+render();
+
+/* ===== PWA: instalación y offline ===== */
+if('serviceWorker' in navigator){
+ navigator.serviceWorker.register('sw.js').catch(function(e){console.warn('SW:',e);});
+}
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',function(e){
+ e.preventDefault();deferredPrompt=e;
+ document.getElementById('install-bar').style.display='flex';
+});
+function doInstall(){
+ if(!deferredPrompt)return;
+ deferredPrompt.prompt();
+ deferredPrompt.userChoice.then(function(){deferredPrompt=null;document.getElementById('install-bar').style.display='none';});
+}
+window.addEventListener('appinstalled',function(){document.getElementById('install-bar').style.display='none';});
+</script>
+</body>
+</html>
