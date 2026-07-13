@@ -1,12 +1,7 @@
-const CACHE_NAME = 'emboobate-cache-v22';
-// Rutinas se movió a /CLAUDE/rutinas/ con su propio service worker aislado,
-// por eso ya no se cachea aquí. Este SW solo cubre Emboobate y Dieta.
+const CACHE_NAME = 'dieta-cache-v1';
+// Rutinas vive en su propia carpeta con SW aislado, y Embobate se separó a
+// su propio repo (GAA211225/nimbrocado) con su propio SW. Este SW solo cubre Dieta.
 const ASSETS = [
-  './embobate.html',
-  './manifest.json',
-  './logo.png',
-  './icon-192.png',
-  './icon-512.png',
   './dieta.html',
   './dieta-manifest.json',
   './dieta-icon-192.png',
