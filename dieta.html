@@ -86,6 +86,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <button class="nav-btn" onclick="show('descanso')">😴 Descanso</button>
   <button class="nav-btn" onclick="show('lacteos')">🧀 Lácteos</button>
   <button class="nav-btn" onclick="show('cocina')">🍳 Mi Cocina</button>
+  <button class="nav-btn" onclick="show('supl')">💊 Suplementos</button>
 </div>
 
 <!-- COMPRAS -->
@@ -341,6 +342,30 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <div class="al"><strong>Ojo con el queso:</strong> Panela es el más bajo en calorías pero más de 60g/día suma lípidos de forma notoria. Úsalo en porciones de 30g — del tamaño de tu pulgar.</div>
 </div>
 
+<!-- SUPLEMENTOS -->
+<div id="p-supl" class="page">
+  <p class="sec-title">Suplementos indicados</p>
+  <div class="info"><strong>Datos capturados tal como se indicaron.</strong> No son una recomendación generada por esta app — corresponden a la indicación que ya recibiste. Ante cualquier duda, mareo o malestar, consulta a quien te los indicó antes de continuar.</div>
+
+  <div class="card" style="border:1.5px solid #185FA5;">
+    <div class="meal-hdr"><span class="meal-name">💊 Berberina Complex (Oby)</span><span class="meal-time">Mediodía o desayuno</span></div>
+    <ul class="food-list">
+      <li><strong>1 cápsula</strong></li>
+      <li><strong>Cuándo:</strong> con la comida principal (mediodía o desayuno)</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border:1.5px solid #7F77DD;">
+    <div class="meal-hdr"><span class="meal-name">💊 Ashwagandha KM-66</span><span class="meal-time">Cena o antes de dormir</span></div>
+    <ul class="food-list">
+      <li><strong>3 cápsulas</strong> juntas</li>
+      <li><strong>Cuándo:</strong> con la cena o antes de dormir</li>
+    </ul>
+  </div>
+
+  <div class="al"><strong>Importante:</strong> respeta las cantidades y horarios indicados. No combines con otros suplementos o medicamentos nuevos sin confirmarlo antes con quien te los recetó.</div>
+</div>
+
 <!-- MI COCINA -->
 <div id="p-cocina" class="page">
   <p class="sec-title">Mi cocina — arma tus comidas con lo que tienes</p>
@@ -375,7 +400,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
 
 <script>
 function show(id){
-  const map={compras:0,inventario:1,gym:2,descanso:3,lacteos:4,cocina:5};
+  const map={compras:0,inventario:1,gym:2,descanso:3,lacteos:4,cocina:5,supl:6};
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('p-'+id).classList.add('active');

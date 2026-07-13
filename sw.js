@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dieta-cache-v1';
+const CACHE_NAME = 'dieta-cache-v2';
 // Rutinas vive en su propia carpeta con SW aislado, y Embobate se separó a
 // su propio repo (GAA211225/nimbrocado) con su propio SW. Este SW solo cubre Dieta.
 const ASSETS = [
