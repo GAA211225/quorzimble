@@ -64,6 +64,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
 .frase-texto{font-size:15px;font-weight:600;color:#0F6E56;font-style:italic;line-height:1.45;}
 .frase-btn{margin-top:10px;padding:8px 14px;border:1.5px solid #1D9E75;border-radius:20px;background:#fff;color:#0F6E56;font-size:12px;font-weight:700;cursor:pointer;}
 .frase-btn.on{background:#1D9E75;color:#fff;cursor:default;}
+.supl-toggle{margin-top:10px;padding:9px 14px;border-radius:8px;border:1.5px solid #e5e7eb;background:#f3f4f6;color:#6b7280;font-size:13px;font-weight:700;cursor:pointer;width:100%;}
+.supl-toggle.done{background:#1D9E75;border-color:#1D9E75;color:#fff;}
 </style>
 </head>
 <body>
@@ -71,7 +73,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
 <div class="frase-card">
   <p class="frase-label">💪 Frase del día</p>
   <p id="frase-texto" class="frase-texto">“El déficit sigue funcionando aunque la báscula no baje hoy. Dale la semana completa.”</p>
-  <button id="frase-btn" class="frase-btn" onclick="activarFrase()">🔔 Recibir la frase cada día a las 6:00 am</button>
+  <button id="frase-btn" class="frase-btn" onclick="activarFrase()">🔔 Activar recordatorios diarios (frase + suplementos)</button>
 </div>
 
 <div id="install-bar" style="display:none;justify-content:space-between;align-items:center;gap:10px;background:#E1F5EE;border:1.5px solid #1D9E75;border-radius:10px;padding:10px 14px;margin-bottom:12px;">
@@ -346,23 +348,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
 <div id="p-supl" class="page">
   <p class="sec-title">Suplementos indicados</p>
   <div class="info"><strong>Datos capturados tal como se indicaron.</strong> No son una recomendación generada por esta app — corresponden a la indicación que ya recibiste. Ante cualquier duda, mareo o malestar, consulta a quien te los indicó antes de continuar.</div>
-
-  <div class="card" style="border:1.5px solid #185FA5;">
-    <div class="meal-hdr"><span class="meal-name">💊 Berberina Complex (Oby)</span><span class="meal-time">Mediodía o desayuno</span></div>
-    <ul class="food-list">
-      <li><strong>1 cápsula</strong></li>
-      <li><strong>Cuándo:</strong> con la comida principal (mediodía o desayuno)</li>
-    </ul>
-  </div>
-
-  <div class="card" style="border:1.5px solid #7F77DD;">
-    <div class="meal-hdr"><span class="meal-name">💊 Ashwagandha KM-66</span><span class="meal-time">Cena o antes de dormir</span></div>
-    <ul class="food-list">
-      <li><strong>3 cápsulas</strong> juntas</li>
-      <li><strong>Cuándo:</strong> con la cena o antes de dormir</li>
-    </ul>
-  </div>
-
+  <div class="hl">🔔 Te llega un recordatorio a las <strong>2:00 pm</strong> (Berberina) y a las <strong>9:00 pm</strong> (Ashwagandha), hora de México. Marca aquí si ya te lo tomaste — se reinicia solo cada día.</div>
+  <div id="supl-cards"></div>
   <div class="al"><strong>Importante:</strong> respeta las cantidades y horarios indicados. No combines con otros suplementos o medicamentos nuevos sin confirmarlo antes con quien te los recetó.</div>
 </div>
 
@@ -452,6 +439,33 @@ function renderLinkRutina(){
  const estado=linkRutina.entrenado?'✅ Ya entrenaste hoy — <strong>'+linkRutina.dia+'</strong>.':'🏋️ Hoy toca entrenar — <strong>'+linkRutina.dia+'</strong>.';
  const modo=tipoDia==='gym'?' Por eso te dejamos en modo Día Gym.':' Cambiaste a modo Descanso a mano — tú decides.';
  el.innerHTML=estado+modo+' <a href="rutinas/" style="color:#0F6E56;font-weight:700;">Ver mi rutina →</a>';
+}
+
+/* ===== Suplementos: marcar tomado/aún no, con reinicio diario ===== */
+const SUPLEMENTOS=[
+ {id:'berberina',ic:'💊',nombre:'Berberina Complex (Oby)',dosis:'1 cápsula',cuando:'Con la comida principal (mediodía o desayuno) — recordatorio 2:00 pm',borde:'#185FA5'},
+ {id:'ashwagandha',ic:'💊',nombre:'Ashwagandha KM-66',dosis:'3 cápsulas juntas',cuando:'Con la cena o antes de dormir — recordatorio 9:00 pm',borde:'#7F77DD'}
+];
+let suplEstado={};
+try{suplEstado=JSON.parse(localStorage.getItem('suplEstado')||'null');}catch(e){suplEstado=null;}
+if(!suplEstado||suplEstado.fecha!==hoyIso){
+ suplEstado={fecha:hoyIso};
+ SUPLEMENTOS.forEach(s=>{suplEstado[s.id]=false;});
+ localStorage.setItem('suplEstado',JSON.stringify(suplEstado));
+}
+function saveSupl(){localStorage.setItem('suplEstado',JSON.stringify(suplEstado));}
+function toggleSupl(id){suplEstado[id]=!suplEstado[id];saveSupl();renderSupl();}
+function renderSupl(){
+ const el=document.getElementById('supl-cards');
+ if(!el)return;
+ el.innerHTML=SUPLEMENTOS.map(s=>{
+  const tomado=!!suplEstado[s.id];
+  return '<div class="card" style="border:1.5px solid '+s.borde+';">'
+   +'<div class="meal-hdr"><span class="meal-name">'+s.ic+' '+s.nombre+'</span></div>'
+   +'<ul class="food-list"><li><strong>'+s.dosis+'</strong></li><li><strong>Cuándo:</strong> '+s.cuando+'</li></ul>'
+   +'<button class="supl-toggle'+(tomado?' done':'')+'" onclick="toggleSupl(\''+s.id+'\')">'+(tomado?'✅ Ya me lo tomé hoy':'⏳ Aún no — toca para marcar')+'</button>'
+   +'</div>';
+ }).join('');
 }
 function catOf(n){for(const k in CATS)if(CATS[k].items.includes(n))return k;return 'extra';}
 if(!localStorage.getItem('despensa')){
@@ -639,7 +653,11 @@ function generarDia(){
 renderChips();
 syncSegUI();
 renderLinkRutina();
+renderSupl();
 saveD();
+
+/* Deep-link desde la notificación push: dieta.html#supl abre directo Suplementos */
+if(location.hash==='#supl')show('supl');
 
 /* ===== Frase del día ===== */
 function idxHoy(n){const d=new Date();return Math.round(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000)%n;}
@@ -692,7 +710,7 @@ async function registrarTokenFrase(){
 }
 function marcarActivado(){
   const b = document.getElementById('frase-btn');
-  b.textContent = '✅ Frase diaria activada — 6:00 am';
+  b.textContent = '✅ Recordatorios activados';
   b.classList.add('on');
   b.disabled = true;
 }
