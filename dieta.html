@@ -191,13 +191,14 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <div class="card">
     <div class="meal-hdr"><span class="meal-name">🍛 Comida</span><span class="meal-time">14:00 – 15:00</span></div>
     <ul class="food-list">
-      <li><strong>180g cerdo</strong> a la plancha con ajo, comino y chile</li>
+      <li><strong>180g cerdo en crudo</strong> (~135g ya cocido) a la plancha con ajo, comino y chile</li>
       <li><strong>½ elote</strong> o <strong>½ taza arroz</strong></li>
       <li><strong>Ensalada:</strong> lechuga, jitomate, zanahoria, limón</li>
       <li><strong>30g queso panela</strong></li>
     </ul>
     <div class="macro-row"><span class="pill p-blue">P: ~42g</span><span class="pill p-amber">HC: ~30g</span><span class="pill p-teal">L: ~19g</span><span class="pill p-coral">~460 kcal</span></div>
     <p class="note">💡 Alterna elote y arroz para no repetir todos los días.</p>
+    <p class="note">⚖️ <strong>Todas las carnes se pesan en crudo</strong> (antes de cocinar). Al cocinarse pierden ~25-30% de peso. Sin báscula: una porción del tamaño y grosor de tu palma ≈ lo que busca el plan.</p>
   </div>
 
   <div class="card" style="border:1.5px solid #7F77DD;">
@@ -231,7 +232,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <div class="card">
     <div class="meal-hdr"><span class="meal-name">🌙 Cena</span><span class="meal-time">21:00 – 21:30</span></div>
     <ul class="food-list">
-      <li><strong>120g cerdo</strong> a la plancha</li>
+      <li><strong>120g cerdo en crudo</strong> (~90g ya cocido) a la plancha</li>
       <li><strong>Rajas de chile poblano</strong> con cebolla salteadas</li>
       <li><strong>Ensalada:</strong> lechuga, pepino, zanahoria, limón</li>
     </ul>
@@ -285,7 +286,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <div class="card">
     <div class="meal-hdr"><span class="meal-name">🍛 Comida</span><span class="meal-time">14:00 – 15:00</span></div>
     <ul class="food-list">
-      <li><strong>200g cerdo</strong> al horno con ajo y limón</li>
+      <li><strong>200g cerdo en crudo</strong> (~145g ya cocido) al horno con ajo y limón</li>
       <li><strong>½ elote</strong> o <strong>½ taza arroz</strong></li>
       <li><strong>Ensalada abundante:</strong> lechuga, jitomate, pepino, zanahoria</li>
       <li><strong>30g queso panela</strong></li>
@@ -568,7 +569,7 @@ function generarDia(){
   const mp=carnes.length?carnes:prots.filter(p=>p!=='Leche');
   if(mp.length){
    mainComida=pick(mp);
-   const porc={'Huevo':'3 huevos','Atún':'1.5 latas de atún','Queso panela':'80g queso panela','Frijoles':'1 taza de frijoles','Lentejas':'1 taza de lentejas'}[mainComida]||('180g de '+mainComida.toLowerCase());
+   const porc={'Huevo':'3 huevos','Atún':'1.5 latas de atún','Queso panela':'80g queso panela','Frijoles':'1 taza de frijoles','Lentejas':'1 taza de lentejas'}[mainComida]||('180g de '+mainComida.toLowerCase()+' en crudo (~135g cocido)');
    items.push('<strong>'+porc+'</strong>'+(carnes.includes(mainComida)?' a la plancha':'')+qtyTag(mainComida));
    saz.push(SAZON[mainComida]||'sal + pimienta + ajo y un toque de limón nunca fallan. Prueba también comino u orégano.');
   }
@@ -620,7 +621,7 @@ function generarDia(){
   const cp=prots.filter(p=>p!==mainComida&&p!=='Leche');
   const cenaP=cp.length?pick(cp):mainComida;
   if(cenaP){
-   const porc={'Huevo':'2 huevos','Atún':'1 lata de atún','Queso panela':'60g queso panela','Frijoles':'¾ taza de frijoles','Lentejas':'¾ taza de lentejas'}[cenaP]||('120g de '+cenaP.toLowerCase());
+   const porc={'Huevo':'2 huevos','Atún':'1 lata de atún','Queso panela':'60g queso panela','Frijoles':'¾ taza de frijoles','Lentejas':'¾ taza de lentejas'}[cenaP]||('120g de '+cenaP.toLowerCase()+' en crudo (~90g cocido)');
    items.push('<strong>'+porc+'</strong>'+qtyTag(cenaP));
    if(SAZON[cenaP])saz.push(SAZON[cenaP]);
   }
