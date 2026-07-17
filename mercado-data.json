@@ -1,0 +1,122 @@
+{
+  "generatedAt": "17 jul 2026 · 08:00 CDMX",
+  "dateLabel": "Viernes · 17 jul 2026",
+  "focus": "eua",
+  "nextOpen": "Próxima apertura · EUA (Nueva York) — 8:30 AM CDMX",
+  "watch": "El petróleo sube fuerte por la escalada EUA–Irán y arrastra rendimientos de bonos al alza, mientras un desplome de semiconductoras (dudas sobre el gasto en IA) pesa sobre el Nasdaq — un día de \"energía cara, tecnología nerviosa\".",
+  "snapshot": [
+    { "label": "S&P 500", "ex": "US500", "value": "7,533.77", "delta": "▼ 0.51%", "dir": "down" },
+    { "label": "Nasdaq 100", "ex": "USTEC", "value": "25,881.95", "delta": "▼ 1.47%", "dir": "down" },
+    { "label": "Dow Jones", "ex": "US30", "value": "52,552.97", "delta": "▼ 0.20%", "dir": "down" },
+    { "label": "Crudo WTI", "ex": "USOIL", "value": ">$79", "delta": "▲ 11% sem.", "dir": "up" }
+  ],
+  "sections": [
+    {
+      "title": "Mercados y grandes movimientos",
+      "count": "5 puntos",
+      "items": [
+        {
+          "headline": "Selloff en semiconductoras arrastra al Nasdaq pese a resultados fuertes",
+          "synth": "TSM reportó un alza de utilidades del 77% interanual y aun así cayó más de 4%; el mercado cuestiona si la inversión masiva en IA se justifica con las valuaciones actuales.",
+          "exness": ["USTEC", "#TSM"],
+          "note": "índice tech + acción",
+          "source": "Bloomberg / CNBC · 16 jul 2026"
+        },
+        {
+          "headline": "Ventas minoristas de junio decepcionan",
+          "synth": "Crecieron 0.2% mensual frente al 0.3% esperado — señal de consumo algo más débil que se suma a la presión sobre acciones.",
+          "exness": ["US500"],
+          "note": "dato macro → índice general",
+          "source": "CNBC · 16 jul 2026"
+        }
+      ],
+      "movers": [
+        { "name": "Abbott Laboratories", "ex": "#ABT", "reason": "Elevó guía anual", "move": "+11.0%", "dir": "up" },
+        { "name": "UnitedHealth Group", "ex": "#UNH", "reason": "Resultados Q2 sólidos", "move": "+5.6%", "dir": "up" },
+        { "name": "Taiwan Semiconductor", "ex": "#TSM", "reason": "Utilidad +77%, dudas IA", "move": "−4.0%", "dir": "down" },
+        { "name": "Corning", "ex": "#GLW", "reason": "Arrastre tech", "move": "−6.7%", "dir": "down" },
+        { "name": "Sandisk", "ex": "#SNDK", "reason": "Arrastre tech", "move": "−5.4%", "dir": "down" },
+        { "name": "ServiceNow", "ex": "#NOW", "reason": "Arrastre tech", "move": "−4.7%", "dir": "down" }
+      ]
+    },
+    {
+      "title": "Fondos institucionales",
+      "count": "BlackRock",
+      "items": [
+        {
+          "headline": "Larry Fink: \"muy alcista\" para los próximos 12 meses",
+          "synth": "El CEO de BlackRock —ahora con $15.3 billones (trillion) bajo gestión, récord histórico— atribuye su optimismo a la productividad que la IA genera en márgenes y utilidades.",
+          "exness": ["#BLK", "US500"],
+          "note": "acción de BlackRock + índice",
+          "source": "CNBC · 15 jul 2026"
+        },
+        {
+          "headline": "Fink ve a bitcoin \"más estable\" y apuesta por la tokenización",
+          "synth": "Considera que el exceso de apalancamiento en cripto ya se purgó y que la tokenización es \"la próxima revolución en finanzas\".",
+          "exness": ["BTCUSD"],
+          "source": "Forbes / CryptoTimes · 16 jul 2026"
+        }
+      ]
+    },
+    {
+      "title": "Congreso de EUA",
+      "count": "STOCK Act",
+      "note": "Por ley, los legisladores tienen hasta 45 días para reportar sus operaciones — esto no es en tiempo real, es la disclosure más reciente disponible.",
+      "items": [
+        {
+          "headline": "Nancy Pelosi reporta hasta $6M en opciones call sobre Intel y Uber",
+          "synth": "Hasta $5M en calls de Intel y hasta $1M en calls de Uber. Su portafolio declarado sigue concentrado en mega-cap tech: NVIDIA, Apple, Microsoft, Amazon, Alphabet, Broadcom y Vistra.",
+          "exness": ["#INTC", "#UBER"],
+          "note": "las opciones no; el subyacente sí como CFD",
+          "source": "Yahoo Finance / QuiverQuant · disclosure 8 jul 2026"
+        },
+        {
+          "headline": "Patrón de largo plazo: NVDA, AAPL y GOOGL dominan sus filings",
+          "synth": "De 63 operaciones declaradas desde diciembre de 2021, esas tres posiciones concentran ~41% del total — la señal más consistente de su actividad reportada.",
+          "exness": ["#NVDA", "#AAPL", "#GOOGL"],
+          "source": "QuiverQuant, agregado histórico"
+        }
+      ]
+    },
+    {
+      "title": "Geopolítica y materias primas",
+      "count": "Medio Oriente · Europa del Este",
+      "items": [
+        {
+          "headline": "EUA ataca un petrolero cerca de la terminal principal de exportación de Irán",
+          "synth": "Irán respondió golpeando bases de EUA en Kuwait y Jordania y amenazó con interrumpir más exportaciones energéticas, calificando el conflicto de \"guerra existencial\". El tráfico por el estrecho cayó a mínimos de dos meses.",
+          "exness": ["USOIL", "UKOIL"],
+          "note": "crudo WTI y Brent",
+          "source": "Bloomberg / OilPrice · 13–16 jul 2026"
+        },
+        {
+          "headline": "Rusia–Ucrania: la escalada paralela que casi nadie mira",
+          "synth": "Aunque el crudo no llega a niveles de 2022, los precios de refinados ya cotizan como si el barril estuviera por encima de $100 — un costo silencioso que se traslada a combustibles y transporte.",
+          "exness": ["USOIL", "XNGUSD"],
+          "note": "crudo y gas natural",
+          "source": "Bloomberg Opinion · 13 jul 2026"
+        }
+      ]
+    },
+    {
+      "title": "Bancos centrales y declaraciones oficiales",
+      "count": "Fed · Casa Blanca",
+      "items": [
+        {
+          "headline": "Kevin Warsh asume como nuevo presidente de la Fed",
+          "synth": "Reemplazó a Powell en mayo de 2026 tras meses de presión de Trump; comparte su inclinación hacia tasas más bajas para estimular crecimiento — un giro relevante para la política monetaria.",
+          "exness": ["EURUSD", "XAUUSD"],
+          "note": "tasas → dólar y oro",
+          "source": "Reportes Fed · may–jul 2026"
+        },
+        {
+          "headline": "La Fed reconoce inflación elevada por shocks de oferta, incluida energía",
+          "synth": "Su informe de julio describe una economía que crece a paso sólido pese a la incertidumbre de Medio Oriente, con la inflación aún por encima de la meta del 2%.",
+          "exness": ["US500", "USOIL"],
+          "source": "Federal Reserve, Monetary Policy Report · 10 jul 2026"
+        }
+      ]
+    }
+  ],
+  "updateSchedule": "Actualiza antes de cada apertura: Asia ~5:30 PM · Europa ~12:30 AM · EUA ~7:00 AM (CDMX)"
+}

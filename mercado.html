@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Brief de Mercado</title>
+<meta name="theme-color" content="#0F1420">
+<link rel="manifest" href="mercado-manifest.json">
+<link rel="apple-touch-icon" href="mercado-icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mercado">
+<style>
+  :root {
+    --bg: #F1F3F6; --bg-elevated: #FFFFFF; --bg-sunken: #E7EAF0;
+    --text: #151A26; --text-muted: #5B637A; --text-faint: #8891A8;
+    --accent: #B36F1F; --accent-soft: #B36F1F1A;
+    --border: rgba(21,26,38,0.12); --border-soft: rgba(21,26,38,0.07);
+    --up: #21754A; --up-soft: #21754A14; --down: #A5322A; --down-soft: #A5322A14;
+    --serif: ui-serif, Iowan Old Style, Georgia, "Noto Serif", "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", "SF Mono", "JetBrains Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0F1420; --bg-elevated: #161D2E; --bg-sunken: #0A0E17;
+      --text: #E8EAF0; --text-muted: #97A0B8; --text-faint: #6A7390;
+      --accent: #E0A054; --accent-soft: #E0A05426;
+      --border: rgba(232,234,240,0.12); --border-soft: rgba(232,234,240,0.07);
+      --up: #5CBE8A; --up-soft: #5CBE8A1F; --down: #E17B72; --down-soft: #E17B721F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1420; --bg-elevated: #161D2E; --bg-sunken: #0A0E17;
+    --text: #E8EAF0; --text-muted: #97A0B8; --text-faint: #6A7390;
+    --accent: #E0A054; --accent-soft: #E0A05426;
+    --border: rgba(232,234,240,0.12); --border-soft: rgba(232,234,240,0.07);
+    --up: #5CBE8A; --up-soft: #5CBE8A1F; --down: #E17B72; --down-soft: #E17B721F;
+  }
+  :root[data-theme="light"] {
+    --bg: #F1F3F6; --bg-elevated: #FFFFFF; --bg-sunken: #E7EAF0;
+    --text: #151A26; --text-muted: #5B637A; --text-faint: #8891A8;
+    --accent: #B36F1F; --accent-soft: #B36F1F1A;
+    --border: rgba(21,26,38,0.12); --border-soft: rgba(21,26,38,0.07);
+    --up: #21754A; --up-soft: #21754A14; --down: #A5322A; --down-soft: #A5322A14;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .page { max-width: 760px; margin: 0 auto; padding: 1.5rem 1.1rem calc(3rem + env(safe-area-inset-bottom)); }
+
+  /* Barra de alertas */
+  .alertbar { display: flex; align-items: center; gap: 0.6rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 0.6rem 0.75rem; margin-bottom: 1.5rem; }
+  .alertbar .txt { flex: 1; min-width: 0; }
+  .alertbar .txt b { font-size: 0.86rem; display: block; }
+  .alertbar .txt span { font-size: 0.74rem; color: var(--text-muted); }
+  .btn-alert { font-family: var(--sans); font-size: 0.82rem; font-weight: 600; color: #fff; background: var(--accent); border: none; border-radius: 8px; padding: 0.55rem 0.85rem; cursor: pointer; white-space: nowrap; }
+  .btn-alert:disabled { opacity: 0.55; cursor: default; }
+  .btn-alert.ok { background: var(--up); }
+  .btn-alert:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+  .eyebrow-open { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+  .eyebrow-open::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .masthead { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; border-bottom: 2px solid var(--text); padding-bottom: 0.9rem; margin-bottom: 0.4rem; flex-wrap: wrap; }
+  .masthead h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(1.5rem, 6vw, 2.1rem); margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+  .masthead .date { font-family: var(--mono); font-size: 0.76rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+  .subline { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-soft); }
+  .subline p { margin: 0; font-size: 0.82rem; color: var(--text-muted); font-style: italic; font-family: var(--serif); }
+  .tag { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-faint); border: 1px solid var(--border); border-radius: 3px; padding: 0.2rem 0.45rem; white-space: nowrap; }
+
+  .how-to { display: flex; gap: 0.5rem; align-items: baseline; background: var(--bg-sunken); border-radius: 8px; padding: 0.65rem 0.8rem; margin-bottom: 1.5rem; font-size: 0.78rem; color: var(--text-muted); }
+  .how-to strong { color: var(--text); font-weight: 600; }
+
+  .snapshot { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem; }
+  .snap-item { background: var(--bg-elevated); padding: 0.7rem 0.7rem; }
+  .snap-item .label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); margin-bottom: 0.3rem; display: flex; justify-content: space-between; gap: 0.3rem; }
+  .snap-item .label .ex { color: var(--accent); font-family: var(--mono); }
+  .snap-item .value { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 0.98rem; font-weight: 600; }
+  .snap-item .delta { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 0.74rem; margin-top: 0.1rem; display: inline-block; }
+  .delta.up { color: var(--up); } .delta.down { color: var(--down); }
+
+  .watch { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 2rem; display: flex; gap: 0.6rem; align-items: baseline; }
+  .watch .eyebrow { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 700; }
+  .watch p { margin: 0; font-size: 0.9rem; color: var(--text); }
+
+  section.brief { margin-bottom: 2rem; }
+  .brief-head { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.75rem; padding-bottom: 0.45rem; border-bottom: 1px solid var(--border); }
+  .brief-head h2 { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; margin: 0; }
+  .brief-head .count { font-family: var(--mono); font-size: 0.68rem; color: var(--text-faint); margin-left: auto; }
+  .sec-note { font-size: 0.74rem; color: var(--text-faint); font-style: italic; margin: 0 0 0.6rem; }
+
+  .item { padding: 0.85rem 0; border-bottom: 1px solid var(--border-soft); display: grid; gap: 0.3rem; }
+  .item:last-child { border-bottom: none; }
+  .item .headline { font-weight: 600; font-size: 0.95rem; text-wrap: balance; }
+  .item .synth { font-size: 0.86rem; color: var(--text-muted); }
+  .item .source { font-family: var(--mono); font-size: 0.68rem; color: var(--text-faint); }
+
+  .exness { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin-top: 0.2rem; }
+  .ex-label { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); display: inline-flex; align-items: center; gap: 0.25rem; }
+  .ex-label::before { content: "⌕"; font-size: 0.9rem; color: var(--accent); }
+  .ex-sym { font-family: var(--mono); font-size: 0.72rem; font-weight: 600; color: var(--accent); background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 4px; padding: 0.08rem 0.4rem; white-space: nowrap; }
+  .ex-note { font-family: var(--mono); font-size: 0.64rem; color: var(--text-faint); font-style: italic; }
+
+  .movers { width: 100%; overflow-x: auto; margin-top: 0.5rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 380px; }
+  th { text-align: left; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); font-weight: 600; padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--border); }
+  td { padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--border-soft); }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+  td .ex-sym { font-size: 0.66rem; }
+  .pill { font-family: var(--mono); font-size: 0.66rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 3px; }
+  .pill.up { background: var(--up-soft); color: var(--up); } .pill.down { background: var(--down-soft); color: var(--down); }
+
+  footer { margin-top: 2rem; padding-top: 1.1rem; border-top: 2px solid var(--text); }
+  footer .disclaimer { font-size: 0.76rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 0.8rem; }
+  footer .meta-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; font-family: var(--mono); font-size: 0.66rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+
+  @media (max-width: 520px) { .snapshot { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<div class="page" id="app">
+  <div class="alertbar">
+    <div class="txt">
+      <b>Alertas de apertura</b>
+      <span id="alertStatus">Recibe un aviso antes de que abra cada mercado.</span>
+    </div>
+    <button class="btn-alert" id="btnAlert" type="button">🔔 Activar</button>
+  </div>
+  <div id="content"><p style="color:var(--text-muted);font-size:0.9rem">Cargando el último brief…</p></div>
+</div>
+
+<script>
+/* ===== Render del brief desde los datos ===== */
+function el(tag, cls, txt) { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+function exBlock(syms, note) {
+  const w = el('div', 'exness'); w.appendChild(el('span', 'ex-label', 'Exness'));
+  (syms || []).forEach((s) => w.appendChild(el('span', 'ex-sym', s)));
+  if (note) w.appendChild(el('span', 'ex-note', note));
+  return w;
+}
+function render(d) {
+  const c = document.getElementById('content');
+  c.textContent = '';
+  c.appendChild(Object.assign(el('div', 'eyebrow-open'), { textContent: d.nextOpen || '' }));
+
+  const mast = el('div', 'masthead');
+  mast.appendChild(el('h1', null, 'Brief de Mercado'));
+  mast.appendChild(el('span', 'date', d.dateLabel || ''));
+  c.appendChild(mast);
+
+  const sub = el('div', 'subline');
+  sub.appendChild(el('p', null, 'Noticias, fondos, Congreso, geopolítica y bancos centrales de un vistazo.'));
+  sub.appendChild(el('span', 'tag', 'no es asesoría financiera'));
+  c.appendChild(sub);
+
+  const how = el('div', 'how-to');
+  how.appendChild(el('span', null, '⌕'));
+  const hp = el('p'); hp.style.margin = '0';
+  hp.appendChild(document.createTextNode('Cada ítem trae su '));
+  hp.appendChild(Object.assign(el('strong'), { textContent: 'símbolo de Exness' }));
+  hp.appendChild(document.createTextNode(' en ámbar — cópialo en la barra de instrumentos de tu plataforma. Los #TICKER son CFDs de acciones; su disponibilidad depende de tu cuenta y región.'));
+  how.appendChild(hp);
+  c.appendChild(how);
+
+  const snap = el('div', 'snapshot');
+  (d.snapshot || []).forEach((s) => {
+    const it = el('div', 'snap-item');
+    const lab = el('div', 'label');
+    lab.appendChild(el('span', null, s.label));
+    lab.appendChild(el('span', 'ex', s.ex));
+    it.appendChild(lab);
+    it.appendChild(el('div', 'value', s.value));
+    it.appendChild(el('span', 'delta ' + (s.dir === 'up' ? 'up' : 'down'), s.delta));
+    snap.appendChild(it);
+  });
+  c.appendChild(snap);
+
+  if (d.watch) {
+    const w = el('div', 'watch');
+    w.appendChild(el('span', 'eyebrow', 'Hoy'));
+    w.appendChild(el('p', null, d.watch));
+    c.appendChild(w);
+  }
+
+  (d.sections || []).forEach((sec) => {
+    const s = el('section', 'brief');
+    const head = el('div', 'brief-head');
+    head.appendChild(el('h2', null, sec.title));
+    if (sec.count) head.appendChild(el('span', 'count', sec.count));
+    s.appendChild(head);
+    if (sec.note) s.appendChild(el('p', 'sec-note', sec.note));
+    (sec.items || []).forEach((item) => {
+      const w = el('div', 'item');
+      w.appendChild(el('span', 'headline', item.headline));
+      if (item.synth) w.appendChild(el('p', 'synth', item.synth));
+      if (item.exness) w.appendChild(exBlock(item.exness, item.note));
+      if (item.source) w.appendChild(el('span', 'source', item.source));
+      s.appendChild(w);
+    });
+    if (sec.movers && sec.movers.length) {
+      const mv = el('div', 'movers');
+      const t = el('table');
+      const thead = el('thead'); const htr = el('tr');
+      ['Empresa', 'Exness', 'Motivo', 'Mov.'].forEach((h, i) => { const th = el('th', null, h); if (i === 3) th.style.textAlign = 'right'; htr.appendChild(th); });
+      thead.appendChild(htr); t.appendChild(thead);
+      const tb = el('tbody');
+      sec.movers.forEach((r) => {
+        const tr = el('tr');
+        tr.appendChild(el('td', null, r.name));
+        const exTd = el('td'); exTd.appendChild(el('span', 'ex-sym', r.ex)); tr.appendChild(exTd);
+        tr.appendChild(el('td', null, r.reason));
+        const numTd = el('td', 'num'); numTd.appendChild(el('span', 'pill ' + (r.dir === 'up' ? 'up' : 'down'), r.move)); tr.appendChild(numTd);
+        tb.appendChild(tr);
+      });
+      t.appendChild(tb); mv.appendChild(t); s.appendChild(mv);
+    }
+    c.appendChild(s);
+  });
+
+  const f = el('footer');
+  f.appendChild(el('p', 'disclaimer', 'Agrega noticias e información pública (medios financieros, disclosures STOCK Act, filings). Los símbolos de Exness son referencia para localizar el instrumento — no son recomendaciones, y su disponibilidad y nomenclatura varían según tu cuenta y región. No es asesoría de inversión personalizada; los datos de fondos y del Congreso llegan con semanas de retraso. Verifica en la fuente y en tu plataforma antes de operar.'));
+  const mr = el('div', 'meta-row');
+  mr.appendChild(el('span', null, 'Generado ' + (d.generatedAt || '')));
+  mr.appendChild(el('span', null, d.updateSchedule || ''));
+  f.appendChild(mr);
+  c.appendChild(f);
+}
+
+async function loadBrief() {
+  try {
+    const res = await fetch('mercado-data.json?t=' + Date.now(), { cache: 'no-store' });
+    if (res.ok) { render(await res.json()); return; }
+  } catch (e) { /* sin internet: intenta caché del SW */ }
+  try {
+    const res = await fetch('mercado-data.json');
+    if (res.ok) { render(await res.json()); return; }
+  } catch (e) {}
+  document.getElementById('content').innerHTML =
+    '<p style="color:var(--text-muted);font-size:0.9rem">No se pudo cargar el brief. Abre la app con internet la primera vez.</p>';
+}
+loadBrief();
+
+/* ===== PWA: offline ===== */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('mercado-sw.js').catch((e) => console.warn('SW mercado:', e));
+}
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-messaging.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyCjFyxrJsrcJx5QmHaL0p_eQaSB83PpaS4",
+  authDomain: "emboobate-cd9c1.firebaseapp.com",
+  projectId: "emboobate-cd9c1",
+  storageBucket: "emboobate-cd9c1.firebasestorage.app",
+  messagingSenderId: "572353552640",
+  appId: "1:572353552640:web:4704ef080c381b6ec7d3e5"
+});
+const db = getFirestore(app);
+const messaging = getMessaging(app);
+const VAPID_KEY = "BEJm4aVSkUMdvwc5eHLdGaayMcCvnt4hVoatcaqdAfgjt9oz0sAyyZhA6zKz4Cwb9qRDZ0OuYwURBr4Uu1QhIaA";
+
+const btn = document.getElementById('btnAlert');
+const status = document.getElementById('alertStatus');
+
+function setActivated() {
+  btn.textContent = 'Alertas activadas ✓';
+  btn.classList.add('ok');
+  btn.disabled = true;
+  status.textContent = 'Te avisaremos antes de cada apertura: Asia, Europa y EUA.';
+}
+
+async function registrarToken() {
+  const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js', { scope: './firebase-push/' });
+  const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+  if (token) {
+    await setDoc(doc(db, 'mercadoTokens', token), { token, ua: navigator.userAgent, updated: Date.now() });
+  }
+  return token;
+}
+
+// Si ya se concedió el permiso antes, marca el estado y re-registra el token en silencio.
+if (window.Notification && Notification.permission === 'granted') {
+  registrarToken().then((t) => { if (t) setActivated(); }).catch(() => {});
+}
+
+btn.addEventListener('click', async () => {
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+    status.textContent = 'Este navegador no soporta notificaciones. En Android usa Chrome; en iPhone agrega la app a la pantalla de inicio y ábrela desde ahí.';
+    return;
+  }
+  btn.disabled = true; btn.textContent = 'Activando…';
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') {
+      status.textContent = 'Permiso denegado. Actívalo desde los ajustes del sitio para recibir alertas.';
+      btn.disabled = false; btn.textContent = '🔔 Activar';
+      return;
+    }
+    const token = await registrarToken();
+    if (token) setActivated();
+    else { status.textContent = 'No se pudo generar el token. Reintenta con internet.'; btn.disabled = false; btn.textContent = '🔔 Activar'; }
+  } catch (e) {
+    console.error(e);
+    status.textContent = 'Ocurrió un error activando las alertas. Reintenta en unos segundos.';
+    btn.disabled = false; btn.textContent = '🔔 Activar';
+  }
+});
+
+// App abierta cuando llega el aviso (primer plano)
+onMessage(messaging, (payload) => {
+  const n = payload.notification || {};
+  navigator.serviceWorker.ready.then((reg) => {
+    reg.showNotification(n.title || 'Brief de Mercado', { body: n.body || '', icon: 'mercado-icon-192.png' });
+  }).catch(() => {});
+});
+</script>
+</body>
+</html>
