@@ -103,6 +103,19 @@
   .ex-sym { font-family: var(--mono); font-size: 0.72rem; font-weight: 600; color: var(--accent); background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 4px; padding: 0.08rem 0.4rem; white-space: nowrap; }
   .ex-note { font-family: var(--mono); font-size: 0.64rem; color: var(--text-faint); font-style: italic; }
 
+  /* Radar de valor: métricas de valuación, catalizador, factores y riesgos */
+  .metrics { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.3rem; }
+  .metric { font-family: var(--mono); font-size: 0.7rem; font-weight: 600; background: var(--bg-sunken); border: 1px solid var(--border); border-radius: 4px; padding: 0.14rem 0.45rem; color: var(--text); }
+  .metric b { color: var(--accent); font-weight: 700; }
+  .catalyst { display: flex; gap: 0.45rem; align-items: baseline; background: var(--up-soft); border-left: 3px solid var(--up); border-radius: 0 6px 6px 0; padding: 0.5rem 0.7rem; margin-top: 0.4rem; font-size: 0.82rem; }
+  .catalyst .lbl { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--up); font-weight: 700; white-space: nowrap; }
+  .factors { margin: 0.4rem 0 0; padding-left: 1.1rem; font-size: 0.82rem; color: var(--text-muted); }
+  .factors li { margin-bottom: 0.2rem; }
+  .factors li::marker { color: var(--accent); }
+  .risk { display: flex; gap: 0.45rem; align-items: baseline; font-size: 0.78rem; color: var(--down); margin-top: 0.4rem; }
+  .risk .lbl { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 700; white-space: nowrap; }
+  .risk p { margin: 0; color: var(--text-muted); }
+
   .movers { width: 100%; overflow-x: auto; margin-top: 0.5rem; }
   table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 380px; }
   th { text-align: left; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); font-weight: 600; padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--border); }
@@ -195,6 +208,33 @@ function render(d) {
       const w = el('div', 'item');
       w.appendChild(el('span', 'headline', item.headline));
       if (item.synth) w.appendChild(el('p', 'synth', item.synth));
+      if (item.metrics && item.metrics.length) {
+        const m = el('div', 'metrics');
+        item.metrics.forEach((kv) => {
+          const chip = el('span', 'metric');
+          chip.appendChild(Object.assign(el('b'), { textContent: kv.k + ' ' }));
+          chip.appendChild(document.createTextNode(kv.v));
+          m.appendChild(chip);
+        });
+        w.appendChild(m);
+      }
+      if (item.catalyst) {
+        const cat = el('div', 'catalyst');
+        cat.appendChild(el('span', 'lbl', 'Catalizador'));
+        cat.appendChild(el('span', null, item.catalyst));
+        w.appendChild(cat);
+      }
+      if (item.factors && item.factors.length) {
+        const ul = el('ul', 'factors');
+        item.factors.forEach((f) => ul.appendChild(el('li', null, f)));
+        w.appendChild(ul);
+      }
+      if (item.risk) {
+        const rk = el('div', 'risk');
+        rk.appendChild(el('span', 'lbl', '⚠ Riesgo'));
+        rk.appendChild(el('p', null, item.risk));
+        w.appendChild(rk);
+      }
       if (item.exness) w.appendChild(exBlock(item.exness, item.note));
       if (item.source) w.appendChild(el('span', 'source', item.source));
       s.appendChild(w);

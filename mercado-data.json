@@ -79,6 +79,53 @@
       ]
     },
     {
+      "title": "Radar de valor: infravaloradas con catalizador",
+      "count": "PER · P/B",
+      "note": "PER = precio ÷ utilidad por acción (cuántos años de ganancias pagas); P/B = precio ÷ valor en libros (cuánto pagas por el patrimonio contable). Bajos vs. su sector pueden señalar infravaloración — o problemas reales (value trap). Aquí solo entran empresas baratas CON un catalizador identificable: fusión, adquisición o alianza con una grande. No es recomendación de compra.",
+      "items": [
+        {
+          "headline": "Equinox Gold: fusión de $18.5B con Orla Mining para crear el nuevo productor senior de oro de Norteamérica",
+          "synth": "Fusión todo-en-acciones (1 acción de EQX por cada una de Orla): 6 minas, ~$1.4B de flujo libre proyectado y $1.4B de liquidez. Voto de accionistas el 22 de julio; cierre esperado en Q3 2026. Analistas subieron el precio objetivo de CA$31 a CA$35 citando la fusión y mayores márgenes.",
+          "metrics": [
+            { "k": "PER fwd", "v": "8x (sector minero Canadá: 6x)" },
+            { "k": "P/B", "v": "verifica en tu plataforma" },
+            { "k": "Cap. combinada", "v": "$18.5B" }
+          ],
+          "catalyst": "Fusión con Orla Mining aprobándose ahora (voto 22 jul, cierre Q3 2026) + oro en máximos por tensión geopolítica.",
+          "factors": [
+            "Cierre exitoso de la fusión → re-rating a múltiplo de productor 'senior' (los grandes cotizan a PER más alto que los medianos)",
+            "Sinergias operativas y las 3 minas canadienses de larga vida elevando el flujo libre",
+            "Si el oro sigue subiendo por la guerra, cada dólar cae directo al margen",
+            "Posible inclusión en índices de oro grandes al ganar tamaño (compra forzada de ETFs)"
+          ],
+          "risk": "El PER fwd de 8x ya está ARRIBA del promedio del sector (6x) — parte del re-rating ya ocurrió. Si el voto del 22 de julio fracasa o el oro corrige, el descuento se cierra en tu contra. Break fee de $475M si Equinox rompe el acuerdo.",
+          "exness": ["#EQX", "XAUUSD"],
+          "note": "verifica disponibilidad del CFD; el oro (XAUUSD) es el proxy directo",
+          "source": "Equinox Gold / BNN Bloomberg / Seeking Alpha · may–jul 2026"
+        },
+        {
+          "headline": "Inseego: Nokia le vende su negocio global de internet inalámbrico fijo (FWA) y se queda con ~11% de la empresa",
+          "synth": "La adquisición duplicaría los ingresos de Inseego (~$200M anualizados del negocio FWA) al cierre en Q4 2026. Nokia recibe ~7% en acciones y warrants ($20M), invertirá $10M más hasta llegar a ~11%, reembolsa EBITDA negativo del negocio los primeros 12 meses, y colaborarán en 6G y wireless edge. La acción saltó 10% al anunciarse.",
+          "metrics": [
+            { "k": "PER", "v": "N/A (pérdidas: -$16M en Q1)" },
+            { "k": "P/S", "v": "1.36x" },
+            { "k": "P/B", "v": "verifica en tu plataforma" }
+          ],
+          "catalyst": "Nokia no solo le vende el negocio: se convierte en su accionista (~11%) y socio tecnológico en 6G — una validación de un gigante a una small cap.",
+          "factors": [
+            "Cierre del deal en Q4 2026 → ingresos x2 de un día para otro",
+            "El respaldo de Nokia reduce el riesgo de ejecución (reembolsa pérdidas del negocio 12 meses)",
+            "Si el negocio FWA llega a EBITDA positivo bajo Inseego, el mercado tendría que re-valuar una empresa del doble de tamaño",
+            "La colaboración en 6G le da una historia de crecimiento que hoy no está en el precio"
+          ],
+          "risk": "Es una small cap CON PÉRDIDAS (PER no aplica) — el clásico caso donde 'barata' puede ser trampa. Si el deal no cierra en Q4 o la integración falla, no hay colchón de utilidades. Alta volatilidad; probablemente NO disponible como CFD en Exness.",
+          "exness": ["USTEC"],
+          "note": "INSG (Nasdaq) rara vez está como CFD; USTEC como proxy del sector. Verifica en tu plataforma",
+          "source": "SEC 8-K / GuruFocus / Investing.com · abr–jul 2026"
+        }
+      ]
+    },
+    {
       "title": "Geopolítica y materias primas",
       "count": "Medio Oriente · Europa del Este",
       "items": [
