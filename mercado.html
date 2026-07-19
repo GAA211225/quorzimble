@@ -116,6 +116,35 @@
   .risk .lbl { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 700; white-space: nowrap; }
   .risk p { margin: 0; color: var(--text-muted); }
 
+  /* Análisis Tododeia: sectores, señales y perfiles de riesgo */
+  .sector { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem 0.9rem; margin-bottom: 0.7rem; }
+  .sector-head { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.4rem; }
+  .sector-head h3 { font-family: var(--serif); font-size: 0.98rem; font-weight: 600; margin: 0; }
+  .sector-head .sicon { font-size: 1rem; }
+  .sector-sum { font-size: 0.82rem; color: var(--text-muted); margin: 0 0 0.5rem; }
+  .asset-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.45rem; padding: 0.4rem 0; border-top: 1px solid var(--border-soft); font-size: 0.82rem; }
+  .asset-row .aname { font-weight: 600; }
+  .asset-row .aprice { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .asset-row .achg { font-family: var(--mono); font-size: 0.74rem; }
+  .achg.up { color: var(--up); } .achg.down { color: var(--down); }
+  .sig { font-family: var(--mono); font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 3px; padding: 0.1rem 0.4rem; margin-left: auto; }
+  .sig.acum { background: var(--up-soft); color: var(--up); }
+  .sig.vigilar { background: var(--accent-soft); color: var(--accent); }
+  .sig.cautela { background: var(--down-soft); color: var(--down); }
+  .asset-why { flex-basis: 100%; font-size: 0.76rem; color: var(--text-muted); margin: 0; }
+  .correls { background: var(--bg-sunken); border-radius: 8px; padding: 0.65rem 0.85rem; margin: 0.8rem 0; }
+  .correls .lbl { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-faint); font-weight: 700; display: block; margin-bottom: 0.3rem; }
+  .correls ul { margin: 0; padding-left: 1.1rem; font-size: 0.8rem; color: var(--text-muted); }
+  .ptabs { display: flex; gap: 0.4rem; margin: 0.9rem 0 0.6rem; }
+  .ptab { flex: 1; font-family: var(--sans); font-size: 0.78rem; font-weight: 600; padding: 0.45rem 0.3rem; border-radius: 7px; border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text-muted); cursor: pointer; }
+  .ptab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .ptab:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+  .alloc-bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; border: 1px solid var(--border); margin: 0.5rem 0 0.3rem; }
+  .alloc-seg { height: 100%; }
+  .alloc-legend { display: flex; flex-wrap: wrap; gap: 0.3rem 0.8rem; font-family: var(--mono); font-size: 0.66rem; color: var(--text-muted); margin-bottom: 0.6rem; }
+  .alloc-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 0.25rem; vertical-align: baseline; }
+  .profile-sum { font-size: 0.84rem; color: var(--text); margin: 0.4rem 0 0.6rem; }
+
   .movers { width: 100%; overflow-x: auto; margin-top: 0.5rem; }
   table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 380px; }
   th { text-align: left; font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); font-weight: 600; padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--border); }
@@ -259,6 +288,8 @@ function render(d) {
     c.appendChild(s);
   });
 
+  if (d.tododeia) c.appendChild(renderTododeia(d.tododeia));
+
   const f = el('footer');
   f.appendChild(el('p', 'disclaimer', 'Agrega noticias e información pública (medios financieros, disclosures STOCK Act, filings). Los símbolos de Exness son referencia para localizar el instrumento — no son recomendaciones, y su disponibilidad y nomenclatura varían según tu cuenta y región. No es asesoría de inversión personalizada; los datos de fondos y del Congreso llegan con semanas de retraso. Verifica en la fuente y en tu plataforma antes de operar.'));
   const mr = el('div', 'meta-row');
@@ -266,6 +297,104 @@ function render(d) {
   mr.appendChild(el('span', null, d.updateSchedule || ''));
   f.appendChild(mr);
   c.appendChild(f);
+}
+
+/* ===== Análisis Tododeia (motor MAIA): sectores + 3 perfiles ===== */
+const SIG_CLASS = { 'acumulación': 'acum', 'acumulacion': 'acum', 'vigilar': 'vigilar', 'cautela': 'cautela' };
+function fmtNum(n, unit) {
+  if (n == null) return 's/d';
+  const s = n >= 1000 ? n.toLocaleString('en-US', { maximumFractionDigits: 0 }) : n.toLocaleString('en-US', { maximumFractionDigits: 4 });
+  if (unit === 'USD' || unit === 'USD/oz' || unit === 'USD/bbl') return '$' + s;
+  return s;
+}
+function renderTododeia(t) {
+  const s = el('section', 'brief');
+  const head = el('div', 'brief-head');
+  head.appendChild(el('h2', null, 'Análisis Tododeia'));
+  head.appendChild(el('span', 'count', '4 sectores · 3 perfiles'));
+  s.appendChild(head);
+  s.appendChild(el('p', 'sec-note', 'Motor multi-agente MAIA (educativo, no asesoría): precios de APIs públicas, narrativa de noticias. Señales analíticas condicionadas — "acumulación" = las señales la favorecen, "vigilar" = mixto, "cautela" = riesgo domina. ' + (t.note || '')));
+
+  (t.sectors || []).forEach((sec) => {
+    const card = el('div', 'sector');
+    const sh = el('div', 'sector-head');
+    if (sec.icon) sh.appendChild(el('span', 'sicon', sec.icon));
+    sh.appendChild(el('h3', null, sec.name));
+    card.appendChild(sh);
+    if (sec.summary) card.appendChild(el('p', 'sector-sum', sec.summary));
+    (sec.assets || []).forEach((a) => {
+      const row = el('div', 'asset-row');
+      row.appendChild(el('span', 'aname', a.name));
+      if (a.exness) row.appendChild(el('span', 'ex-sym', a.exness));
+      row.appendChild(el('span', 'aprice', fmtNum(a.price, a.unit)));
+      if (a.change24h != null) row.appendChild(el('span', 'achg ' + (a.change24h >= 0 ? 'up' : 'down'), (a.change24h >= 0 ? '▲' : '▼') + ' ' + Math.abs(a.change24h).toFixed(1) + '% 24h'));
+      if (a.signal) row.appendChild(el('span', 'sig ' + (SIG_CLASS[(a.signal || '').toLowerCase()] || 'vigilar'), a.signal));
+      if (a.reasoning) row.appendChild(el('p', 'asset-why', a.reasoning));
+      card.appendChild(row);
+    });
+    s.appendChild(card);
+  });
+
+  if (t.correlations && t.correlations.length) {
+    const co = el('div', 'correls');
+    co.appendChild(el('span', 'lbl', 'Correlaciones entre sectores'));
+    const ul = el('ul');
+    t.correlations.forEach((x) => ul.appendChild(el('li', null, x)));
+    co.appendChild(ul);
+    s.appendChild(co);
+  }
+
+  if (t.profiles) {
+    const order = ['conservador', 'moderado', 'agresivo'];
+    const tabs = el('div', 'ptabs');
+    const body = el('div');
+    const colors = { cripto: '#9B7FD4', acciones: '#5B8FC9', forex: '#4FA98F', commodities: '#C98B4E', cash: '#8891A8' };
+    function show(key) {
+      [...tabs.children].forEach((b) => b.classList.toggle('active', b.dataset.k === key));
+      body.textContent = '';
+      const p = t.profiles[key];
+      if (!p) return;
+      if (p.summary) body.appendChild(el('p', 'profile-sum', p.summary));
+      if (p.allocation) {
+        const bar = el('div', 'alloc-bar');
+        const leg = el('div', 'alloc-legend');
+        Object.entries(p.allocation).forEach(([k, v]) => {
+          if (!v) return;
+          const seg = el('div', 'alloc-seg');
+          seg.style.width = v + '%';
+          seg.style.background = colors[k] || '#777';
+          seg.title = k + ' ' + v + '%';
+          bar.appendChild(seg);
+          const li = el('span');
+          const dot = el('span', 'dot'); dot.style.background = colors[k] || '#777';
+          li.appendChild(dot); li.appendChild(document.createTextNode(k + ' ' + v + '%'));
+          leg.appendChild(li);
+        });
+        body.appendChild(bar); body.appendChild(leg);
+      }
+      (p.picks || []).forEach((pk) => {
+        const row = el('div', 'asset-row');
+        row.appendChild(el('span', 'aname', pk.asset));
+        if (pk.exness) row.appendChild(el('span', 'ex-sym', pk.exness));
+        if (pk.signal) row.appendChild(el('span', 'sig ' + (SIG_CLASS[(pk.signal || '').toLowerCase()] || 'vigilar'), pk.signal));
+        if (pk.reasoning) row.appendChild(el('p', 'asset-why', pk.reasoning));
+        if (pk.risk) { const r = el('p', 'asset-why'); r.style.color = 'var(--down)'; r.textContent = '⚠ ' + pk.risk; row.appendChild(r); }
+        body.appendChild(row);
+      });
+    }
+    order.forEach((k, i) => {
+      const b = el('button', 'ptab' + (i === 1 ? ' active' : ''), k.charAt(0).toUpperCase() + k.slice(1));
+      b.type = 'button'; b.dataset.k = k;
+      b.addEventListener('click', () => show(k));
+      tabs.appendChild(b);
+    });
+    s.appendChild(tabs); s.appendChild(body);
+    show('moderado');
+  }
+
+  if (t.accuracy && t.accuracy.note) s.appendChild(el('p', 'sec-note', '📈 Precisión histórica: ' + (t.accuracy.pct != null ? t.accuracy.pct + '% direccional. ' : '') + t.accuracy.note));
+  if (t.generatedAt) s.appendChild(el('p', 'sec-note', 'Análisis generado: ' + t.generatedAt));
+  return s;
 }
 
 async function loadBrief() {

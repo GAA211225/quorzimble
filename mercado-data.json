@@ -165,5 +165,86 @@
       ]
     }
   ],
+  "tododeia": {
+    "generatedAt": "17 jul 2026 · 18:30 CDMX",
+    "note": "Precios: CoinGecko, Yahoo Finance y Frankfurter (APIs públicas). Índices bursátiles del cierre más reciente reportado en prensa.",
+    "sectors": [
+      {
+        "name": "Cripto",
+        "icon": "₿",
+        "summary": "Mercado en consolidación con sesgo constructivo: las tres mayores suben en 30 días y el respaldo institucional (Fink: bitcoin \"más estable\", tokenización) sostiene la narrativa.",
+        "assets": [
+          { "name": "Bitcoin", "exness": "BTCUSD", "price": 64631, "unit": "USD", "change24h": 1.07, "signal": "vigilar", "reasoning": "+3.3% en 30d, consolidando. El endorsement de BlackRock apoya, pero sin catalizador propio inmediato: se mueve con el apetito de riesgo global." },
+          { "name": "Ethereum", "exness": "ETHUSD", "price": 1870.1, "unit": "USD", "change24h": 1.3, "signal": "vigilar", "reasoning": "+10.4% en 30d, el mejor momentum de las grandes. Si la narrativa de tokenización de los grandes fondos avanza, ETH es el rail natural." },
+          { "name": "Solana", "exness": "SOLUSD", "price": 76.24, "unit": "USD", "change24h": 1.78, "signal": "cautela", "reasoning": "+11.7% en 30d pero plana en 7d: el momentum se enfría. Alta beta — amplifica cualquier corrección del sector." }
+        ]
+      },
+      {
+        "name": "Acciones",
+        "icon": "📈",
+        "summary": "Divergencia clara: tech presionada por dudas sobre el gasto en IA (selloff de semis pese a resultados récord de TSM) mientras salud y defensivas suben con resultados.",
+        "assets": [
+          { "name": "S&P 500", "exness": "US500", "price": 7533.77, "unit": "index", "change24h": -0.51, "signal": "vigilar", "reasoning": "Cae poco pese al golpe tech: la rotación hacia defensivas (Abbott +11%, UNH +5.6%) amortigua. Ventas minoristas débiles añaden duda al consumo." },
+          { "name": "Nasdaq 100", "exness": "USTEC", "price": 25881.95, "unit": "index", "change24h": -1.47, "signal": "cautela", "reasoning": "El mercado cuestiona si el capex de IA se justifica a estas valuaciones — TSM ganó +77% y aun así cayó 4%. Si la duda persiste, el múltiplo tech tiene más que perder." }
+        ]
+      },
+      {
+        "name": "Divisas",
+        "icon": "💱",
+        "summary": "Dólar en encrucijada: la Fed de Warsh apunta a tasas más bajas (negativo USD) pero la tensión bélica genera demanda refugio (positivo USD). Las dos fuerzas se cancelan por ahora.",
+        "assets": [
+          { "name": "USD/MXN", "exness": "USDMXN", "price": 17.4837, "unit": "rate", "change24h": null, "signal": "vigilar", "reasoning": "Peso estable. Si la Fed recorta con la economía sólida, el diferencial de tasas favorece al peso; una escalada bélica fuerte lo revierte vía aversión al riesgo." },
+          { "name": "USD/JPY", "exness": "USDJPY", "price": 162.35, "unit": "rate", "change24h": null, "signal": "vigilar", "reasoning": "Yen débil cerca de niveles que históricamente provocan intervención del BoJ — riesgo de movimiento brusco si Tokio actúa." },
+          { "name": "EUR/USD", "exness": "EURUSD", "price": 1.1435, "unit": "rate", "change24h": null, "signal": "vigilar", "reasoning": "Cotización derivada de la tasa BCE (0.8745 USD→EUR). Europa carga el costo energético de la guerra: gas caro presiona al euro si el conflicto escala." }
+        ]
+      },
+      {
+        "name": "Materias primas",
+        "icon": "🛢️",
+        "summary": "El sector más caliente: la escalada EUA–Irán tiene al crudo +11% semanal y el estrecho de Ormuz con tráfico en mínimos. El oro respira tras el rally, aún 28% bajo su máximo de 52 semanas.",
+        "assets": [
+          { "name": "Crudo WTI", "exness": "USOIL", "price": 81.78, "unit": "USD/bbl", "change24h": 3.07, "signal": "vigilar", "reasoning": "+3.1% hoy por el ataque al petrolero iraní. Mientras Ormuz siga amenazado, el piso es alto — pero una tregua o mediación lo devuelve a $70s rápido. Señal atada 100% al conflicto." },
+          { "name": "Oro", "exness": "XAUUSD", "price": 4018.8, "unit": "USD/oz", "change24h": -1.04, "signal": "acumulación", "reasoning": "Retrocede 1% en el día pero el contexto lo favorece: guerra activa, Fed dovish (tasas bajas = oro fuerte) e inflación sobre meta. Tres vientos de cola simultáneos es raro." }
+        ]
+      }
+    ],
+    "correlations": [
+      "Petróleo arriba + tech abajo = patrón pre-estanflacionario: energía cara comprime márgenes y el mercado castiga valuaciones altas primero.",
+      "Oro −1% con guerra activa sugiere toma de utilidades, no cambio de tendencia — los refugios no se abandonan con Ormuz amenazado.",
+      "Cripto subiendo con tech bajando es divergencia inusual: BTC se está comportando más como oro (refugio) que como Nasdaq (riesgo) esta semana."
+    ],
+    "profiles": {
+      "conservador": {
+        "summary": "Prioridad: no perder. Con guerra activa y dudas en tech, el peso va a refugios (oro, cash) y defensivas con resultados probados.",
+        "allocation": { "acciones": 25, "commodities": 25, "forex": 10, "cripto": 5, "cash": 35 },
+        "picks": [
+          { "asset": "Oro", "exness": "XAUUSD", "signal": "acumulación", "reasoning": "El refugio clásico con tres catalizadores activos (guerra, Fed dovish, inflación). En este perfil es el ancla, no la apuesta.", "risk": "Si hay tregua EUA–Irán repentina, el retroceso puede ser de 3-5% rápido." },
+          { "asset": "Salud/defensivas (vía S&P)", "exness": "US500", "signal": "vigilar", "reasoning": "Abbott +11% y UNH +5.6% muestran dónde está rotando el dinero institucional: resultados reales, no promesas de IA.", "risk": "Si el selloff tech se profundiza, arrastra al índice completo aunque las defensivas aguanten." },
+          { "asset": "Cash (35%)", "exness": null, "signal": "vigilar", "reasoning": "Con volatilidad bélica, la liquidez es una posición: permite comprar si hay pánico sin vender nada en pérdida.", "risk": "Costo de oportunidad si el mercado resuelve al alza." }
+        ]
+      },
+      "moderado": {
+        "summary": "Balance: exposición a la rotación defensiva y al petróleo por evento, con una posición cripto moderada aprovechando su divergencia como refugio.",
+        "allocation": { "acciones": 35, "commodities": 25, "cripto": 10, "forex": 10, "cash": 20 },
+        "picks": [
+          { "asset": "Oro", "exness": "XAUUSD", "signal": "acumulación", "reasoning": "Mismo caso que el perfil conservador: tres vientos de cola simultáneos.", "risk": "Tregua repentina = retroceso rápido." },
+          { "asset": "Crudo WTI", "exness": "USOIL", "signal": "vigilar", "reasoning": "Señal 100% condicionada al evento: mientras Irán amenace Ormuz, el piso del precio es alto. Es una posición de conflicto, no de fundamentales.", "risk": "Cualquier titular de mediación/tregua lo tira 5-8% en horas. Tamaño de posición pequeño y stop definido." },
+          { "asset": "Ethereum", "exness": "ETHUSD", "signal": "vigilar", "reasoning": "El mejor momentum 30d de las grandes (+10.4%) y beneficiario directo si la tokenización institucional (Fink) avanza.", "risk": "Si la divergencia cripto-tech se cierra, es hacia abajo: alta correlación histórica con Nasdaq." },
+          { "asset": "S&P 500", "exness": "US500", "signal": "vigilar", "reasoning": "El índice amplio sobre el tech puro: capturas la rotación defensiva sin apostar todo a que la duda de IA se resuelve pronto.", "risk": "Ventas minoristas débiles: si el consumo se enfría más, ni las defensivas sostienen." }
+        ]
+      },
+      "agresivo": {
+        "summary": "Aprovechar la volatilidad del conflicto y la divergencia cripto, aceptando que las posiciones pueden ir 10-15% en contra antes de resolverse.",
+        "allocation": { "acciones": 30, "cripto": 20, "commodities": 30, "forex": 5, "cash": 15 },
+        "picks": [
+          { "asset": "Crudo WTI", "exness": "USOIL", "signal": "acumulación", "reasoning": "En este perfil, la asimetría del conflicto se juega directo: escalada = $90+, y el tráfico de Ormuz en mínimos de 2 meses es dato duro, no rumor.", "risk": "El trade inverso existe: tregua = caída violenta. Posición que exige monitoreo diario y stop estricto." },
+          { "asset": "Ethereum", "exness": "ETHUSD", "signal": "acumulación", "reasoning": "Momentum + narrativa institucional + divergencia de refugio. Si BTC actúa como oro, ETH es el beta alto de esa rotación.", "risk": "−15% en una semana es normal en ETH. Solo con capital que toleres ver caer." },
+          { "asset": "Nasdaq en pullback", "exness": "USTEC", "signal": "vigilar", "reasoning": "Contrarian: si la duda del capex IA resulta exagerada (TSM +77% de utilidades es real), el rebote del tech será violento. Aún no hay señal de entrada — vigilar soportes.", "risk": "Atrapar cuchillos: el selloff puede extenderse si más semis reportan guías débiles." },
+          { "asset": "USD/JPY corto (yen largo)", "exness": "USDJPY", "signal": "vigilar", "reasoning": "Apuesta de evento: a 162 el BoJ está en zona histórica de intervención. Si interviene, el movimiento es de 2-4% en horas a favor del yen.", "risk": "El 'widow-maker' clásico: el timing del BoJ es impredecible y el carry va en contra mientras esperas." }
+        ]
+      }
+    },
+    "accuracy": { "pct": null, "note": "Primer análisis del motor — la precisión direccional se calculará comparando estas señales contra los precios de corridas futuras." }
+  },
   "updateSchedule": "Actualiza antes de cada apertura: Asia ~5:30 PM · Europa ~12:30 AM · EUA ~7:00 AM (CDMX)"
 }
