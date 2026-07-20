@@ -1,48 +1,48 @@
 {
-  "generatedAt": "19 jul 2026 · 18:00 CDMX",
-  "dateLabel": "Domingo · 19 jul 2026",
+  "generatedAt": "20 jul 2026 · 18:00 CDMX",
+  "dateLabel": "Lunes · 20 jul 2026",
   "focus": "asia",
   "nextOpen": "Próxima apertura · Asia (Tokio) — 6:00 PM CDMX",
-  "watch": "Wall Street cerró su peor semana en meses, arrastrada por el desplome de semiconductoras, y Asia hereda el golpe: el Nikkei ya cayó 4% el viernes y el yen toca mínimos de 40 años mientras la Fed de Warsh gira hacia un tono más hawkish — tecnología golpeada, dólar fuerte y petróleo caro para la apertura de Tokio.",
+  "watch": "Wall Street cerró en rojo el lunes (Dow −1.26%, S&P 500 −0.96%, Nasdaq 100 −2.25%), golpeado de nuevo por semiconductoras que revierten ganancias justo antes de los reportes de Alphabet y Tesla esta semana, mientras el petróleo brinca a casi $90 (Brent) tras un fin de semana de ataques cruzados EUA-Irán. Japón estuvo cerrado por el feriado del Día del Mar — el Nikkei reabre mañana arrastrando su peor caída semanal en más de un año y un yen en mínimos de 40 años, con el gobernador Ueda insinuando una posible alza de tasas del BoJ.",
   "snapshot": [
-    { "label": "Nikkei 225", "ex": "JP225", "value": "64,141.12", "delta": "▼ 4.03%", "dir": "down" },
-    { "label": "USD/JPY", "ex": "USDJPY", "value": "162.35", "delta": "▲ mín. 40 años", "dir": "up" },
-    { "label": "S&P 500", "ex": "US500", "value": "7,457.69", "delta": "▼ 1.01%", "dir": "down" },
-    { "label": "Crudo WTI", "ex": "USOIL", "value": "$83.75", "delta": "▲ 5.6% sem.", "dir": "up" }
+    { "label": "Nikkei 225", "ex": "JP225", "value": "64,141.12", "delta": "▼ 4.03% (vie., cerrado hoy)", "dir": "down" },
+    { "label": "USD/JPY", "ex": "USDJPY", "value": "162.38", "delta": "▲ mín. 40 años", "dir": "up" },
+    { "label": "S&P 500", "ex": "US500", "value": "7,443.28", "delta": "▼ 0.96%", "dir": "down" },
+    { "label": "Crudo WTI", "ex": "USOIL", "value": "$82.59", "delta": "▲ Irán / Ormuz", "dir": "up" }
   ],
   "sections": [
     {
       "title": "Mercados y grandes movimientos",
-      "count": "5 puntos",
+      "count": "3 puntos",
       "items": [
         {
-          "headline": "Wall Street cierra su peor semana en meses; el S&P 500 pierde 1.6% semanal arrastrado por semiconductores",
-          "synth": "El S&P 500 cayó 1.01% el viernes a 7,457.69 (−1.6% en la semana); el Nasdaq Composite cedió 1.4% (−2.9% semanal) y el Dow Jones 0.8% (−0.9% semanal). El índice de semiconductoras de Filadelfia (SOX) tuvo su peor semana en más de un año, con un derrumbe de casi 18% en lo que va de julio. Asia abre el lunes heredando ese mismo golpe.",
-          "exness": ["US500", "USTEC"],
-          "note": "cierre de EUA que marca la apertura de Asia",
-          "source": "Washington Post / Yahoo Finance / MVS Noticias · 17-18 jul 2026"
+          "headline": "Wall Street abre la semana en rojo; semiconductoras pierden tracción antes de los reportes de Alphabet y Tesla",
+          "synth": "El Dow Jones cayó 1.26% a 51,839.26 puntos (−307 según prensa), el S&P 500 perdió 0.96% a 7,443.28 y el Nasdaq 100 retrocedió 2.25% a 28,604.23. Las acciones de chips recortaron ganancias previas mientras el mercado espera los resultados de Alphabet, Tesla, Intel e IBM esta semana — de las ~50 empresas del S&P 500 que ya reportaron, 88% superó expectativas.",
+          "exness": ["US500", "USTEC", "US30"],
+          "note": "cierre de EUA que marca la apertura de Asia el martes",
+          "source": "Yahoo Finance / CNBC · 20 jul 2026"
         },
         {
-          "headline": "El Nikkei se desploma 4.03% el viernes a su nivel más bajo en más de un mes",
-          "synth": "Contagio directo del selloff de semiconductoras en EUA: Kioxia, Tokyo Electron, SoftBank Group, Advantest y Taiyo Yuden lideraron las pérdidas. El Topix cayó 2.72% a 3,919 puntos, también en mínimos de más de un mes. En la semana, Nikkei y Topix perdieron 6.4% y 2.9% respectivamente.",
+          "headline": "Japón cierra sus mercados por el feriado del Día del Mar; el Nikkei reabre el martes cargando su peor semana en más de un año",
+          "synth": "La Bolsa de Tokio permaneció cerrada el lunes por el 'Umi no Hi'. El Nikkei queda congelado en 64,141.12 puntos, tras desplomarse 4.03% el viernes (−6.4% en la semana) por el contagio del selloff de semiconductoras de EUA. El mercado reabre el martes con petróleo más caro y un yen aún más débil que el viernes pasado.",
           "exness": ["JP225"],
-          "note": "la apertura del lunes hereda esta debilidad",
-          "source": "CNBC / Reuters vía Nikkei Asia · 17 jul 2026"
+          "note": "reapertura clave: primera reacción de Japón al petróleo a casi $90 y al selloff de chips en EUA",
+          "source": "ts2.tech / IC Markets / calendario JPX · 20 jul 2026"
         },
         {
-          "headline": "Shanghai Composite cae a mínimo de 11 meses por temor a que la IPO de $8,600M de CXMT drene liquidez",
-          "synth": "El índice perdió 3.05% hasta 3,764.2 puntos; el Shenzhen Component cayó 5.4% a un mínimo de más de tres meses. El PIB de China creció 4.3% interanual en el trimestre, por debajo del rango oficial de meta (4.5%-5%), aunque las exportaciones de junio subieron 27% interanual, el mayor salto desde 2021.",
+          "headline": "Hang Seng y CSI 300 cierran la semana pasada a la baja, arrastrados por el mismo selloff tecnológico",
+          "synth": "El Hang Seng cayó 1.8% (−446 puntos) hasta 24,562 el viernes; el CSI 300 continental perdió 1.64%. Tencent, Meituan, Baidu, Kuaishou y Alibaba retrocedieron entre 0.7% y 3.3%. Pese a esto, Hong Kong acumula +7.5% en julio, aunque su descuento de valuación frente a acciones listadas en el continente se amplió al mayor nivel en más de 10 meses por presión de liquidez y controles de capital de Beijing.",
           "exness": [],
-          "note": "China abre la semana con presión de liquidez y crecimiento mixto",
-          "source": "Bloomberg / Trading Economics · 15-17 jul 2026"
+          "note": "China y Hong Kong también abren el martes con el mismo telón de fondo que Japón",
+          "source": "SCMP / Bloomberg · 17 jul 2026"
         }
       ],
       "movers": [
-        { "name": "Kioxia Holdings", "ex": null, "reason": "Selloff de semiconductoras", "move": "−16.1%", "dir": "down" },
-        { "name": "Taiyo Yuden", "ex": null, "reason": "Arrastre tech", "move": "−11.9%", "dir": "down" },
-        { "name": "SoftBank Group", "ex": null, "reason": "Dudas sobre gasto en IA", "move": "−9.0%", "dir": "down" },
-        { "name": "Tokyo Electron", "ex": null, "reason": "Arrastre tech", "move": "−8.1%", "dir": "down" },
-        { "name": "Advantest", "ex": null, "reason": "Arrastre tech", "move": "−7.2%", "dir": "down" }
+        { "name": "Kioxia Holdings", "ex": null, "reason": "Selloff de semiconductoras (última sesión, vie.)", "move": "−16.1%", "dir": "down" },
+        { "name": "Taiyo Yuden", "ex": null, "reason": "Arrastre tech (última sesión, vie.)", "move": "−11.9%", "dir": "down" },
+        { "name": "SoftBank Group", "ex": null, "reason": "Dudas sobre gasto en IA (última sesión, vie.)", "move": "−9.0%", "dir": "down" },
+        { "name": "Tokyo Electron", "ex": null, "reason": "Arrastre tech (última sesión, vie.)", "move": "−8.1%", "dir": "down" },
+        { "name": "Advantest", "ex": null, "reason": "Arrastre tech (última sesión, vie.)", "move": "−7.2%", "dir": "down" }
       ]
     },
     {
@@ -50,16 +50,16 @@
       "count": "BlackRock",
       "items": [
         {
-          "headline": "BlackRock supera los $15.3 billones (trillion) en activos gestionados; utilidad por acción de $13.91 vs $12.70 esperado",
-          "synth": "Ingresos trimestrales subieron 31% interanual a $7,084M; la firma captó $192,000M en el trimestre ($178,000M en ETFs, $53,000M en fondos activos). El margen operativo GAAP mejoró a 34.7% desde 31.9%. La acción sube cerca de 6% tras el reporte.",
+          "headline": "BlackRock supera los $15.3 billones (trillion) en activos gestionados tras un Q2 récord",
+          "synth": "Utilidad por acción de $13.91 vs $12.70 esperado; ingresos de $7,084M (+31% interanual). La firma captó $192,000M en el trimestre. La acción subió 6.15% el 15 de julio tras el reporte, y analistas siguen elevando sus precios objetivo.",
           "exness": ["#BLK"],
-          "source": "Bloomberg / StocksToTrade / 8-K · 15 jul 2026"
+          "source": "Bloomberg / MarketScreener / Timothy Sykes · 15 jul 2026"
         },
         {
-          "headline": "BlackRock lanza el ETF iShares Nasdaq 100 (IQQ) y gana el mandato de las 'Trump Accounts' del Tesoro de EUA",
-          "synth": "El Tesoro seleccionó los ETF iShares Core S&P 500 (IVV) y Core Total US Stock Market (ITOT) para las nuevas cuentas federales, con BlackRock igualando la aportación de $1,000 del gobierno. El nuevo IQQ cobra 0.10% de comisión.",
+          "headline": "BlackRock lanza el ETF iShares Nasdaq 100 (IQQ) con comisión de 0.10%",
+          "synth": "El nuevo producto amplía la oferta de BlackRock en el segmento tech justo cuando el Nasdaq 100 vuelve a corregir (−2.25% el lunes) antes de los reportes de Alphabet y Tesla.",
           "exness": ["#BLK", "USTEC"],
-          "source": "BlackRock IR / MarketScreener · 15 jul 2026"
+          "source": "BlackRock IR · 15 jul 2026"
         }
       ]
     },
@@ -69,17 +69,11 @@
       "note": "Por ley, los legisladores tienen hasta 45 días para reportar sus operaciones — esto no es en tiempo real, es la disclosure más reciente disponible.",
       "items": [
         {
-          "headline": "Daniel Meuser (R-PA) reporta 5 ventas parciales de NVIDIA entre el 31 de marzo y el 2 de julio",
-          "synth": "Bajo el STOCK Act, la disclosure llega en medio del debate sobre controles de exportación de semiconductores a China — sector central en la agenda legislativa de Meuser y hoy epicentro del selloff que golpea a Japón.",
-          "exness": ["#NVDA"],
-          "source": "Foreign Policy Journal / QuiverQuant · disclosure jul 2026"
-        },
-        {
-          "headline": "Nancy Pelosi mantiene posiciones históricas concentradas en NVIDIA, Apple y Alphabet",
-          "synth": "Sus filings recientes incluyen compra de acciones de NVDA, extendiendo un patrón de años donde estas tres posiciones concentran gran parte de su portafolio declarado — justo cuando el sector semiconductor global, incluido Japón, atraviesa su peor semana en más de un año.",
-          "exness": ["#NVDA", "#AAPL", "#GOOGL"],
-          "note": "mismo sector que hoy lidera la caída en Asia",
-          "source": "QuiverQuant / Gainify · jul 2026"
+          "headline": "La representante Julia Letlow violó el STOCK Act con más de 210 disclosures tardías de operaciones bursátiles",
+          "synth": "Letlow reportó 224 transacciones en enero de 2026, de las cuales 211 llegaron fuera de la ventana de 45 días exigida por el STOCK Act — casi la mitad databan de 2024 y 100 se reportaron con más de un año de retraso. Los montos van de $225,000 a $3.3 millones e incluyen posiciones en Mag7 y salud; su despacho atribuye las operaciones a una cuenta discrecional de Merrill Lynch. El comité de ética condonó la multa de $200.",
+          "exness": [],
+          "note": "el caso reaviva el debate sobre prohibir el trading individual de legisladores, justo en medio del selloff de semiconductoras que domina esta apertura de Asia",
+          "source": "NOTUS / Forbes / Yahoo Finance · ene-abr 2026"
         }
       ]
     },
@@ -89,44 +83,42 @@
       "note": "PER = precio ÷ utilidad por acción (cuántos años de ganancias pagas); P/B = precio ÷ valor en libros (cuánto pagas por el patrimonio contable). Bajos vs. su sector pueden señalar infravaloración — o problemas reales (value trap). Aquí solo entran empresas baratas CON un catalizador identificable: fusión, adquisición o alianza con una grande. No es recomendación de compra.",
       "items": [
         {
-          "headline": "Nippon Sheet Glass: Apollo entra con $3,700M (¥590,000M) en su mayor apuesta de private equity en Japón",
-          "synth": "Apollo transformará deuda en capital mediante una emisión de ¥165,000M y lanzará una oferta pública de adquisición a minoritarios a ¥500/acción, prima sobre el cierre previo. Un refinanciamiento adicional de ¥140,000M respaldado por bancos japoneses reduce pasivos ligados a la adquisición de Pilkington en 2006. Cierre esperado hacia marzo de 2027, pendiente de aprobación de accionistas y reguladores.",
+          "headline": "Samsung Biologics lanza una oferta de $1,800M en efectivo por la suiza PolyPeptide para expandirse en GLP-1",
+          "synth": "La surcoreana Samsung Biologics ofrece 44.31 francos suizos por acción (1.46 mil millones CHF / $1.81 mil millones), una prima de 6.1% sobre el último cierre de PolyPeptide. Draupnir Holding, el mayor accionista individual con ~55.65% del capital, ya respaldó la operación y comprometió sus acciones al tender. La oferta se lanzaría a finales de agosto y cerraría antes de fin de año.",
           "metrics": [
-            { "k": "PER", "v": "N/A en fuente — verifica en tu plataforma" },
-            { "k": "Precio de tender", "v": "¥500/acción (prima sobre cierre previo)" },
+            { "k": "Precio de oferta", "v": "44.31 CHF/acción" },
+            { "k": "Prima", "v": "+6.1% sobre el último cierre" },
+            { "k": "Valor de transacción", "v": "$1,810M / 1,460M CHF" }
+          ],
+          "catalyst": "Tender offer ya anunciado y respaldado por el 55.65% del capital vía Draupnir Holding — ejecución de alta probabilidad, con cierre esperado antes de fin de 2026.",
+          "factors": [
+            "El respaldo del accionista mayoritario reduce sustancialmente el riesgo de que la operación fracase",
+            "Expande la capacidad de Samsung Biologics en terapias basadas en péptidos, incluyendo obesidad y diabetes (GLP-1), el segmento de mayor crecimiento en biofarma",
+            "Forma parte de una ola más amplia de dealmaking asiático: el M&A en Asia-Pacífico ya supera los $750,000M en 2026, un 30% más que el año previo",
+            "Acompaña el patrón de conglomerados surcoreanos comprando activos infravalorados en Europa mientras el won se mantiene débil"
+          ],
+          "risk": "La prima de solo 6.1% es baja frente a otros tender offers de la región — deja poco margen de revalorización adicional para quien compre ahora. Si reguladores suizos o antimonopolio europeos retrasan la aprobación más allá de fin de año, el catalizador pierde fuerza y la acción puede retroceder hacia el precio pre-anuncio.",
+          "exness": [],
+          "note": "target listada en la bolsa suiza (SIX), no disponible como CFD; se sigue por su relevancia como M&A outbound asiático",
+          "source": "U.S. News / Regional Media News · 19 jul 2026"
+        },
+        {
+          "headline": "Actualización: Apollo avanza con su tender offer de $3,700M sobre Nippon Sheet Glass",
+          "synth": "Sigue en pie la oferta de Apollo a ¥500/acción sobre Nippon Sheet Glass, con cierre estimado hacia marzo de 2027 pendiente de aprobación de accionistas y reguladores. Sin cambios materiales esta semana, pero sigue siendo el ancla de precio más clara del universo 'Japón barato' mientras el yen marca nuevos mínimos de 40 años.",
+          "metrics": [
+            { "k": "Precio de tender", "v": "¥500/acción" },
             { "k": "Valor de transacción", "v": "$3,700M / ¥590,000M" }
           ],
           "catalyst": "Inyección de capital y tender offer de Apollo fijan un piso de precio a ¥500/acción mientras avanza la aprobación regulatoria hacia el cierre.",
           "factors": [
             "La reestructuración de deuda ligada a Pilkington (2006) reduce el riesgo de balance",
-            "El refinanciamiento de ¥140,000M respaldado por bancos japoneses da margen operativo",
             "El precio de tender ancla un piso para minoritarios mientras se acerca el cierre",
-            "Forma parte de la ola histórica de M&A hacia Japón (+30% interanual, récord) que atrae capital extranjero a valuaciones consideradas 'baratas'"
+            "Forma parte de la ola histórica de M&A hacia Japón (+27.5% interanual en deals inbound, récord) que atrae capital extranjero a valuaciones consideradas 'baratas' por la debilidad del yen"
           ],
-          "risk": "El cierre no se espera hasta marzo de 2027 — más de 8 meses de exposición a riesgo regulatorio y de aprobación de accionistas. Si el deal se cae, la acción pierde el ancla del precio de tender y vuelve a cotizar sobre los fundamentales de una compañía que necesitaba un rescate de capital.",
+          "risk": "El cierre no se espera hasta marzo de 2027 — más de 7 meses de exposición a riesgo regulatorio y de aprobación de accionistas. Si el deal se cae, la acción pierde el ancla del precio de tender.",
           "exness": ["JP225"],
           "note": "small cap japonesa, probablemente no disponible como CFD; JP225 como proxy del mercado",
-          "source": "Apollo Global Management / QuiverQuant / Private Equity Wire · mar 2026"
-        },
-        {
-          "headline": "Taiyo Holdings: KKR la privatiza con una prima de 117% sobre el promedio de 6 meses",
-          "synth": "KKR ofrece ¥4,750/acción en un tender offer que valora al fabricante de materiales electrónicos en ¥500,000M (~$3,200M). El consejo, DIC Corp, Kowa y Oasis Management (~42.2% del capital combinado) ya respaldaron la operación; la familia fundadora reinvertirá en el vehículo de KKR.",
-          "metrics": [
-            { "k": "Precio de tender", "v": "¥4,750/acción" },
-            { "k": "Prima", "v": "+117.19% sobre el promedio de 6 meses (may 2025)" },
-            { "k": "Valoración", "v": "¥500,000M (~$3,200M)" }
-          ],
-          "catalyst": "Tender offer ya anunciado y respaldado por accionistas que representan ~42.2% del capital — ejecución de alta probabilidad, no especulación.",
-          "factors": [
-            "Respaldo formal del consejo y de los principales accionistas reduce el riesgo de que el deal fracase",
-            "La familia fundadora reinvirtiendo en el vehículo de KKR señala confianza de largo plazo, no una salida de pánico",
-            "La privatización permite decisiones más ágiles sin presión trimestral — tesis central de KKR",
-            "Forma parte de la misma ola de M&A japonesa que atrae capital extranjero hacia valuaciones 'baratas'"
-          ],
-          "risk": "Con el tender ya fijado en ¥4,750 y 117% de prima incorporada al precio, el upside remanente para quien compre AHORA es limitado — es una apuesta de 'cierre sin fricción regulatoria', no de revalorización. Si el deal se cayera (poco probable dado el respaldo), la caída de vuelta al precio pre-anuncio sería severa.",
-          "exness": ["JP225"],
-          "note": "small cap japonesa, verifica disponibilidad del CFD; JP225 como proxy del mercado",
-          "source": "Bloomberg / BusinessWire / Caproasia · abr 2026"
+          "source": "Apollo Global Management / Financier Worldwide · jul 2026 (seguimiento)"
         }
       ]
     },
@@ -135,17 +127,17 @@
       "count": "Medio Oriente · Estrecho de Ormuz",
       "items": [
         {
-          "headline": "EUA ataca Irán por tercer día consecutivo; el tráfico en el estrecho de Ormuz cae más de 50%",
-          "synth": "El Comando Central de EUA confirmó ataques dirigidos a la capacidad iraní de atacar navíos comerciales, tras un ataque a un buque de bandera chipriota. Solo 6 buques cruzaron el estrecho entre las 18:00 GMT del jueves y las 06:00 GMT del viernes, frente a 18-22 cruces diarios previos; el fin de semana completo registró solo 57 tránsitos.",
+          "headline": "La tregua EUA-Irán colapsa: ataques cruzados durante el fin de semana golpean una planta de energía y agua en Kuwait",
+          "synth": "Irán atacó una planta de energía y desalinización en Kuwait el viernes, reactivando la escalada en el Golfo Pérsico tras el acuerdo de paz de junio. El Brent saltó 4.6% el viernes a $88.10 y siguió subiendo hasta rozar $89-90 el lunes. El tránsito por el estrecho de Ormuz —20% del petróleo mundial— cayó más de 50% frente a la semana previa, según MarineTraffic.",
           "exness": ["USOIL", "UKOIL"],
-          "note": "Asia importa gran parte de su energía vía este estrecho — impacto directo en Japón y Corea",
-          "source": "Al Jazeera / CENTCOM · 13-18 jul 2026"
+          "note": "Asia importa gran parte de su energía vía este estrecho — impacto directo en Japón y Corea justo antes de la reapertura del Nikkei",
+          "source": "Al Jazeera / Wikipedia (2026 Strait of Hormuz crisis) · 17-20 jul 2026"
         },
         {
-          "headline": "El Brent toca máximo de un mes en $85.92; el WTI sube a $83.75",
-          "synth": "El Brent subió hasta 3.8% en una sola sesión, acumulando un alza de 9.6% frente a la sesión previa. Para economías asiáticas importadoras netas de energía como Japón y Corea, el encarecimiento se traslada directo a inflación importada y presiona aún más al yen.",
+          "headline": "El Brent acumula +19% desde antes de la guerra EUA-Israel-Irán de febrero; EUA busca precios más bajos de cara a las elecciones intermedias",
+          "synth": "Pese al colapso de la tregua, persiste un paquete económico sobre la mesa para Irán (activos congelados, exenciones de exportación) que Washington querría usar para bajar el precio del crudo antes de noviembre. Para economías asiáticas importadoras netas de energía como Japón y Corea, el petróleo caro se traslada directo a inflación importada.",
           "exness": ["USOIL", "UKOIL"],
-          "source": "Al Jazeera · 18 jul 2026"
+          "source": "Al Jazeera · 14-20 jul 2026"
         }
       ]
     },
@@ -154,103 +146,103 @@
       "count": "Fed · BoJ",
       "items": [
         {
-          "headline": "La Fed de Warsh gira hacia un tono más hawkish: las actas de junio descartan recortes antes de 2027",
-          "synth": "Pese a sus inclinaciones dovish previas, Warsh adoptó un tono hawkish en su primera reunión como presidente — 9 de 17 miembros del 'dot plot' proyectan al menos un alza en 2026. La inflación acelerada y un mercado laboral robusto, agravados por el petróleo caro, cambiaron el cálculo.",
+          "headline": "Warsh muestra su lado más 'hawk': la Fed llega dividida a la reunión del 28-29 de julio",
+          "synth": "El presidente de la Fed, Kevin Warsh, insiste en que 'los precios siguen demasiado altos' pese a la mejora reciente en inflación. El comité está dividido: de los 18 responsables de política, la mitad apoya mantener o bajar tasas y la otra mitad quiere subirlas antes de fin de 2026. El mercado espera que la Fed mantenga tasas sin cambios el 28-29 de julio y suba en septiembre.",
           "exness": ["US500", "XAUUSD"],
-          "note": "giro relevante que revierte la narrativa dovish de julio",
-          "source": "CNN Business / Forbes / Chase · 8-17 jul 2026"
+          "note": "el tono hawkish de Warsh, sumado al petróleo caro, quita soporte monetario justo cuando Asia reabre",
+          "source": "Bloomberg / CNN Business / Chase · 1-18 jul 2026"
         },
         {
-          "headline": "El Ministerio de Finanzas de Japón ya gastó ¥11.73 billones ($73,350M) defendiendo al yen sin éxito duradero",
-          "synth": "Tras la intervención récord de abril-mayo, el USD/JPY volvió a superar el nivel defendido en solo seis semanas. El yen tocó 162.83 esta semana, su nivel más débil en 40 años; analistas advierten que sin acción coordinada con la Fed —ahora más hawkish, no menos— cualquier repunte del yen sería efímero.",
+          "headline": "El gobernador del BoJ, Ueda, deja la puerta abierta a una alza de tasas cercana, y el yen repunta brevemente el lunes",
+          "synth": "Comentarios de Kazuo Ueda ayudaron al yen a subir el lunes, pero la moneda sigue bajo presión por el salto del petróleo — factor que ya pesa sobre economías importadoras de energía como Japón. El USD/JPY se mantiene en 162.38, cerca de su mínimo de 40 años, pese a los ¥11.73 billones ($73,350M) ya gastados por Japón en intervención desde abril-mayo.",
           "exness": ["USDJPY", "JP225"],
-          "note": "clave para esta apertura en Asia",
-          "source": "CNBC / Lazard AM / ING Think · jul 2026"
+          "note": "clave para la reapertura del Nikkei el martes",
+          "source": "CNBC / Bloomberg / Lazard AM · 1-20 jul 2026"
         }
       ]
     }
   ],
   "tododeia": {
-    "generatedAt": "19 jul 2026 · 18:00 CDMX",
-    "note": "Precios: CoinGecko, Yahoo Finance y Frankfurter (APIs públicas). Índices bursátiles del cierre más reciente reportado en prensa. Es fin de semana: las cifras de forex e índices reflejan el cierre del viernes 17 jul.",
+    "generatedAt": "20 jul 2026 · 18:00 CDMX",
+    "note": "Precios: CoinGecko, Yahoo Finance y Frankfurter (APIs públicas), consultados en vivo. Índices bursátiles del cierre más reciente reportado por Yahoo Finance / prensa. El Nikkei no operó hoy (feriado del Día del Mar en Japón) — su precio corresponde al cierre del viernes 17 jul.",
     "sectors": [
       {
         "name": "Cripto",
         "icon": "₿",
-        "summary": "Las tres mayores se mantienen notablemente estables pese al selloff global de riesgo en equities (Nikkei −4%, Nasdaq 100 −1.5%) — ni colapsan con la tecnología ni repuntan con claridad como refugio.",
+        "summary": "Las tres mayores suben en conjunto pese al selloff de equities en EUA y el cierre de Japón por feriado — señal de resiliencia relativa, aunque sin ruptura clara que confirme una tesis de refugio.",
         "assets": [
-          { "name": "Bitcoin", "exness": "BTCUSD", "price": 64614, "unit": "USD", "change24h": -0.21, "signal": "vigilar", "reasoning": "Prácticamente plano en 24h y +1.4% en 7d pese al desplome de Nikkei y Nasdaq 100 — resiliencia relativa, pero sin una ruptura clara que confirme la tesis de refugio." },
-          { "name": "Ethereum", "exness": "ETHUSD", "price": 1873.22, "unit": "USD", "change24h": 0.66, "signal": "vigilar", "reasoning": "Sigue con el mejor momentum de 30d entre las grandes (+9.5%), resiliente pese al selloff tech global. La narrativa de tokenización institucional (BlackRock) sostiene el interés de fondo." },
-          { "name": "Solana", "exness": "SOLUSD", "price": 76.83, "unit": "USD", "change24h": 1.76, "signal": "vigilar", "reasoning": "La señal de cautela del brief anterior no se cumplió (SOL subió). Momentum mixto: +10.7% en 30d pero prácticamente plano en 7d — se mantiene neutral hasta que el momentum defina dirección." }
+          { "name": "Bitcoin", "exness": "BTCUSD", "price": 65170, "unit": "USD", "change24h": 0.77, "signal": "vigilar", "reasoning": "Sube 0.77% en 24h y 5.4% en 7d pese al desplome de Wall Street (Nasdaq 100 −2.25%) — resiliencia relativa, pero el momentum de 30d (+1.5%) sigue siendo modesto." },
+          { "name": "Ethereum", "exness": "ETHUSD", "price": 1900.31, "unit": "USD", "change24h": 1.57, "signal": "vigilar", "reasoning": "Mantiene el mejor momentum de 30d entre las grandes (+9.1%), resiliente pese al selloff tech global. La narrativa de tokenización institucional (BlackRock) sigue sosteniendo el interés de fondo." },
+          { "name": "Solana", "exness": "SOLUSD", "price": 77.66, "unit": "USD", "change24h": 1.69, "signal": "vigilar", "reasoning": "Sube 1.69% en 24h y acumula 5.5% en 7d, extendiendo la recuperación del brief anterior. Momentum positivo pero aún sin una ruptura decisiva que justifique subir la convicción." }
         ]
       },
       {
         "name": "Acciones",
         "icon": "📈",
-        "summary": "El selloff de semiconductoras que golpeó a Wall Street el viernes se propagó directo a Japón: el Nikkei tuvo su peor caída diaria en más de un mes, con el Nasdaq 100 sufriendo el mismo golpe de origen.",
+        "summary": "El selloff de semiconductoras que ya había golpeado a Japón el viernes se extendió a Wall Street el lunes; el Nikkei, cerrado por feriado, reabre mañana para reaccionar con un día de retraso.",
         "assets": [
-          { "name": "Nikkei 225", "exness": "JP225", "price": 64141.12, "unit": "index", "change24h": -4.03, "signal": "cautela", "reasoning": "Contagio directo del selloff de semis de EUA (Kioxia −16%, SoftBank −9%, Tokyo Electron −8%). Sin catalizador de rebote inmediato mientras la Fed gira hawkish y quita soporte monetario global." },
-          { "name": "Nasdaq 100", "exness": "USTEC", "price": 28592.66, "unit": "index", "change24h": -1.49, "signal": "cautela", "reasoning": "Origen del contagio hacia Asia. Sin el colchón de una Fed dovish — Warsh señala posible alza en 2026, no corte — el múltiplo tech tiene más terreno que perder." }
+          { "name": "Nikkei 225", "exness": "JP225", "price": 64141.12, "unit": "index", "change24h": -4.03, "signal": "cautela", "reasoning": "Mercado cerrado hoy por feriado — el precio congelado en el −4.03% del viernes no refleja aún la caída adicional del Nasdaq 100 (−2.25%) ni el petróleo más caro. La reapertura del martes concentra todo ese riesgo acumulado de un solo golpe." },
+          { "name": "Nasdaq 100", "exness": "USTEC", "price": 28604.23, "unit": "index", "change24h": -2.25, "signal": "cautela", "reasoning": "Los chips revirtieron ganancias antes de los reportes de Alphabet y Tesla. Sin el colchón de una Fed dovish —Warsh sigue en modo 'precios muy altos'— el múltiplo tech tiene más terreno que perder si las guías decepcionan." }
         ]
       },
       {
         "name": "Divisas",
         "icon": "💱",
-        "summary": "El yen es el eje de este brief: en mínimos de 40 años pese a $73,350M gastados por Japón en intervención, mientras la Fed gira hawkish y amplía el diferencial de tasas a favor del dólar.",
+        "summary": "El yen sigue siendo el eje de este brief: cerca de mínimos de 40 años pese a los comentarios de Ueda, mientras el petróleo caro añade presión inflacionaria justo antes de la reapertura de Tokio.",
         "assets": [
-          { "name": "USD/MXN", "exness": "USDMXN", "price": 17.4837, "unit": "rate", "change24h": null, "signal": "vigilar", "reasoning": "El giro hawkish de la Fed favorece al dólar de forma amplia, pero Banxico aún no define postura — el diferencial de tasas sigue siendo el driver a monitorear." },
-          { "name": "USD/JPY", "exness": "USDJPY", "price": 162.35, "unit": "rate", "change24h": null, "signal": "vigilar", "reasoning": "Mínimo de 40 años pese a la intervención récord de ¥11.73 billones. Sin ayuda coordinada de una Fed ahora más hawkish, el riesgo de una intervención unilateral repentina del BoJ es alto pero de efecto incierto." },
-          { "name": "EUR/USD", "exness": "EURUSD", "price": 1.1435, "unit": "rate", "change24h": null, "signal": "cautela", "reasoning": "El giro hawkish de la Fed presiona al euro desde el lado de tasas, y Europa sigue cargando el costo energético de la guerra Rusia-Ucrania — doble viento en contra." }
+          { "name": "USD/MXN", "exness": "USDMXN", "price": 17.4899, "unit": "rate", "change24h": null, "signal": "vigilar", "reasoning": "El tono hawkish de la Fed favorece al dólar de forma amplia, pero Banxico aún no define postura — el diferencial de tasas sigue siendo el driver a monitorear." },
+          { "name": "USD/JPY", "exness": "USDJPY", "price": 162.38, "unit": "rate", "change24h": null, "signal": "vigilar", "reasoning": "Los comentarios de Ueda sobre una posible alza de tasas dieron un respiro breve al yen el lunes, pero el petróleo más caro compensa esa fuerza. El riesgo de una intervención unilateral del BoJ sigue latente, con efecto incierto sin apoyo coordinado de una Fed hawkish." },
+          { "name": "EUR/USD", "exness": "EURUSD", "price": 1.1426, "unit": "rate", "change24h": null, "signal": "cautela", "reasoning": "El tono hawkish de la Fed presiona al euro desde el lado de tasas, y Europa sigue expuesta al costo energético del salto petrolero por la escalada en Medio Oriente." }
         ]
       },
       {
         "name": "Materias primas",
         "icon": "🛢️",
-        "summary": "El petróleo es el activo más claro del brief: tercer día de ataques EUA-Irán, tránsito en Ormuz colapsado más de 50%. El oro, en cambio, pierde uno de sus tres vientos de cola con la Fed girando hawkish.",
+        "summary": "El petróleo es, de nuevo, el activo más claro del brief: la tregua EUA-Irán colapsó y el Brent roza los $90. El oro, en cambio, se mantiene plano pese a la guerra activa, con la Fed hawkish quitándole tracción.",
         "assets": [
-          { "name": "Crudo WTI", "exness": "USOIL", "price": 83.75, "unit": "USD/bbl", "change24h": 1.53, "signal": "acumulación", "reasoning": "Tercer día consecutivo de ataques y el estrecho de Ormuz con tránsito en mínimos (solo 57 cruces en todo el fin de semana). Mientras la escalada continúe, el piso del precio se mantiene alto — señal atada 100% al conflicto." },
-          { "name": "Oro", "exness": "XAUUSD", "price": 4006.30, "unit": "USD/oz", "change24h": -0.16, "signal": "cautela", "reasoning": "El giro hawkish de la Fed (sin recortes hasta 2027 según las actas de junio) le quita uno de los tres vientos de cola que sostenían la tesis de acumulación del brief anterior. Retrocede 1.35% en la semana pese a la guerra activa — el dólar fuerte pesa más que el refugio geopolítico por ahora." }
+          { "name": "Crudo WTI", "exness": "USOIL", "price": 82.59, "unit": "USD/bbl", "change24h": 0.12, "signal": "acumulación", "reasoning": "El colapso de la tregua y el ataque a infraestructura en Kuwait durante el fin de semana reactivaron la escalada; el Brent ya rozó $90. Mientras el conflicto siga activo, el piso del precio se mantiene alto." },
+          { "name": "Oro", "exness": "XAUUSD", "price": 4011.40, "unit": "USD/oz", "change24h": -0.03, "signal": "cautela", "reasoning": "Prácticamente plano pese al colapso de la tregua EUA-Irán y el salto del petróleo — el tono hawkish de Warsh (sin cortes hasta 2027 según las últimas actas) sigue pesando más que el refugio geopolítico." }
         ]
       }
     ],
     "correlations": [
-      "La Fed girando hawkish (sin cortes hasta 2027) + selloff tech global (Nikkei −4%, Nasdaq 100 −1.5%) es un doble golpe: tasas más altas Y crecimiento cuestionado castigan simultáneamente a los activos de riesgo.",
-      "El oro cae pese a guerra activa: la repreciación hawkish de la Fed pesa más que el refugio geopolítico por ahora — el dólar fuerte le está ganando al miedo.",
-      "El yen en mínimos de 40 años pese a $73,350M ya gastados por Japón: sin una Fed que ahora se vuelve MÁS hawkish (no menos), la intervención unilateral del BoJ pierde efectividad."
+      "El tono hawkish de Warsh + el selloff de semiconductoras (Nasdaq 100 −2.25%, Nikkei arrastrando −4% desde el viernes) forman un doble golpe: tasas más altas y crecimiento cuestionado castigan simultáneamente a los activos de riesgo justo antes de que Asia reabra.",
+      "El petróleo rozando $90 + un yen cerca de mínimos de 40 años se refuerzan: para Japón, importador neto de energía, el crudo caro y la moneda débil suman presión inflacionaria desde dos frentes a la vez.",
+      "El oro sigue plano pese a una guerra activa en el Golfo: la repreciación hawkish de la Fed sigue ganándole al refugio geopolítico, el mismo patrón que en el brief anterior."
     ],
     "profiles": {
       "conservador": {
-        "summary": "Prioridad: no perder. Con la Fed girando hawkish y el oro perdiendo uno de sus vientos de cola, la liquidez gana peso frente al refugio tradicional mientras se aclara el rumbo de tasas.",
+        "summary": "Prioridad: no perder. Con la Fed dividida rumbo al 28-29 de julio y el oro sin reaccionar a la guerra activa, la liquidez sigue ganando peso frente al refugio tradicional.",
         "allocation": { "acciones": 20, "commodities": 20, "forex": 15, "cripto": 5, "cash": 40 },
         "picks": [
-          { "asset": "Cash (40%)", "exness": null, "signal": "vigilar", "reasoning": "Con la Fed hawkish y el oro perdiendo tracción como refugio, la liquidez es la posición más segura mientras se aclara el rumbo de tasas y el conflicto en Medio Oriente.", "risk": "Costo de oportunidad si los mercados se estabilizan rápido." },
-          { "asset": "Crudo WTI", "exness": "USOIL", "signal": "acumulación", "reasoning": "El catalizador geopolítico más claro y medible de este brief (Ormuz con tránsito −50%), útil como cobertura de portafolio ante una escalada mayor.", "risk": "Cualquier tregua o mediación lo revierte 5-8% en horas." },
-          { "asset": "S&P 500", "exness": "US500", "signal": "vigilar", "reasoning": "Exposición amplia y diversificada en vez de apostar al Nasdaq/semis, que concentran el daño de esta semana.", "risk": "Si el giro hawkish de la Fed golpea a todo el mercado, ni la diversificación protege del todo." }
+          { "asset": "Cash (40%)", "exness": null, "signal": "vigilar", "reasoning": "Con la Fed dividida y el oro sin responder al conflicto activo, la liquidez es la posición más segura mientras se define la reunión del 28-29 de julio y evoluciona la escalada en el Golfo.", "risk": "Costo de oportunidad si los mercados se estabilizan rápido tras la reapertura de Asia." },
+          { "asset": "Crudo WTI", "exness": "USOIL", "signal": "acumulación", "reasoning": "El catalizador geopolítico más claro y medible de este brief (tregua colapsada, ataque a infraestructura en Kuwait), útil como cobertura de portafolio ante una escalada mayor.", "risk": "Cualquier tregua o mediación lo revierte 5-8% en horas." },
+          { "asset": "S&P 500", "exness": "US500", "signal": "vigilar", "reasoning": "Exposición amplia y diversificada en vez de apostar al Nasdaq 100/semis, que concentran el daño de esta semana antes de los reportes de Alphabet y Tesla.", "risk": "Si el tono hawkish de la Fed golpea a todo el mercado, ni la diversificación protege del todo." }
         ]
       },
       "moderado": {
-        "summary": "Balance entre el catalizador geopolítico más claro (petróleo), el mejor momentum cripto (ETH) y una posición reducida en oro y Japón mientras se digiere el giro hawkish de la Fed.",
+        "summary": "Balance entre el catalizador geopolítico más claro (petróleo), el mejor momentum cripto (ETH) y una posición reducida en oro y Japón mientras se digiere la reapertura del Nikkei tras el feriado.",
         "allocation": { "acciones": 30, "commodities": 25, "cripto": 10, "forex": 15, "cash": 20 },
         "picks": [
-          { "asset": "Crudo WTI", "exness": "USOIL", "signal": "acumulación", "reasoning": "La escalada de tres días y el colapso de tránsito en Ormuz mantienen el piso de precio alto.", "risk": "Sensible a titulares de tregua o mediación — tamaño de posición controlado y stop definido." },
-          { "asset": "Ethereum", "exness": "ETHUSD", "signal": "vigilar", "reasoning": "Mejor momentum de 30d entre las mayores criptos (+9.5%), resiliente pese al selloff global de riesgo.", "risk": "Si el selloff de Nasdaq/Nikkei se profundiza, ETH suele arrastrarse por su correlación con activos de riesgo." },
-          { "asset": "Nikkei 225", "exness": "JP225", "signal": "cautela", "reasoning": "La caída de −6.4% semanal ya descuenta buena parte del pánico por semis, y el boom de M&A extranjero en Japón sugiere valor de fondo — pero el momentum de corto plazo sigue en contra.", "risk": "Si el selloff de semiconductoras se extiende, JP225 puede seguir cayendo antes de estabilizarse." },
-          { "asset": "Oro", "exness": "XAUUSD", "signal": "cautela", "reasoning": "El giro hawkish de la Fed le quita un viento de cola clave; posición reducida hasta que se aclare el rumbo de tasas.", "risk": "Si la guerra escala hacia infraestructura crítica, el oro puede revertir con fuerza pese al dólar fuerte." }
+          { "asset": "Crudo WTI", "exness": "USOIL", "signal": "acumulación", "reasoning": "El colapso de la tregua y el ataque a infraestructura en Kuwait mantienen el piso de precio alto de cara a la semana.", "risk": "Sensible a titulares de tregua o mediación — tamaño de posición controlado y stop definido." },
+          { "asset": "Ethereum", "exness": "ETHUSD", "signal": "vigilar", "reasoning": "Mejor momentum de 30d entre las mayores criptos (+9.1%), resiliente pese al selloff global de riesgo.", "risk": "Si el selloff de Nasdaq/Nikkei se profundiza, ETH suele arrastrarse por su correlación con activos de riesgo." },
+          { "asset": "Nikkei 225", "exness": "JP225", "signal": "cautela", "reasoning": "La reapertura del martes concentra en un solo día el retraso del selloff de EUA más el petróleo caro — riesgo de gap bajista al abrir, aunque el boom de M&A extranjero sugiere valor de fondo.", "risk": "Si el selloff de semiconductoras se extiende, JP225 puede seguir cayendo antes de estabilizarse." },
+          { "asset": "Oro", "exness": "XAUUSD", "signal": "cautela", "reasoning": "El tono hawkish de la Fed le sigue quitando tracción incluso con guerra activa; posición reducida hasta que se aclare el rumbo de tasas el 28-29 de julio.", "risk": "Si la guerra escala hacia infraestructura crítica adicional, el oro puede revertir con fuerza pese al dólar fuerte." }
         ]
       },
       "agresivo": {
-        "summary": "Concentración en el evento geopolítico (petróleo), el momentum cripto (ETH, SOL) y dos apuestas de evento en Japón: intervención del BoJ y un posible rebote técnico del Nikkei tras −6.4% semanal.",
+        "summary": "Concentración en el evento geopolítico (petróleo), el momentum cripto (ETH, SOL) y dos apuestas de evento en Japón: intervención del BoJ y la reacción del Nikkei al reabrir tras el feriado.",
         "allocation": { "acciones": 25, "cripto": 20, "commodities": 30, "forex": 10, "cash": 15 },
         "picks": [
-          { "asset": "Crudo WTI", "exness": "USOIL", "signal": "acumulación", "reasoning": "En este perfil, la asimetría del conflicto se juega directo: una escalada mayor hacia infraestructura petrolera podría llevar el precio muy por encima de $85; el tránsito de Ormuz en mínimos es dato duro, no rumor.", "risk": "El trade inverso existe: una tregua causaría una caída violenta. Exige monitoreo diario y stop estricto." },
-          { "asset": "USD/JPY corto (yen largo)", "exness": "USDJPY", "signal": "vigilar", "reasoning": "Apuesta de evento: a 162 el BoJ está en zona histórica de intervención tras gastar ya $73,350M. Si interviene de nuevo, el movimiento puede ser de 2-4% en horas a favor del yen.", "risk": "El 'widow-maker' clásico: el timing del BoJ es impredecible y ahora sin apoyo de una Fed hawkish, la intervención podría fallar de nuevo." },
-          { "asset": "Ethereum", "exness": "ETHUSD", "signal": "acumulación", "reasoning": "Momentum de 30d más fuerte del sector (+9.5%) combinado con la narrativa institucional de tokenización (BlackRock).", "risk": "Correlación alta con Nasdaq: si el selloff tech se profundiza, ETH puede caer 10-15% en días." },
-          { "asset": "Nikkei en pullback", "exness": "JP225", "signal": "vigilar", "reasoning": "Contrarian: si el pánico por semiconductoras resulta exagerado, el rebote técnico tras −6.4% semanal puede ser violento, reforzado por el boom de M&A extranjero que ya considera 'barato' a Japón.", "risk": "Atrapar cuchillos: el selloff puede extenderse si más semiconductoras reportan guías débiles esta semana." },
-          { "asset": "Solana", "exness": "SOLUSD", "signal": "vigilar", "reasoning": "+10.7% en 30d pese al selloff de riesgo global; si el apetito por altcoins vuelve, tiene el beta más alto del grupo cripto seguido.", "risk": "Momentum de 7d plano — sin confirmación aún, puede revertir tan rápido como subió." }
+          { "asset": "Crudo WTI", "exness": "USOIL", "signal": "acumulación", "reasoning": "En este perfil, la asimetría del conflicto se juega directo: el ataque a infraestructura en Kuwait y el colapso de la tregua podrían llevar el precio muy por encima de $90 si la escalada continúa.", "risk": "El trade inverso existe: una tregua nueva causaría una caída violenta. Exige monitoreo diario y stop estricto." },
+          { "asset": "USD/JPY corto (yen largo)", "exness": "USDJPY", "signal": "vigilar", "reasoning": "Apuesta de evento: con Ueda insinuando una alza de tasas y USD/JPY cerca de 162, el BoJ está en zona histórica de intervención tras gastar ya $73,350M. Un anuncio sorpresa puede mover 2-4% en horas a favor del yen.", "risk": "El 'widow-maker' clásico: el timing del BoJ es impredecible y el petróleo caro sigue jugando en contra del yen." },
+          { "asset": "Ethereum", "exness": "ETHUSD", "signal": "acumulación", "reasoning": "Momentum de 30d más fuerte del sector (+9.1%) combinado con la narrativa institucional de tokenización (BlackRock).", "risk": "Correlación alta con Nasdaq: si el selloff tech se profundiza, ETH puede caer 10-15% en días." },
+          { "asset": "Nikkei en reapertura", "exness": "JP225", "signal": "vigilar", "reasoning": "Contrarian: si el gap bajista de la reapertura resulta exagerado frente al riesgo real, el rebote técnico puede ser violento, reforzado por el boom de M&A extranjero que ya considera 'barato' a Japón.", "risk": "Atrapar cuchillos: el selloff puede extenderse si más semiconductoras reportan guías débiles esta semana." },
+          { "asset": "Solana", "exness": "SOLUSD", "signal": "vigilar", "reasoning": "+5.5% en 7d con momentum acelerando; si el apetito por altcoins vuelve, tiene el beta más alto del grupo cripto seguido.", "risk": "Un giro de sentimiento hacia risk-off (por el selloff de equities) puede revertirlo tan rápido como subió." }
         ]
       }
     },
-    "accuracy": { "pct": 0, "note": "De las señales evaluables del brief anterior (17 jul), Oro (acumulación) y Solana (cautela) fallaron direccionalmente en esta ventana de 2 días: 0/2. La señal de Nasdaq 100/USTEC se excluyó del cálculo por una inconsistencia de escala en el precio registrado entonces (25,881.95, muy por debajo del valor real de ~29,000 verificado ahora vía Yahoo ^NDX) — a partir de este brief se usa exclusivamente el precio verificado por API para evitar el error. Ventana corta (2 días) y muestra pequeña (n=2): tómese con cautela." }
+    "accuracy": { "pct": 25, "note": "De las señales evaluables del brief anterior (19 jul, ventana de 1 día de mercado): EUR/USD (cautela) acertó — cayó de 1.1435 a 1.1426. USTEC (cautela), USOIL (acumulación) y XAUUSD (cautela) no se confirmaron — los tres cerraron prácticamente planos frente al valor registrado entonces. 1/4 = 25%. JP225 quedó fuera del cálculo (Japón no operó hoy) y las señales 'vigilar' de cripto se excluyen por metodología. Ventana muy corta (1 día) y muestra pequeña (n=4): tómese con cautela." }
   },
   "updateSchedule": "Actualiza antes de cada apertura: Asia ~5:30 PM · Europa ~12:30 AM · EUA ~7:00 AM (CDMX)"
 }
