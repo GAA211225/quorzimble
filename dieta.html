@@ -89,6 +89,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <button class="nav-btn" onclick="show('lacteos')">🧀 Lácteos</button>
   <button class="nav-btn" onclick="show('cocina')">🍳 Mi Cocina</button>
   <button class="nav-btn" onclick="show('supl')">💊 Suplementos</button>
+  <button class="nav-btn" onclick="show('turno')">🕐 Mi Turno</button>
 </div>
 
 <!-- COMPRAS -->
@@ -354,6 +355,18 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <div class="al"><strong>Importante:</strong> respeta las cantidades y horarios indicados. No combines con otros suplementos o medicamentos nuevos sin confirmarlo antes con quien te los recetó.</div>
 </div>
 
+<!-- MI TURNO -->
+<div id="p-turno" class="page">
+  <p class="sec-title">Mi turno — acomoda comidas y sueño</p>
+  <div class="info">Elige tu turno de esta semana. Las <strong>comidas son las mismas</strong> de Día Gym / Descanso — aquí solo se acomoda el <strong>horario</strong> y tu ventana de sueño. Tu elección se guarda en el teléfono.</div>
+  <div class="seg" id="turno-seg">
+    <button class="seg-btn" data-turno="noche" onclick="setTurno('noche')">🌙 Noche</button>
+    <button class="seg-btn" data-turno="tarde" onclick="setTurno('tarde')">🌆 Tarde</button>
+    <button class="seg-btn" data-turno="dia" onclick="setTurno('dia')">☀️ Día</button>
+  </div>
+  <div id="turno-out"></div>
+</div>
+
 <!-- MI COCINA -->
 <div id="p-cocina" class="page">
   <p class="sec-title">Mi cocina — arma tus comidas con lo que tienes</p>
@@ -388,7 +401,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
 
 <script>
 function show(id){
-  const map={compras:0,inventario:1,gym:2,descanso:3,lacteos:4,cocina:5,supl:6};
+  const map={compras:0,inventario:1,gym:2,descanso:3,lacteos:4,cocina:5,supl:6,turno:7};
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('p-'+id).classList.add('active');
@@ -651,10 +664,73 @@ function generarDia(){
  out.innerHTML=h;
  out.scrollIntoView({behavior:'smooth',block:'start'});
 }
+/* ===== Mi Turno: acomoda horarios de comida y sueño según el turno de trabajo ===== */
+const TURNOS={
+ noche:{
+  label:'🌙 Turno noche',
+  horario:'Trabajas 10:00 pm – 6:00 am',
+  sueno:'Dormir de ~7:30 am a ~2:30 pm (unas 7 h). Cuarto oscuro y antifaz ayudan muchísimo con el sueño de día.',
+  comidas:[
+   {t:'2:30 pm',ic:'☀️',n:'Al despertar',d:'☕ Café + Desayuno: 3 huevos, leche, fruta.'},
+   {t:'5:00 pm',ic:'🍙',n:'Snack',d:'Bolitas de arroz con atún + ensalada.'},
+   {t:'8:00 pm',ic:'🍛',n:'Comida principal — antes de entrar',d:'La más fuerte del día: cerdo + arroz o elote + ensalada + panela. Te da energía para el turno.'},
+   {t:'12:30 am',ic:'🌙',n:'Comida en el turno',d:'Ligera y con proteína: atún o cerdo + verdura. Evita lo más pesado en plena madrugada.'},
+   {t:'4:00 am',ic:'🍎',n:'Snack (si hay hambre o sueño)',d:'Fruta + algo de proteína. Día de gym: galletas si entrenaste.'},
+   {t:'6:30 am',ic:'🥛',n:'Al salir',d:'Algo muy ligero (leche o fruta). Nada pesado justo antes de dormir.'}
+  ],
+  tip:'⚠️ Tu comida más fuerte va ANTES de entrar (noche), no en la madrugada — el cuerpo digiere peor de 1 a 5 am. Sin café después de las 2:00 am para no arruinar el sueño del día.'
+ },
+ tarde:{
+  label:'🌆 Turno tarde',
+  horario:'Trabajas 2:00 pm – 10:00 pm',
+  sueno:'Dormir de ~12:30 am a ~8:30 am (unas 8 h). Horario casi normal.',
+  comidas:[
+   {t:'8:30 am',ic:'🌅',n:'Al despertar',d:'☕ Café + Desayuno: 3 huevos, leche, fruta.'},
+   {t:'11:00 am',ic:'🍙',n:'Snack',d:'Bolitas de arroz con atún.'},
+   {t:'1:00 pm',ic:'🍛',n:'Comida principal — antes de entrar',d:'La más fuerte: cerdo + arroz o elote + ensalada + panela.'},
+   {t:'5:00 pm',ic:'🍎',n:'Merienda en el turno',d:'Fruta + queso panela, o 2 huevos cocidos.'},
+   {t:'8:00 pm',ic:'🌙',n:'Comida en el turno',d:'Proteína + verdura, moderada.'},
+   {t:'10:30 pm',ic:'🥗',n:'Al salir',d:'Cena ligera: atún o cerdo + ensalada. Sin exceso antes de dormir.'}
+  ],
+  tip:'💡 Haz tu comida fuerte antes de entrar (mediodía). Durante el turno, una merienda y una comida moderada; al salir, cena ligera para dormir bien.'
+ },
+ dia:{
+  label:'☀️ Día estándar / libre',
+  horario:'Horario normal, sin turno nocturno',
+  sueno:'Dormir de ~11:00 pm a ~7:00 am.',
+  comidas:[
+   {t:'7:30 am',ic:'🌅',n:'Desayuno',d:'☕ Café + huevos, leche, fruta.'},
+   {t:'10:30 am',ic:'🍙',n:'Snack AM',d:'Bolitas de arroz con atún.'},
+   {t:'2:00 pm',ic:'🍛',n:'Comida',d:'Principal: cerdo + arroz/elote + ensalada.'},
+   {t:'5:00 pm',ic:'🍎',n:'Merienda',d:'Fruta + queso panela.'},
+   {t:'9:00 pm',ic:'🌙',n:'Cena',d:'Ligera: proteína + verdura.'}
+  ],
+  tip:'💡 Estos son los horarios tal cual vienen en Día Gym / Descanso.'
+ }
+};
+let turnoActual;
+try{turnoActual=localStorage.getItem('turnoActual')||'noche';}catch(e){turnoActual='noche';}
+function setTurno(id){turnoActual=id;localStorage.setItem('turnoActual',id);renderTurno();}
+function renderTurno(){
+ const out=document.getElementById('turno-out');
+ if(!out)return;
+ document.querySelectorAll('#turno-seg .seg-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-turno')===turnoActual));
+ const T=TURNOS[turnoActual];
+ let h='<div class="hl"><strong>'+T.label+'</strong> — '+T.horario+'</div>';
+ h+='<div class="card" style="border:1.5px solid #7F77DD;"><div class="meal-hdr"><span class="meal-name">😴 Sueño</span></div><p style="font-size:13px;color:#374151;">'+T.sueno+'</p></div>';
+ T.comidas.forEach(c=>{
+  h+='<div class="card"><div class="meal-hdr"><span class="meal-name">'+c.ic+' '+c.n+'</span><span class="meal-time">'+c.t+'</span></div><p style="font-size:13px;color:#374151;">'+c.d+'</p></div>';
+ });
+ h+='<div class="al">'+T.tip+'</div>';
+ h+='<div class="info">🏋️ <strong>Entreno:</strong> pon el pre-entreno ~90 min antes y el post-entreno justo al terminar, a la hora que entrenes ese día (las comidas son las de Día Gym). 💊 <strong>Suplementos:</strong> Berberina con tu comida principal; Ashwagandha antes de dormir — en turno noche eso cae en la mañana (~7 am).</div>';
+ out.innerHTML=h;
+}
+
 renderChips();
 syncSegUI();
 renderLinkRutina();
 renderSupl();
+renderTurno();
 saveD();
 
 /* Deep-link desde la notificación push: dieta.html#supl abre directo Suplementos */
