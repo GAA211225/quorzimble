@@ -38,8 +38,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
 .info{border-left:3px solid #185FA5;background:#E6F1FB;border-radius:0 8px 8px 0;padding:10px 12px;font-size:13px;color:#185FA5;margin-bottom:8px;}
 .divider{border:none;border-top:1px solid #e5e7eb;margin:14px 0;}
 .meal-name{font-size:14px;font-weight:700;color:#111827;}
-.meal-time{font-size:12px;color:#6b7280;}
-.meal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.meal-time{font-size:12px;color:#6b7280;text-align:right;}
+.meal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;}
 .food-list{font-size:13px;color:#374151;padding-left:14px;margin-bottom:6px;}
 .food-list li{margin-bottom:3px;}
 .macro-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
@@ -48,8 +48,12 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
 .check{color:#1D9E75;font-weight:700;margin-right:6px;}
 .have-row{display:flex;align-items:center;padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:13px;}
 .have-row:last-child{border-bottom:none;}
-.buy-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;}
+.buy-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;gap:8px;cursor:pointer;}
 .buy-row:last-child{border-bottom:none;}
+.buy-box{width:22px;height:22px;min-width:22px;border-radius:6px;border:1.5px solid #cbd5e1;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;}
+.buy-row.bought .buy-box{background:#1D9E75;border-color:#1D9E75;}
+.buy-row.bought .buy-name{text-decoration:line-through;color:#9ca3af;}
+.buy-row.bought{opacity:.7;}
 .chip{display:inline-block;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid #e5e7eb;background:#fff;color:#374151;cursor:pointer;margin:3px;user-select:none;}
 .chip.sel{background:#1D9E75;border-color:#1D9E75;color:#fff;}
 .qty-input{font-size:12px;padding:6px 8px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;color:#1a1a2e;}
@@ -66,6 +70,15 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
 .frase-btn.on{background:#1D9E75;color:#fff;cursor:default;}
 .supl-toggle{margin-top:10px;padding:9px 14px;border-radius:8px;border:1.5px solid #e5e7eb;background:#f3f4f6;color:#6b7280;font-size:13px;font-weight:700;cursor:pointer;width:100%;}
 .supl-toggle.done{background:#1D9E75;border-color:#1D9E75;color:#fff;}
+.card.done{border-color:#1D9E75;background:#F6FDFA;}
+.step{display:flex;align-items:center;gap:8px;margin-top:8px;background:#f3f4f6;border-radius:8px;padding:7px 10px;flex-wrap:wrap;}
+.step-lbl{font-size:11px;color:#6b7280;font-weight:600;flex:1;min-width:110px;}
+.step-btn{width:30px;height:30px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;color:#374151;font-size:16px;font-weight:700;cursor:pointer;line-height:1;}
+.step-val{font-size:13px;font-weight:700;color:#111827;min-width:52px;text-align:center;}
+.prog-form{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;}
+.prog-f{display:flex;flex-direction:column;gap:3px;flex:1;min-width:90px;}
+.prog-f label{font-size:10px;font-weight:700;text-transform:uppercase;color:#6b7280;letter-spacing:.06em;}
+.del-btn{border:none;background:none;color:#993C1D;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;}
 </style>
 </head>
 <body>
@@ -82,14 +95,15 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
 </div>
 
 <div class="nav">
-  <button class="nav-btn active" onclick="show('compras')">🛒 Compras</button>
-  <button class="nav-btn" onclick="show('inventario')">📦 Inventario</button>
-  <button class="nav-btn" onclick="show('gym')">🏋️ Día Gym</button>
-  <button class="nav-btn" onclick="show('descanso')">😴 Descanso</button>
-  <button class="nav-btn" onclick="show('lacteos')">🧀 Lácteos</button>
-  <button class="nav-btn" onclick="show('cocina')">🍳 Mi Cocina</button>
-  <button class="nav-btn" onclick="show('supl')">💊 Suplementos</button>
-  <button class="nav-btn" onclick="show('turno')">🕐 Mi Turno</button>
+  <button class="nav-btn active" data-page="compras" onclick="show('compras')">🛒 Compras</button>
+  <button class="nav-btn" data-page="inventario" onclick="show('inventario')">📦 Inventario</button>
+  <button class="nav-btn" data-page="gym" onclick="show('gym')">🏋️ Día Gym</button>
+  <button class="nav-btn" data-page="descanso" onclick="show('descanso')">😴 Descanso</button>
+  <button class="nav-btn" data-page="turno" onclick="show('turno')">🕐 Mi Turno</button>
+  <button class="nav-btn" data-page="progreso" onclick="show('progreso')">📈 Progreso</button>
+  <button class="nav-btn" data-page="supl" onclick="show('supl')">💊 Suplementos</button>
+  <button class="nav-btn" data-page="cocina" onclick="show('cocina')">🍳 Mi Cocina</button>
+  <button class="nav-btn" data-page="lacteos" onclick="show('lacteos')">🧀 Lácteos</button>
 </div>
 
 <!-- COMPRAS -->
@@ -97,30 +111,32 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <p class="sec-title">Presupuesto semanal — $350 MXN</p>
   <div class="grid3">
     <div class="mcard" style="border:1.5px solid #1D9E75;"><p class="mlabel">Presupuesto</p><p class="mval green">$350 <span class="munit">MXN</span></p></div>
-    <div class="mcard"><p class="mlabel">Total a gastar</p><p class="mval">$315 <span class="munit">MXN</span></p></div>
-    <div class="mcard"><p class="mlabel">Sobrante</p><p class="mval green">$35 <span class="munit">MXN</span></p></div>
+    <div class="mcard"><p class="mlabel">Total a gastar</p><p class="mval">$314 <span class="munit">MXN</span></p></div>
+    <div class="mcard"><p class="mlabel">Sobrante</p><p class="mval green">$36 <span class="munit">MXN</span></p></div>
   </div>
+  <div class="hl" id="compras-progreso">Toca cada producto para tacharlo mientras compras.</div>
   <div class="card">
     <p style="font-size:11px;font-weight:700;color:#993C1D;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">🥩 Proteínas — $207 MXN</p>
-    <div class="buy-row"><div><span style="font-weight:500;">Cerdo (maciza o lomo)</span><br><span style="font-size:11px;color:#6b7280;">~1.5 kg · carnicería o tianguis</span></div><span style="font-weight:700;">$150</span></div>
-    <div class="buy-row"><div><span style="font-weight:500;">Huevos enteros</span><br><span style="font-size:11px;color:#6b7280;">1.5 docenas (18 huevos)</span></div><span style="font-weight:700;">~$57</span></div>
+    <div class="buy-row" data-buy="cerdo"><span class="buy-box">✓</span><div style="flex:1;"><span class="buy-name" style="font-weight:500;">Cerdo (maciza o lomo)</span><br><span style="font-size:11px;color:#6b7280;">~1.5 kg · carnicería o tianguis</span></div><span style="font-weight:700;">$150</span></div>
+    <div class="buy-row" data-buy="huevos"><span class="buy-box">✓</span><div style="flex:1;"><span class="buy-name" style="font-weight:500;">Huevos enteros</span><br><span style="font-size:11px;color:#6b7280;">1.5 docenas (18 huevos)</span></div><span style="font-weight:700;">~$57</span></div>
     <p class="note">💡 El atún ya lo tienes — es tu proteína de respaldo y para las bolitas.</p>
   </div>
   <div class="card">
     <p style="font-size:11px;font-weight:700;color:#854F0B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">🧀 Lácteos — $58 MXN</p>
-    <div class="buy-row"><div><span style="font-weight:500;">Leche Lala deslactosada</span><br><span style="font-size:11px;color:#6b7280;">1 litro</span></div><span style="font-weight:700;">~$28</span></div>
-    <div class="buy-row"><div><span style="font-weight:500;">Queso panela</span><br><span style="font-size:11px;color:#6b7280;">200 g — el mejor para tu objetivo</span></div><span style="font-weight:700;">~$30</span></div>
+    <div class="buy-row" data-buy="leche"><span class="buy-box">✓</span><div style="flex:1;"><span class="buy-name" style="font-weight:500;">Leche Lala deslactosada</span><br><span style="font-size:11px;color:#6b7280;">1 litro</span></div><span style="font-weight:700;">~$28</span></div>
+    <div class="buy-row" data-buy="panela"><span class="buy-box">✓</span><div style="flex:1;"><span class="buy-name" style="font-weight:500;">Queso panela</span><br><span style="font-size:11px;color:#6b7280;">200 g — el mejor para tu objetivo</span></div><span style="font-weight:700;">~$30</span></div>
   </div>
   <div class="card">
     <p style="font-size:11px;font-weight:700;color:#185FA5;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">🍪 HC rápidos + condimentos — $49 MXN</p>
-    <div class="buy-row"><div><span style="font-weight:500;">Galletas de animalito</span><br><span style="font-size:11px;color:#6b7280;">4 paquetes de 60g</span></div><span style="font-weight:700;">~$28</span></div>
-    <div class="buy-row"><div><span style="font-weight:500;">Cebolla · ajo · limones</span><br><span style="font-size:11px;color:#6b7280;">condimentos semana</span></div><span style="font-weight:700;">~$20</span></div>
+    <div class="buy-row" data-buy="galletas"><span class="buy-box">✓</span><div style="flex:1;"><span class="buy-name" style="font-weight:500;">Galletas de animalito</span><br><span style="font-size:11px;color:#6b7280;">4 paquetes de 60g</span></div><span style="font-weight:700;">~$28</span></div>
+    <div class="buy-row" data-buy="condimentos"><span class="buy-box">✓</span><div style="flex:1;"><span class="buy-name" style="font-weight:500;">Cebolla · ajo · limones</span><br><span style="font-size:11px;color:#6b7280;">condimentos semana</span></div><span style="font-weight:700;">~$20</span></div>
   </div>
   <div class="total-bar">
     <span style="font-weight:700;">TOTAL</span>
     <div><span class="pill p-coral">Proteínas $207</span><span class="pill p-amber">Lácteos $58</span><span class="pill p-blue">Otros $49</span><span style="font-weight:700;font-size:16px;color:#0f6e56;margin-left:8px;">= $314</span></div>
   </div>
-  <div style="margin-top:10px;" class="hl"><strong>$35 de sobrante:</strong> Guárdalos para si se acaba alguna verdura a mitad de semana o necesitas más tortillas.</div>
+  <button class="btn-sec" style="margin-top:10px;" onclick="resetCompras()">↺ Reiniciar lista</button>
+  <div style="margin-top:10px;" class="hl"><strong>$36 de sobrante:</strong> Guárdalos para si se acaba alguna verdura a mitad de semana o necesitas más tortillas.</div>
 </div>
 
 <!-- INVENTARIO -->
@@ -153,218 +169,55 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
 
 <!-- DÍA GYM -->
 <div id="p-gym" class="page">
-  <div class="hl" style="margin-bottom:12px;">Día de entrenamiento — <strong>~2,150 kcal</strong> · P:~178g · HC:~218g · L:~63g</div>
-
-  <div class="card">
-    <div class="meal-hdr"><span class="meal-name">🌅 Desayuno</span><span class="meal-time">07:00 – 08:00</span></div>
-    <ul class="food-list">
-      <li><strong>3 huevos enteros</strong> revueltos con nopales y chile poblano</li>
-      <li><strong>1 taza leche Lala</strong> (240 ml)</li>
-      <li><strong>150g papaya o piña</strong></li>
-    </ul>
-    <div class="macro-row"><span class="pill p-blue">P: ~26g</span><span class="pill p-amber">HC: ~29g</span><span class="pill p-teal">L: ~20g</span><span class="pill p-coral">~410 kcal</span></div>
-    <p class="note">💡 Nopal con chile poblano sacia mucho a pocas calorías. El queso panela lo dejamos para la comida y así no se doblan los lípidos del día.</p>
-  </div>
-
-  <div class="card" style="border:1.5px solid #854F0B;">
-    <div class="meal-hdr"><span class="meal-name">☕ Café de la mañana</span><span class="meal-time">Al despertar</span></div>
-    <ul class="food-list">
-      <li><strong>Café</strong> — mayormente agua</li>
-      <li><strong>3 cucharadas de leche Lala</strong> (~45 ml)</li>
-      <li><strong>1 cucharadita de miel multiflora</strong> 100% orgánica (~7g)</li>
-    </ul>
-    <div class="macro-row"><span class="pill p-blue">P: ~2g</span><span class="pill p-amber">HC: ~8g</span><span class="pill p-teal">L: ~1g</span><span class="pill p-coral">~50 kcal</span></div>
-    <p class="note">💡 Muy ligero. La miel da dulzor natural sin disparar el día. Evita azúcar de mesa y cremas saborizadas — ahí se esconden las calorías.</p>
-  </div>
-
-  <div class="card">
-    <div class="meal-hdr"><span class="meal-name">🍙 Snack AM — Bolitas de arroz</span><span class="meal-time">10:30 – 11:00</span></div>
-    <ul class="food-list">
-      <li><strong>1.5 latas atún Tuny</strong> drenado</li>
-      <li><strong>1 taza arroz cocido</strong> (~180g)</li>
-      <li><strong>Aderezo:</strong> poca crema + Valentina/Tapatío + limón</li>
-      <li><strong>Ensalada:</strong> pepino + zanahoria + jitomate al lado</li>
-    </ul>
-    <div class="macro-row"><span class="pill p-blue">P: ~42g</span><span class="pill p-amber">HC: ~45g</span><span class="pill p-teal">L: ~7g</span><span class="pill p-coral">~410 kcal</span></div>
-    <p class="note">💡 El aderezo de crema + salsa compensa los lípidos del día.</p>
-  </div>
-
-  <div class="card">
-    <div class="meal-hdr"><span class="meal-name">🍛 Comida</span><span class="meal-time">14:00 – 15:00</span></div>
-    <ul class="food-list">
-      <li><strong>180g cerdo en crudo</strong> (~135g ya cocido) a la plancha con ajo, comino y chile</li>
-      <li><strong>½ elote</strong> o <strong>½ taza arroz</strong></li>
-      <li><strong>Ensalada:</strong> lechuga, jitomate, zanahoria, limón</li>
-      <li><strong>30g queso panela</strong></li>
-    </ul>
-    <div class="macro-row"><span class="pill p-blue">P: ~42g</span><span class="pill p-amber">HC: ~30g</span><span class="pill p-teal">L: ~19g</span><span class="pill p-coral">~460 kcal</span></div>
-    <p class="note">💡 Alterna elote y arroz para no repetir todos los días.</p>
-    <p class="note">⚖️ <strong>Todas las carnes se pesan en crudo</strong> (antes de cocinar). Al cocinarse pierden ~25-30% de peso. Sin báscula: una porción del tamaño y grosor de tu palma ≈ lo que busca el plan.</p>
-  </div>
-
-  <div class="card" style="border:1.5px solid #7F77DD;">
-    <div class="meal-hdr"><span class="meal-name">💜 Pre-entreno</span><span class="meal-time">90 min antes del gym</span></div>
-    <ul class="food-list">
-      <li><strong>1 lata atún Tuny</strong> drenado</li>
-      <li><strong>½ taza arroz cocido</strong></li>
-      <li><strong>1 plátano mediano</strong></li>
-    </ul>
-    <div class="macro-row"><span class="pill p-blue">P: ~25g</span><span class="pill p-amber">HC: ~49g</span><span class="pill p-teal">L: ~2g</span><span class="pill p-coral">~320 kcal</span></div>
-    <p class="note">⚠️ Sin lípidos altos — digiere rápido y no te pesará en el gym.</p>
-  </div>
-
-  <div class="card" style="border:1.5px solid #854F0B;">
-    <div class="meal-hdr"><span class="meal-name">🍪 Intra-entreno (opcional)</span><span class="meal-time">Pasada la hora</span></div>
-    <ul class="food-list"><li><strong>15-20 galletas de animalito</strong> (~30g)</li></ul>
-    <div class="macro-row"><span class="pill p-blue">P: ~2g</span><span class="pill p-amber">HC: ~21g</span><span class="pill p-coral">~125 kcal</span></div>
-    <p class="note">Solo si notas caída de energía. Si usas intra, reduce las galletas del post.</p>
-  </div>
-
-  <div class="card" style="border:1.5px solid #1D9E75;">
-    <div class="meal-hdr"><span class="meal-name">💚 Post-entreno</span><span class="meal-time">Antes de 45 min</span></div>
-    <ul class="food-list">
-      <li><strong>12-15 galletas de animalito</strong> — al salir del gym</li>
-      <li><strong>1 taza leche Lala</strong> cuando llegues a casa</li>
-    </ul>
-    <div class="macro-row"><span class="pill p-blue">P: ~10g</span><span class="pill p-amber">HC: ~45g</span><span class="pill p-teal">L: ~5g</span><span class="pill p-coral">~270 kcal</span></div>
-    <p class="note">💡 La leche aporta suero + caseína natural — sustituye parcialmente la proteína en polvo.</p>
-  </div>
-
-  <div class="card">
-    <div class="meal-hdr"><span class="meal-name">🌙 Cena</span><span class="meal-time">21:00 – 21:30</span></div>
-    <ul class="food-list">
-      <li><strong>120g cerdo en crudo</strong> (~90g ya cocido) a la plancha</li>
-      <li><strong>Rajas de chile poblano</strong> con cebolla salteadas</li>
-      <li><strong>Ensalada:</strong> lechuga, pepino, zanahoria, limón</li>
-    </ul>
-    <div class="macro-row"><span class="pill p-blue">P: ~32g</span><span class="pill p-amber">HC: ~12g</span><span class="pill p-teal">L: ~9g</span><span class="pill p-coral">~255 kcal</span></div>
-    <p class="note">💡 Cena ligera en HC. Rajas con cerdo = rápido, sabroso, sin arroz necesario.</p>
-  </div>
-
-  <div class="total-bar">
-    <span style="font-weight:700;">Total día gym</span>
-    <div><span class="pill p-blue">P: ~178g</span><span class="pill p-amber">HC: ~218g</span><span class="pill p-teal">L: ~63g</span><span class="pill p-coral">~2,150 kcal</span></div>
-  </div>
-  <p style="font-size:11px;color:#6b7280;margin-top:6px;">☕ El café (~50 kcal) ya está sumado. Quedas ~90 kcal sobre el objetivo de 2,062 — nada grave un día de gym. Si lo quieres exacto: café sin miel (−21 kcal) o quita ½ taza de arroz del snack AM. El intra-entreno (~125 kcal) sigue siendo <strong>opcional</strong> y NO está sumado aquí.</p>
+  <div id="gym-hdr"></div>
+  <div id="gym-comidas"></div>
+  <div id="gym-total"></div>
 </div>
 
 <!-- DÍA DESCANSO -->
 <div id="p-descanso" class="page">
-  <div class="hl" style="margin-bottom:12px;">Día de descanso — <strong>~1,990 kcal</strong> · Sin pre/post entreno · HC reducidos</div>
-
-  <div class="card">
-    <div class="meal-hdr"><span class="meal-name">🌅 Desayuno</span><span class="meal-time">08:00 – 09:00</span></div>
-    <ul class="food-list">
-      <li><strong>3 huevos enteros</strong> con nopales, jitomate y chile</li>
-      <li><strong>1 taza leche Lala</strong></li>
-      <li><strong>150g papaya</strong></li>
-    </ul>
-    <div class="macro-row"><span class="pill p-blue">P: ~32g</span><span class="pill p-amber">HC: ~30g</span><span class="pill p-teal">L: ~20g</span><span class="pill p-coral">~420 kcal</span></div>
-  </div>
-
-  <div class="card" style="border:1.5px solid #854F0B;">
-    <div class="meal-hdr"><span class="meal-name">☕ Café de la mañana</span><span class="meal-time">Al despertar</span></div>
-    <ul class="food-list">
-      <li><strong>Café</strong> — mayormente agua</li>
-      <li><strong>3 cucharadas de leche Lala</strong> (~45 ml)</li>
-      <li><strong>1 cucharadita de miel multiflora</strong> 100% orgánica (~7g)</li>
-    </ul>
-    <div class="macro-row"><span class="pill p-blue">P: ~2g</span><span class="pill p-amber">HC: ~8g</span><span class="pill p-teal">L: ~1g</span><span class="pill p-coral">~50 kcal</span></div>
-    <p class="note">💡 Muy ligero. La miel da dulzor natural sin disparar el día. Evita azúcar de mesa y cremas saborizadas.</p>
-  </div>
-
-  <div class="card">
-    <div class="meal-hdr"><span class="meal-name">🍙 Snack AM</span><span class="meal-time">11:00</span></div>
-    <ul class="food-list">
-      <li><strong>1.5 latas atún Tuny</strong></li>
-      <li><strong>1 taza arroz cocido</strong></li>
-      <li><strong>Ensalada:</strong> zanahoria, pepino, limón</li>
-    </ul>
-    <div class="macro-row"><span class="pill p-blue">P: ~46g</span><span class="pill p-amber">HC: ~44g</span><span class="pill p-teal">L: ~2g</span><span class="pill p-coral">~380 kcal</span></div>
-    <p class="note">💡 Sin galletas de animalito los días de descanso.</p>
-  </div>
-
-  <div class="card">
-    <div class="meal-hdr"><span class="meal-name">🍛 Comida</span><span class="meal-time">14:00 – 15:00</span></div>
-    <ul class="food-list">
-      <li><strong>200g cerdo en crudo</strong> (~145g ya cocido) al horno con ajo y limón</li>
-      <li><strong>½ elote</strong> o <strong>½ taza arroz</strong></li>
-      <li><strong>Ensalada abundante:</strong> lechuga, jitomate, pepino, zanahoria</li>
-      <li><strong>30g queso panela</strong></li>
-    </ul>
-    <div class="macro-row"><span class="pill p-blue">P: ~58g</span><span class="pill p-amber">HC: ~35g</span><span class="pill p-teal">L: ~22g</span><span class="pill p-coral">~565 kcal</span></div>
-  </div>
-
-  <div class="card">
-    <div class="meal-hdr"><span class="meal-name">🍎 Merienda</span><span class="meal-time">17:00</span></div>
-    <ul class="food-list">
-      <li><strong>2 huevos cocidos</strong></li>
-      <li><strong>150g piña o plátano</strong></li>
-      <li><strong>30g queso panela</strong></li>
-    </ul>
-    <div class="macro-row"><span class="pill p-blue">P: ~20g</span><span class="pill p-amber">HC: ~28g</span><span class="pill p-teal">L: ~15g</span><span class="pill p-coral">~320 kcal</span></div>
-    <p class="note">💡 Piña + queso panela = snack de 160 kcal listo en 30 segundos.</p>
-  </div>
-
-  <div class="card">
-    <div class="meal-hdr"><span class="meal-name">🌙 Cena</span><span class="meal-time">20:00 – 21:00</span></div>
-    <ul class="food-list">
-      <li><strong>1 lata atún Tuny</strong></li>
-      <li><strong>Rajas de chile poblano</strong> con cebolla</li>
-      <li><strong>Ensalada:</strong> lechuga, zanahoria, limón</li>
-      <li><strong>30g queso panela</strong></li>
-    </ul>
-    <div class="macro-row"><span class="pill p-blue">P: ~36g</span><span class="pill p-amber">HC: ~10g</span><span class="pill p-teal">L: ~8g</span><span class="pill p-coral">~255 kcal</span></div>
-  </div>
-
-  <div class="total-bar">
-    <span style="font-weight:700;">Total día descanso</span>
-    <div><span class="pill p-blue">P: ~194g</span><span class="pill p-amber">HC: ~155g</span><span class="pill p-teal">L: ~68g</span><span class="pill p-coral">~1,990 kcal</span></div>
-  </div>
-</div>
-
-<!-- LÁCTEOS -->
-<div id="p-lacteos" class="page">
-  <p class="sec-title">Guía de lácteos para tu objetivo</p>
-  <div class="card">
-    <p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:10px;">🧀 Comparativa de quesos por 30g</p>
-    <div class="row"><div><span style="font-weight:600;color:#1D9E75;">✅ Panela</span> <span style="font-size:11px;color:#6b7280;">— recomendado</span></div><div><span class="pill p-coral">70 kcal</span><span class="pill p-blue">6g prot</span><span class="pill p-gray">5g líp.</span></div></div>
-    <div class="row"><div><span style="font-weight:600;color:#185FA5;">✅ Cotija</span> <span style="font-size:11px;color:#6b7280;">— condimento (poca cantidad)</span></div><div><span class="pill p-coral">90 kcal</span><span class="pill p-blue">5g prot</span><span class="pill p-gray">8g líp.</span></div></div>
-    <div class="row"><div><span style="font-weight:600;color:#854F0B;">⚠️ Oaxaca</span> <span style="font-size:11px;color:#6b7280;">— ocasional</span></div><div><span class="pill p-coral">100 kcal</span><span class="pill p-blue">6g prot</span><span class="pill p-gray">8g líp.</span></div></div>
-    <div class="row"><div><span style="font-weight:600;color:#993C1D;">❌ Manchego / amarillo</span> <span style="font-size:11px;color:#6b7280;">— evitar</span></div><div><span class="pill p-coral">120 kcal</span><span class="pill p-blue">7g prot</span><span class="pill p-gray">10g líp.</span></div></div>
-  </div>
-  <div class="card">
-    <p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:10px;">🥛 Leche Lala deslactosada (240ml)</p>
-    <div class="row"><span>Calorías</span><span class="pill p-coral">130 kcal</span></div>
-    <div class="row"><span>Proteína</span><span class="pill p-blue">8g</span></div>
-    <div class="row"><span>Hidratos de Carbono</span><span class="pill p-amber">12g</span></div>
-    <div class="row"><span>Lípidos</span><span class="pill p-gray">5g</span></div>
-    <div class="row"><span>Mejor momento</span><span style="font-size:12px;font-weight:600;color:#0f6e56;">Desayuno o post-entreno</span></div>
-  </div>
-  <div class="hl"><strong>Combinación ganadora:</strong> 150g piña o plátano + 30g queso panela = snack de ~160 kcal y 7g proteína. Listo en 30 segundos, perfecta merienda día de descanso.</div>
-  <div class="hl"><strong>Leche post-entreno:</strong> Tiene suero (rápido) + caseína (lento) de forma natural. 1 taza post-entreno es proteína completa de alta calidad sin polvo.</div>
-  <div class="al"><strong>Ojo con el queso:</strong> Panela es el más bajo en calorías pero más de 60g/día suma lípidos de forma notoria. Úsalo en porciones de 30g — del tamaño de tu pulgar.</div>
-</div>
-
-<!-- SUPLEMENTOS -->
-<div id="p-supl" class="page">
-  <p class="sec-title">Suplementos indicados</p>
-  <div class="info"><strong>Datos capturados tal como se indicaron.</strong> No son una recomendación generada por esta app — corresponden a la indicación que ya recibiste. Ante cualquier duda, mareo o malestar, consulta a quien te los indicó antes de continuar.</div>
-  <div class="hl">🔔 Te llega un recordatorio a las <strong>2:00 pm</strong> (Berberina) y a las <strong>9:00 pm</strong> (Ashwagandha), hora de México. Marca aquí si ya te lo tomaste — se reinicia solo cada día.</div>
-  <div id="supl-cards"></div>
-  <div class="al"><strong>Importante:</strong> respeta las cantidades y horarios indicados. No combines con otros suplementos o medicamentos nuevos sin confirmarlo antes con quien te los recetó.</div>
+  <div id="desc-hdr"></div>
+  <div id="desc-comidas"></div>
+  <div id="desc-total"></div>
 </div>
 
 <!-- MI TURNO -->
 <div id="p-turno" class="page">
   <p class="sec-title">Mi turno — acomoda comidas y sueño</p>
-  <div class="info">Elige tu turno de esta semana. Las <strong>comidas son las mismas</strong> de Día Gym / Descanso — aquí solo se acomoda el <strong>horario</strong> y tu ventana de sueño. Tu elección se guarda en el teléfono.</div>
+  <div class="info">Elige tu turno de esta semana. Las <strong>comidas son las mismas</strong> — aquí se acomoda el <strong>horario</strong> y tu ventana de sueño. Los horarios de Día Gym, Descanso y Mi Cocina se ajustan solos con esta elección.</div>
   <div class="seg" id="turno-seg">
     <button class="seg-btn" data-turno="noche" onclick="setTurno('noche')">🌙 Noche</button>
     <button class="seg-btn" data-turno="tarde" onclick="setTurno('tarde')">🌆 Tarde</button>
     <button class="seg-btn" data-turno="dia" onclick="setTurno('dia')">☀️ Día</button>
   </div>
   <div id="turno-out"></div>
+</div>
+
+<!-- PROGRESO -->
+<div id="p-progreso" class="page">
+  <p class="sec-title">Progreso — 17 semanas</p>
+  <div class="info">Registra tu peso una o dos veces por semana, <strong>siempre en las mismas condiciones</strong> (en ayunas, después del baño, misma ropa). La báscula sube y baja por agua — lo que importa es la línea, no el día suelto.</div>
+  <div class="card">
+    <p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">➕ Nuevo registro</p>
+    <div class="prog-form">
+      <div class="prog-f"><label for="pg-fecha">Fecha</label><input type="date" id="pg-fecha" class="qty-input"></div>
+      <div class="prog-f"><label for="pg-peso">Peso (kg)</label><input type="number" step="0.1" inputmode="decimal" id="pg-peso" class="qty-input" placeholder="82.5"></div>
+      <div class="prog-f"><label for="pg-cintura">Cintura (cm)</label><input type="number" step="0.5" inputmode="decimal" id="pg-cintura" class="qty-input" placeholder="opcional"></div>
+    </div>
+    <button class="btn-main" onclick="guardarProgreso()">Guardar registro</button>
+  </div>
+  <div id="prog-stats"></div>
+  <div id="prog-chart"></div>
+  <div id="prog-lista"></div>
+</div>
+
+<!-- SUPLEMENTOS -->
+<div id="p-supl" class="page">
+  <p class="sec-title">Suplementos indicados</p>
+  <div class="info"><strong>Datos capturados tal como se indicaron.</strong> No son una recomendación generada por esta app — corresponden a la indicación que ya recibiste. Ante cualquier duda, mareo o malestar, consulta a quien te los indicó antes de continuar.</div>
+  <div id="supl-aviso" class="hl"></div>
+  <div id="supl-cards"></div>
+  <div class="al"><strong>Importante:</strong> respeta las cantidades y horarios indicados. No combines con otros suplementos o medicamentos nuevos sin confirmarlo antes con quien te los recetó.</div>
 </div>
 
 <!-- MI COCINA -->
@@ -399,16 +252,391 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <div id="menu-out" style="margin-top:14px;"></div>
 </div>
 
+<!-- LÁCTEOS -->
+<div id="p-lacteos" class="page">
+  <p class="sec-title">Guía de lácteos para tu objetivo</p>
+  <div class="card">
+    <p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:10px;">🧀 Comparativa de quesos por 30g</p>
+    <div class="row"><div><span style="font-weight:600;color:#1D9E75;">✅ Panela</span> <span style="font-size:11px;color:#6b7280;">— recomendado</span></div><div><span class="pill p-coral">70 kcal</span><span class="pill p-blue">6g prot</span><span class="pill p-gray">5g líp.</span></div></div>
+    <div class="row"><div><span style="font-weight:600;color:#185FA5;">✅ Cotija</span> <span style="font-size:11px;color:#6b7280;">— condimento (poca cantidad)</span></div><div><span class="pill p-coral">90 kcal</span><span class="pill p-blue">5g prot</span><span class="pill p-gray">8g líp.</span></div></div>
+    <div class="row"><div><span style="font-weight:600;color:#854F0B;">⚠️ Oaxaca</span> <span style="font-size:11px;color:#6b7280;">— ocasional</span></div><div><span class="pill p-coral">100 kcal</span><span class="pill p-blue">6g prot</span><span class="pill p-gray">8g líp.</span></div></div>
+    <div class="row"><div><span style="font-weight:600;color:#993C1D;">❌ Manchego / amarillo</span> <span style="font-size:11px;color:#6b7280;">— evitar</span></div><div><span class="pill p-coral">120 kcal</span><span class="pill p-blue">7g prot</span><span class="pill p-gray">10g líp.</span></div></div>
+  </div>
+  <div class="card">
+    <p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:10px;">🥛 Leche Lala deslactosada (240ml)</p>
+    <div class="row"><span>Calorías</span><span class="pill p-coral">130 kcal</span></div>
+    <div class="row"><span>Proteína</span><span class="pill p-blue">8g</span></div>
+    <div class="row"><span>Hidratos de Carbono</span><span class="pill p-amber">12g</span></div>
+    <div class="row"><span>Lípidos</span><span class="pill p-gray">5g</span></div>
+    <div class="row"><span>Mejor momento</span><span style="font-size:12px;font-weight:600;color:#0f6e56;">Desayuno o post-entreno</span></div>
+  </div>
+  <div class="hl"><strong>Combinación ganadora:</strong> 150g piña o plátano + 30g queso panela = snack de ~160 kcal y 7g proteína. Listo en 30 segundos, perfecta merienda día de descanso.</div>
+  <div class="hl"><strong>Leche post-entreno:</strong> Tiene suero (rápido) + caseína (lento) de forma natural. 1 taza post-entreno es proteína completa de alta calidad sin polvo.</div>
+  <div class="al"><strong>Ojo con el queso:</strong> Panela es el más bajo en calorías pero más de 60g/día suma lípidos de forma notoria. Úsalo en porciones de 30g — del tamaño de tu pulgar.</div>
+</div>
+
 <script>
+/* ================= NAVEGACIÓN ================= */
 function show(id){
-  const map={compras:0,inventario:1,gym:2,descanso:3,lacteos:4,cocina:5,supl:6,turno:7};
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('p-'+id).classList.add('active');
-  document.querySelectorAll('.nav-btn')[map[id]].classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-page')===id));
+  const el=document.getElementById('p-'+id);
+  if(el)el.classList.add('active');
 }
 
-/* ============ MI COCINA ============ */
+function hoyISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+const hoyIso=hoyISO();
+function ls(k,def){try{const v=JSON.parse(localStorage.getItem(k));return v===null||v===undefined?def:v;}catch(e){return def;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+/* ================= TURNOS ================= */
+/* Los horarios de cada "slot" de comida salen de aquí, así Día Gym, Descanso
+   y Mi Cocina siempre coinciden con el turno elegido. */
+const TURNOS={
+ noche:{
+  label:'🌙 Turno noche',
+  horario:'Trabajas 10:00 pm – 6:00 am',
+  sueno:'Dormir de ~7:30 am a ~2:30 pm (unas 7 h). Cuarto oscuro y antifaz ayudan muchísimo con el sueño de día.',
+  horas:{cafe:'2:30 pm · al despertar',desayuno:'2:30 – 3:00 pm',snack:'5:00 pm',comida:'8:00 pm · antes de entrar',merienda:'4:00 am · en el turno',cena:'12:30 am · en el turno'},
+  supl:{berberina:'8:00 pm — con la comida principal, antes de entrar',ashwagandha:'7:00 am — al salir del turno, antes de dormir'},
+  tip:'⚠️ Tu comida más fuerte va ANTES de entrar (noche), no en la madrugada — el cuerpo digiere peor de 1 a 5 am. Sin café después de las 2:00 am para no arruinar el sueño del día.'
+ },
+ tarde:{
+  label:'🌆 Turno tarde',
+  horario:'Trabajas 2:00 pm – 10:00 pm',
+  sueno:'Dormir de ~12:30 am a ~8:30 am (unas 8 h). Horario casi normal.',
+  horas:{cafe:'8:30 am · al despertar',desayuno:'8:30 – 9:00 am',snack:'11:00 am',comida:'1:00 pm · antes de entrar',merienda:'5:00 pm · en el turno',cena:'8:00 pm · en el turno'},
+  supl:{berberina:'1:00 pm — con la comida principal, antes de entrar',ashwagandha:'11:00 pm — al salir, antes de dormir'},
+  tip:'💡 Haz tu comida fuerte antes de entrar (mediodía). Durante el turno, una merienda y una comida moderada; al salir, cena ligera para dormir bien.'
+ },
+ dia:{
+  label:'☀️ Día estándar / libre',
+  horario:'Horario normal, sin turno nocturno',
+  sueno:'Dormir de ~11:00 pm a ~7:00 am.',
+  horas:{cafe:'Al despertar',desayuno:'7:00 – 8:00 am',snack:'10:30 – 11:00 am',comida:'2:00 – 3:00 pm',merienda:'5:00 pm',cena:'9:00 pm'},
+  supl:{berberina:'2:00 pm — con la comida principal',ashwagandha:'9:00 pm — con la cena o antes de dormir'},
+  tip:'💡 Horario estándar: comidas repartidas a lo largo del día.'
+ }
+};
+/* Estos no dependen del reloj sino del entrenamiento */
+const HORAS_FIJAS={pre:'90 min antes del gym',intra:'Pasada la hora de entreno',post:'Antes de 45 min post-entreno'};
+let turnoActual=localStorage.getItem('turnoActual')||'noche';
+if(!TURNOS[turnoActual])turnoActual='dia';
+function horaDe(slot){return HORAS_FIJAS[slot]||TURNOS[turnoActual].horas[slot]||'';}
+
+/* ================= PLAN DE COMIDAS (datos) =================
+   Los totales se calculan sumando estas comidas, así nunca se descuadran.
+   `ajustable` permite cambiar los gramos de la proteína principal: los macros
+   se recalculan sumando/restando la diferencia con `por100`. */
+const CERDO100={P:20.5,HC:0,L:6,kcal:143}; /* cerdo magro, crudo, por 100 g */
+function cocido(g){return Math.round(g*0.72);}
+
+const PLAN={
+ gym:{
+  titulo:'Día de entrenamiento',objetivo:2062,
+  comidas:[
+   {id:'g-cafe',slot:'cafe',ic:'☕',n:'Café de la mañana',borde:'#854F0B',
+    items:['<strong>Café</strong> — mayormente agua','<strong>3 cucharadas de leche Lala</strong> (~45 ml)','<strong>1 cucharadita de miel multiflora</strong> 100% orgánica (~7g)'],
+    P:2,HC:8,L:1,kcal:50,
+    nota:'💡 Muy ligero. La miel da dulzor natural sin disparar el día. Evita azúcar de mesa y cremas saborizadas — ahí se esconden las calorías.'},
+   {id:'g-desayuno',slot:'desayuno',ic:'🌅',n:'Desayuno',
+    items:['<strong>3 huevos enteros</strong> revueltos con nopales y chile poblano','<strong>1 taza leche Lala</strong> (240 ml)','<strong>150g papaya o piña</strong>'],
+    P:26,HC:29,L:20,kcal:410,
+    nota:'💡 Nopal con chile poblano sacia mucho a pocas calorías. El queso panela lo dejamos para la comida y así no se doblan los lípidos del día.'},
+   {id:'g-snack',slot:'snack',ic:'🍙',n:'Snack — Bolitas de arroz',
+    items:['<strong>1.5 latas atún Tuny</strong> drenado','<strong>1 taza arroz cocido</strong> (~180g)','<strong>Aderezo:</strong> poca crema + Valentina/Tapatío + limón','<strong>Ensalada:</strong> pepino + zanahoria + jitomate al lado'],
+    P:42,HC:45,L:7,kcal:410,
+    nota:'💡 El aderezo de crema + salsa compensa los lípidos del día.'},
+   {id:'g-comida',slot:'comida',ic:'🍛',n:'Comida',
+    ajustable:{nombre:'Cerdo',base:180,min:60,max:300,paso:10,por100:CERDO100,
+     texto:function(g){return '<strong>'+g+'g cerdo en crudo</strong> (~'+cocido(g)+'g ya cocido) a la plancha con ajo, comino y chile';}},
+    items:['<strong>½ elote</strong> o <strong>½ taza arroz</strong>','<strong>Ensalada:</strong> lechuga, jitomate, zanahoria, limón','<strong>30g queso panela</strong>'],
+    P:42,HC:30,L:19,kcal:460,
+    nota:'💡 Alterna elote y arroz para no repetir todos los días. ⚖️ Todas las carnes se pesan <strong>en crudo</strong>; al cocinarse pierden ~25-30%. Sin báscula: una porción del tamaño y grosor de tu palma.'},
+   {id:'g-pre',slot:'pre',ic:'💜',n:'Pre-entreno',borde:'#7F77DD',
+    items:['<strong>1 lata atún Tuny</strong> drenado','<strong>½ taza arroz cocido</strong>','<strong>1 plátano mediano</strong>'],
+    P:25,HC:49,L:2,kcal:320,
+    nota:'⚠️ Sin lípidos altos — digiere rápido y no te pesará en el gym.'},
+   {id:'g-intra',slot:'intra',ic:'🍪',n:'Intra-entreno (opcional)',borde:'#854F0B',opcional:true,
+    items:['<strong>15-20 galletas de animalito</strong> (~30g)'],
+    P:2,HC:21,L:0,kcal:125,
+    nota:'Solo si notas caída de energía. No está sumado en el total. Si lo usas, quita ½ taza de arroz del snack.'},
+   {id:'g-post',slot:'post',ic:'💚',n:'Post-entreno',borde:'#1D9E75',
+    items:['<strong>12-15 galletas de animalito</strong> — al salir del gym','<strong>1 taza leche Lala</strong> cuando llegues a casa'],
+    P:10,HC:45,L:5,kcal:270,
+    nota:'💡 La leche aporta suero + caseína natural — sustituye parcialmente la proteína en polvo.'},
+   {id:'g-cena',slot:'cena',ic:'🌙',n:'Cena',
+    ajustable:{nombre:'Cerdo',base:120,min:60,max:250,paso:10,por100:CERDO100,
+     texto:function(g){return '<strong>'+g+'g cerdo en crudo</strong> (~'+cocido(g)+'g ya cocido) a la plancha';}},
+    items:['<strong>Rajas de chile poblano</strong> con cebolla salteadas','<strong>Ensalada:</strong> lechuga, pepino, zanahoria, limón'],
+    P:32,HC:12,L:9,kcal:255,
+    nota:'💡 Cena ligera en HC. Rajas con cerdo = rápido, sabroso, sin arroz necesario.'}
+  ]
+ },
+ descanso:{
+  titulo:'Día de descanso',objetivo:1940,
+  comidas:[
+   {id:'d-cafe',slot:'cafe',ic:'☕',n:'Café de la mañana',borde:'#854F0B',
+    items:['<strong>Café</strong> — mayormente agua','<strong>3 cucharadas de leche Lala</strong> (~45 ml)','<strong>1 cucharadita de miel multiflora</strong> 100% orgánica (~7g)'],
+    P:2,HC:8,L:1,kcal:50,
+    nota:'💡 Muy ligero. Evita azúcar de mesa y cremas saborizadas.'},
+   {id:'d-desayuno',slot:'desayuno',ic:'🌅',n:'Desayuno',
+    items:['<strong>3 huevos enteros</strong> con nopales, jitomate y chile','<strong>1 taza leche Lala</strong>','<strong>150g papaya</strong>'],
+    P:32,HC:30,L:20,kcal:420},
+   {id:'d-snack',slot:'snack',ic:'🍙',n:'Snack',
+    items:['<strong>1.5 latas atún Tuny</strong> drenado','<strong>1 taza arroz cocido</strong>','<strong>Ensalada:</strong> zanahoria, pepino, limón'],
+    P:46,HC:44,L:2,kcal:380,
+    nota:'💡 Sin galletas de animalito los días de descanso.'},
+   {id:'d-comida',slot:'comida',ic:'🍛',n:'Comida',
+    ajustable:{nombre:'Cerdo',base:200,min:60,max:320,paso:10,por100:CERDO100,
+     texto:function(g){return '<strong>'+g+'g cerdo en crudo</strong> (~'+cocido(g)+'g ya cocido) al horno con ajo y limón';}},
+    items:['<strong>½ elote</strong> o <strong>½ taza arroz</strong>','<strong>Ensalada abundante:</strong> lechuga, jitomate, pepino, zanahoria','<strong>30g queso panela</strong>'],
+    P:58,HC:35,L:22,kcal:565},
+   {id:'d-merienda',slot:'merienda',ic:'🍎',n:'Merienda',
+    items:['<strong>2 huevos cocidos</strong>','<strong>150g piña o plátano</strong>','<strong>30g queso panela</strong>'],
+    P:20,HC:28,L:15,kcal:320,
+    nota:'💡 Piña + queso panela = snack de ~160 kcal listo en 30 segundos.'},
+   {id:'d-cena',slot:'cena',ic:'🌙',n:'Cena',
+    items:['<strong>1 lata atún Tuny</strong> drenado','<strong>Rajas de chile poblano</strong> con cebolla','<strong>Ensalada:</strong> lechuga, zanahoria, limón','<strong>30g queso panela</strong>'],
+    P:36,HC:10,L:8,kcal:255}
+  ]
+ }
+};
+
+/* ---- Porciones ajustables ---- */
+let porciones=ls('porciones',{});
+function gramosDe(m){
+ if(!m.ajustable)return 0;
+ const g=porciones[m.id];
+ return (typeof g==='number'&&isFinite(g))?g:m.ajustable.base;
+}
+function ajustar(planKey,mealId,delta){
+ const m=PLAN[planKey].comidas.find(c=>c.id===mealId);
+ if(!m||!m.ajustable)return;
+ const a=m.ajustable;
+ let g=gramosDe(m)+delta;
+ g=Math.max(a.min,Math.min(a.max,g));
+ porciones[mealId]=g;save('porciones',porciones);
+ renderPlan(planKey);
+}
+function resetPorcion(planKey,mealId){
+ delete porciones[mealId];save('porciones',porciones);renderPlan(planKey);
+}
+function macrosDe(m){
+ let P=m.P,HC=m.HC,L=m.L,kcal=m.kcal;
+ if(m.ajustable){
+  const d=(gramosDe(m)-m.ajustable.base)/100,a=m.ajustable.por100;
+  P+=d*a.P;HC+=d*a.HC;L+=d*a.L;kcal+=d*a.kcal;
+ }
+ return {P:Math.round(P),HC:Math.round(HC),L:Math.round(L),kcal:Math.round(kcal)};
+}
+function totalesDe(planKey){
+ let P=0,HC=0,L=0,kcal=0;
+ PLAN[planKey].comidas.forEach(m=>{
+  if(m.opcional)return;
+  const x=macrosDe(m);P+=x.P;HC+=x.HC;L+=x.L;kcal+=x.kcal;
+ });
+ return {P,HC,L,kcal};
+}
+
+/* ---- Comidas hechas (se reinicia cada día) ---- */
+let comidasHechas=ls('comidasHechas',null);
+if(!comidasHechas||comidasHechas.fecha!==hoyIso){comidasHechas={fecha:hoyIso};save('comidasHechas',comidasHechas);}
+function toggleComida(planKey,id){
+ comidasHechas[id]=!comidasHechas[id];save('comidasHechas',comidasHechas);renderPlan(planKey);
+}
+
+function renderPlan(planKey){
+ const pre=planKey==='gym'?'gym':'desc';
+ const cont=document.getElementById(pre+'-comidas');
+ if(!cont)return;
+ const D=PLAN[planKey],T=totalesDe(planKey);
+ const oblig=D.comidas.filter(m=>!m.opcional);
+ const hechas=oblig.filter(m=>comidasHechas[m.id]).length;
+
+ document.getElementById(pre+'-hdr').innerHTML=
+  '<div class="hl" style="margin-bottom:12px;">'+D.titulo+' — <strong>~'+T.kcal.toLocaleString('es-MX')+' kcal</strong> · P:~'+T.P+'g · HC:~'+T.HC+'g · L:~'+T.L+'g'
+  +'<br><span style="font-size:12px;">🕐 Horarios de <strong>'+TURNOS[turnoActual].label+'</strong> · ✅ '+hechas+' de '+oblig.length+' comidas hechas hoy</span></div>';
+
+ cont.innerHTML=D.comidas.map(m=>{
+  const x=macrosDe(m),hecha=!!comidasHechas[m.id];
+  const borde=m.borde?'border:1.5px solid '+m.borde+';':'';
+  let items='';
+  if(m.ajustable)items+='<li>'+m.ajustable.texto(gramosDe(m))+'</li>';
+  items+=m.items.map(i=>'<li>'+i+'</li>').join('');
+  let h='<div class="card'+(hecha?' done':'')+'" style="'+borde+'">'
+   +'<div class="meal-hdr"><span class="meal-name">'+m.ic+' '+m.n+'</span><span class="meal-time">'+horaDe(m.slot)+'</span></div>'
+   +'<ul class="food-list">'+items+'</ul>'
+   +'<div class="macro-row"><span class="pill p-blue">P: ~'+x.P+'g</span><span class="pill p-amber">HC: ~'+x.HC+'g</span><span class="pill p-teal">L: ~'+x.L+'g</span><span class="pill p-coral">~'+x.kcal+' kcal</span></div>';
+  if(m.ajustable){
+   const g=gramosDe(m),a=m.ajustable;
+   h+='<div class="step"><span class="step-lbl">⚖️ '+a.nombre+' (crudo)</span>'
+    +'<button class="step-btn" onclick="ajustar(\''+planKey+'\',\''+m.id+'\',-'+a.paso+')" aria-label="Menos">−</button>'
+    +'<span class="step-val">'+g+' g</span>'
+    +'<button class="step-btn" onclick="ajustar(\''+planKey+'\',\''+m.id+'\','+a.paso+')" aria-label="Más">+</button>';
+   if(g!==a.base)h+='<button class="btn-sec" style="padding:5px 9px;font-size:11px;" onclick="resetPorcion(\''+planKey+'\',\''+m.id+'\')">↺ '+a.base+'g</button>';
+   h+='</div>';
+  }
+  if(m.nota)h+='<p class="note">'+m.nota+'</p>';
+  h+='<button class="supl-toggle'+(hecha?' done':'')+'" onclick="toggleComida(\''+planKey+'\',\''+m.id+'\')">'+(hecha?'✅ Ya me la comí':'⏳ Marcar como hecha')+'</button>';
+  h+='</div>';
+  return h;
+ }).join('');
+
+ const dif=T.kcal-D.objetivo;
+ const sig=dif>0?'+':'';
+ document.getElementById(pre+'-total').innerHTML=
+  '<div class="total-bar"><span style="font-weight:700;">Total '+(planKey==='gym'?'día gym':'día descanso')+'</span>'
+  +'<div><span class="pill p-blue">P: ~'+T.P+'g</span><span class="pill p-amber">HC: ~'+T.HC+'g</span><span class="pill p-teal">L: ~'+T.L+'g</span><span class="pill p-coral">~'+T.kcal.toLocaleString('es-MX')+' kcal</span></div></div>'
+  +'<p style="font-size:11px;color:#6b7280;margin-top:6px;">Objetivo: ~'+D.objetivo.toLocaleString('es-MX')+' kcal · vas <strong>'+sig+dif+' kcal</strong>. Los totales se calculan sumando las comidas de arriba, así que siempre cuadran. El intra-entreno es opcional y no se suma.</p>';
+}
+
+/* ================= SUPLEMENTOS ================= */
+const SUPLEMENTOS=[
+ {id:'berberina',ic:'💊',nombre:'Berberina Complex (Oby)',dosis:'1 cápsula',borde:'#185FA5'},
+ {id:'ashwagandha',ic:'💊',nombre:'Ashwagandha KM-66',dosis:'3 cápsulas juntas',borde:'#7F77DD'}
+];
+let suplEstado=ls('suplEstado',null);
+if(!suplEstado||suplEstado.fecha!==hoyIso){
+ suplEstado={fecha:hoyIso};SUPLEMENTOS.forEach(s=>{suplEstado[s.id]=false;});save('suplEstado',suplEstado);
+}
+function toggleSupl(id){suplEstado[id]=!suplEstado[id];save('suplEstado',suplEstado);renderSupl();}
+function renderSupl(){
+ const el=document.getElementById('supl-cards');
+ if(!el)return;
+ const S=TURNOS[turnoActual].supl;
+ document.getElementById('supl-aviso').innerHTML='🔔 Horarios de <strong>'+TURNOS[turnoActual].label+'</strong>. El recordatorio te llega a esa hora y se ajusta solo si cambias de turno. Marca aquí si ya te lo tomaste — se reinicia cada día.';
+ el.innerHTML=SUPLEMENTOS.map(s=>{
+  const tomado=!!suplEstado[s.id];
+  return '<div class="card'+(tomado?' done':'')+'" style="border:1.5px solid '+s.borde+';">'
+   +'<div class="meal-hdr"><span class="meal-name">'+s.ic+' '+s.nombre+'</span></div>'
+   +'<ul class="food-list"><li><strong>'+s.dosis+'</strong></li><li><strong>Cuándo:</strong> '+S[s.id]+'</li></ul>'
+   +'<button class="supl-toggle'+(tomado?' done':'')+'" onclick="toggleSupl(\''+s.id+'\')">'+(tomado?'✅ Ya me lo tomé hoy':'⏳ Aún no — toca para marcar')+'</button>'
+   +'</div>';
+ }).join('');
+}
+
+/* ================= MI TURNO ================= */
+function setTurno(id){
+ if(!TURNOS[id])return;
+ turnoActual=id;localStorage.setItem('turnoActual',id);
+ renderTurno();renderSupl();renderPlan('gym');renderPlan('descanso');
+ if(window.syncTurnoRemoto)window.syncTurnoRemoto(id);
+}
+function renderTurno(){
+ const out=document.getElementById('turno-out');
+ if(!out)return;
+ document.querySelectorAll('#turno-seg .seg-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-turno')===turnoActual));
+ const T=TURNOS[turnoActual];
+ let h='<div class="hl"><strong>'+T.label+'</strong> — '+T.horario+'</div>';
+ h+='<div class="card" style="border:1.5px solid #7F77DD;"><div class="meal-hdr"><span class="meal-name">😴 Sueño</span></div><p style="font-size:13px;color:#374151;">'+T.sueno+'</p></div>';
+ const orden=[['cafe','☕','Café'],['desayuno','🌅','Desayuno'],['snack','🍙','Snack'],['comida','🍛','Comida principal'],['merienda','🍎','Merienda'],['cena','🌙','Cena']];
+ orden.forEach(function(o){
+  h+='<div class="card"><div class="meal-hdr"><span class="meal-name">'+o[1]+' '+o[2]+'</span><span class="meal-time">'+T.horas[o[0]]+'</span></div></div>';
+ });
+ h+='<div class="al">'+T.tip+'</div>';
+ h+='<div class="card" style="border:1.5px solid #185FA5;"><div class="meal-hdr"><span class="meal-name">💊 Suplementos en este turno</span></div>'
+  +'<ul class="food-list"><li><strong>Berberina:</strong> '+T.supl.berberina+'</li><li><strong>Ashwagandha:</strong> '+T.supl.ashwagandha+'</li></ul></div>';
+ h+='<div class="info">🏋️ <strong>Entreno:</strong> el pre-entreno va ~90 min antes y el post justo al terminar, a la hora que entrenes ese día. Estos horarios ya se aplican en <strong>Día Gym</strong>, <strong>Descanso</strong> y <strong>Mi Cocina</strong>.</div>';
+ out.innerHTML=h;
+}
+
+/* ================= PROGRESO ================= */
+let progreso=ls('progreso',[]);
+function guardarProgreso(){
+ const f=document.getElementById('pg-fecha').value||hoyIso;
+ const peso=parseFloat(document.getElementById('pg-peso').value);
+ const cinturaRaw=document.getElementById('pg-cintura').value;
+ const cintura=cinturaRaw===''?null:parseFloat(cinturaRaw);
+ if(!isFinite(peso)||peso<=0){alert('Escribe un peso válido en kg.');return;}
+ progreso=progreso.filter(r=>r.f!==f);
+ progreso.push({f:f,peso:peso,cintura:(isFinite(cintura)?cintura:null)});
+ progreso.sort((a,b)=>a.f<b.f?-1:1);
+ save('progreso',progreso);
+ document.getElementById('pg-peso').value='';
+ document.getElementById('pg-cintura').value='';
+ renderProgreso();
+}
+function borrarProgreso(f){
+ progreso=progreso.filter(r=>r.f!==f);save('progreso',progreso);renderProgreso();
+}
+function fechaCorta(f){const p=f.split('-');return p[2]+'/'+p[1];}
+function chartSVG(datos){
+ if(datos.length<2)return '<div class="card"><p style="font-size:12px;color:#6b7280;font-style:italic;">Registra al menos 2 pesos para ver la tendencia.</p></div>';
+ const W=320,H=110,pad=14;
+ const pesos=datos.map(d=>d.peso);
+ const min=Math.min.apply(null,pesos),max=Math.max.apply(null,pesos);
+ const rango=(max-min)||1;
+ const pts=datos.map(function(d,i){
+  const x=pad+(datos.length===1?0:i*(W-2*pad)/(datos.length-1));
+  const y=pad+(H-2*pad)-((d.peso-min)/rango)*(H-2*pad);
+  return [x,y];
+ });
+ const path=pts.map(function(p,i){return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1);}).join(' ');
+ const circles=pts.map(function(p){return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.5" fill="#1D9E75"/>';}).join('');
+ return '<div class="card"><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">📉 Tendencia de peso</p>'
+  +'<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block;">'
+  +'<path d="'+path+'" fill="none" stroke="#1D9E75" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+circles
+  +'<text x="2" y="10" font-size="9" fill="#6b7280">'+max.toFixed(1)+'</text>'
+  +'<text x="2" y="'+(H-2)+'" font-size="9" fill="#6b7280">'+min.toFixed(1)+'</text>'
+  +'</svg>'
+  +'<div style="display:flex;justify-content:space-between;font-size:10px;color:#6b7280;margin-top:2px;"><span>'+fechaCorta(datos[0].f)+'</span><span>'+fechaCorta(datos[datos.length-1].f)+'</span></div></div>';
+}
+function renderProgreso(){
+ const st=document.getElementById('prog-stats');
+ if(!st)return;
+ const inp=document.getElementById('pg-fecha');
+ if(inp&&!inp.value)inp.value=hoyIso;
+ if(!progreso.length){
+  st.innerHTML='<div class="al">Aún no hay registros. Pésate en ayunas y guarda el primero — ese es tu punto de partida.</div>';
+  document.getElementById('prog-chart').innerHTML='';
+  document.getElementById('prog-lista').innerHTML='';
+  return;
+ }
+ const primero=progreso[0],ultimo=progreso[progreso.length-1];
+ const cambio=ultimo.peso-primero.peso;
+ const ult7=progreso.slice(-7);
+ const prom=ult7.reduce(function(a,r){return a+r.peso;},0)/ult7.length;
+ const signo=cambio>0?'+':'';
+ const color=cambio<0?'#0f6e56':(cambio>0?'#993C1D':'#111827');
+ st.innerHTML='<div class="grid3">'
+  +'<div class="mcard"><p class="mlabel">Peso actual</p><p class="mval">'+ultimo.peso.toFixed(1)+' <span class="munit">kg</span></p></div>'
+  +'<div class="mcard"><p class="mlabel">Cambio total</p><p class="mval" style="color:'+color+';">'+signo+cambio.toFixed(1)+' <span class="munit">kg</span></p></div>'
+  +'<div class="mcard"><p class="mlabel">Promedio '+ult7.length+' reg.</p><p class="mval">'+prom.toFixed(1)+' <span class="munit">kg</span></p></div>'
+  +'</div>'
+  +'<div class="hl">Desde el <strong>'+fechaCorta(primero.f)+'</strong> llevas <strong>'+progreso.length+'</strong> registro'+(progreso.length>1?'s':'')+'. Fíjate en la línea, no en el dato de un día.</div>';
+ document.getElementById('prog-chart').innerHTML=chartSVG(progreso);
+ document.getElementById('prog-lista').innerHTML='<div class="card"><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:6px;">📋 Historial</p>'
+  +progreso.slice().reverse().map(function(r){
+   return '<div class="row"><span>'+r.f+'</span><span><span class="pill p-blue">'+r.peso.toFixed(1)+' kg</span>'
+    +(r.cintura?'<span class="pill p-amber">'+r.cintura+' cm</span>':'')
+    +'<button class="del-btn" title="Borrar" onclick="borrarProgreso(\''+r.f+'\')">✕</button></span></div>';
+  }).join('')+'</div>';
+}
+
+/* ================= COMPRAS (lista tachable) ================= */
+let compras=ls('compras',{});
+function toggleCompra(k){compras[k]=!compras[k];save('compras',compras);renderCompras();}
+function resetCompras(){compras={};save('compras',compras);renderCompras();}
+function renderCompras(){
+ const filas=document.querySelectorAll('#p-compras .buy-row');
+ let hechos=0;
+ filas.forEach(function(f){
+  const k=f.getAttribute('data-buy');
+  const on=!!compras[k];
+  if(on)hechos++;
+  f.classList.toggle('bought',on);
+ });
+ const el=document.getElementById('compras-progreso');
+ if(el)el.innerHTML=hechos===filas.length
+  ? '✅ <strong>Lista completa</strong> — ya tienes todo lo de la semana.'
+  : '🛒 Llevas <strong>'+hechos+' de '+filas.length+'</strong> productos. Toca cada uno para tacharlo mientras compras.';
+}
+document.querySelectorAll('#p-compras .buy-row').forEach(function(f){
+ f.addEventListener('click',function(){toggleCompra(f.getAttribute('data-buy'));});
+});
+
+/* ================= MI COCINA ================= */
 const CATS={
  proteina:{label:'🥩 Proteínas',items:['Huevo','Atún','Cerdo','Pollo','Res','Queso panela','Leche','Frijoles','Lentejas']},
  carbo:{label:'🌾 Hidratos de Carbono',items:['Arroz','Tortillas','Elote','Papa','Avena','Pasta','Galletas de animalito']},
@@ -429,69 +657,38 @@ const SAZON={
  'Nopales':'asados con limón y chile piquín o Tajín. El orégano les va muy bien.',
  'Verduras':'salteadas con ajo picado + limón + chile piquín, u orégano y pimienta.'
 };
-let despensa={};
-try{despensa=JSON.parse(localStorage.getItem('despensa')||'{}');}catch(e){despensa={};}
+let despensa=ls('despensa',{});
 
-/* ===== Vínculo con la app de Rutinas (mismo origen = mismo localStorage) ===== */
-function hoyISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-let linkRutina=null;
-try{linkRutina=JSON.parse(localStorage.getItem('linkEntrenoHoy')||'null');}catch(e){linkRutina=null;}
-const hoyIso=hoyISO();
+/* Vínculo con la app de Rutinas (mismo origen = mismo localStorage) */
+let linkRutina=ls('linkEntrenoHoy',null);
 const linkEsHoy=linkRutina&&linkRutina.fecha===hoyIso;
 let tipoDia;
 if(localStorage.getItem('tipoDiaFecha')===hoyIso){
- tipoDia=localStorage.getItem('tipoDia')||'gym'; // el usuario ya lo eligió a mano hoy
+ tipoDia=localStorage.getItem('tipoDia')||'gym';
 }else{
- tipoDia=linkEsHoy?'gym':'desc'; // detectado desde Mis Rutinas, o descanso por defecto
+ tipoDia=linkEsHoy?'gym':'desc';
  localStorage.setItem('tipoDia',tipoDia);
 }
 function renderLinkRutina(){
  const el=document.getElementById('link-rutina');
+ if(!el)return;
  if(!linkEsHoy){el.style.display='none';return;}
- el.style.display='block';
- el.className='hl';
+ el.style.display='block';el.className='hl';
  const estado=linkRutina.entrenado?'✅ Ya entrenaste hoy — <strong>'+linkRutina.dia+'</strong>.':'🏋️ Hoy toca entrenar — <strong>'+linkRutina.dia+'</strong>.';
  const modo=tipoDia==='gym'?' Por eso te dejamos en modo Día Gym.':' Cambiaste a modo Descanso a mano — tú decides.';
  el.innerHTML=estado+modo+' <a href="rutinas/" style="color:#0F6E56;font-weight:700;">Ver mi rutina →</a>';
 }
-
-/* ===== Suplementos: marcar tomado/aún no, con reinicio diario ===== */
-const SUPLEMENTOS=[
- {id:'berberina',ic:'💊',nombre:'Berberina Complex (Oby)',dosis:'1 cápsula',cuando:'Con la comida principal (mediodía o desayuno) — recordatorio 2:00 pm',borde:'#185FA5'},
- {id:'ashwagandha',ic:'💊',nombre:'Ashwagandha KM-66',dosis:'3 cápsulas juntas',cuando:'Con la cena o antes de dormir — recordatorio 9:00 pm',borde:'#7F77DD'}
-];
-let suplEstado={};
-try{suplEstado=JSON.parse(localStorage.getItem('suplEstado')||'null');}catch(e){suplEstado=null;}
-if(!suplEstado||suplEstado.fecha!==hoyIso){
- suplEstado={fecha:hoyIso};
- SUPLEMENTOS.forEach(s=>{suplEstado[s.id]=false;});
- localStorage.setItem('suplEstado',JSON.stringify(suplEstado));
-}
-function saveSupl(){localStorage.setItem('suplEstado',JSON.stringify(suplEstado));}
-function toggleSupl(id){suplEstado[id]=!suplEstado[id];saveSupl();renderSupl();}
-function renderSupl(){
- const el=document.getElementById('supl-cards');
- if(!el)return;
- el.innerHTML=SUPLEMENTOS.map(s=>{
-  const tomado=!!suplEstado[s.id];
-  return '<div class="card" style="border:1.5px solid '+s.borde+';">'
-   +'<div class="meal-hdr"><span class="meal-name">'+s.ic+' '+s.nombre+'</span></div>'
-   +'<ul class="food-list"><li><strong>'+s.dosis+'</strong></li><li><strong>Cuándo:</strong> '+s.cuando+'</li></ul>'
-   +'<button class="supl-toggle'+(tomado?' done':'')+'" onclick="toggleSupl(\''+s.id+'\')">'+(tomado?'✅ Ya me lo tomé hoy':'⏳ Aún no — toca para marcar')+'</button>'
-   +'</div>';
- }).join('');
-}
 function catOf(n){for(const k in CATS)if(CATS[k].items.includes(n))return k;return 'extra';}
 if(!localStorage.getItem('despensa')){
- ['Atún','Arroz','Nopales','Chile poblano','Jitomate','Zanahoria','Pepino','Lechuga','Elote','Plátano','Papaya','Piña','Limón'].forEach(n=>{despensa[n]={cat:catOf(n),qty:''};});
+ ['Atún','Arroz','Nopales','Chile poblano','Jitomate','Zanahoria','Pepino','Lechuga','Elote','Plátano','Papaya','Piña','Limón'].forEach(function(n){despensa[n]={cat:catOf(n),qty:''};});
 }
-function saveD(){localStorage.setItem('despensa',JSON.stringify(despensa));}
+function saveD(){save('despensa',despensa);}
 function renderChips(){
  let h='';
  for(const k in CATS){
   h+='<div class="card"><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:6px;">'+CATS[k].label+'</p><div>';
-  const extras=Object.keys(despensa).filter(n=>despensa[n].cat===k&&!CATS[k].items.includes(n));
-  CATS[k].items.concat(extras).forEach(n=>{
+  const extras=Object.keys(despensa).filter(function(n){return despensa[n].cat===k&&!CATS[k].items.includes(n);});
+  CATS[k].items.concat(extras).forEach(function(n){
    h+='<span class="chip'+(despensa[n]?' sel':'')+'" onclick="tog(\''+n+'\',\''+k+'\')">'+n+'</span>';
   });
   h+='</div></div>';
@@ -505,7 +702,7 @@ function renderDespensa(){
  document.getElementById('despensa-count').textContent=names.length;
  const el=document.getElementById('despensa-list');
  if(!names.length){el.innerHTML='<p style="font-size:12px;color:#6b7280;font-style:italic;">Aún no marcas ingredientes — toca los botones de arriba.</p>';return;}
- el.innerHTML=names.map(n=>'<div class="have-row" style="justify-content:space-between;gap:8px;"><span style="flex:1;">'+n+'</span><input class="qty-input" style="width:130px;" placeholder="ej. 500g, 3 pzas" value="'+(despensa[n].qty||'')+'" onchange="setQty(\''+n+'\',this.value)"></div>').join('');
+ el.innerHTML=names.map(function(n){return '<div class="have-row" style="justify-content:space-between;gap:8px;"><span style="flex:1;">'+n+'</span><input class="qty-input" style="width:130px;" placeholder="ej. 500g, 3 pzas" value="'+(despensa[n].qty||'')+'" onchange="setQty(\''+n+'\',this.value)"></div>';}).join('');
 }
 function setQty(n,v){if(despensa[n]){despensa[n].qty=v;saveD();}}
 function addCustom(){
@@ -523,10 +720,10 @@ function setDia(t){
  tipoDia=t;localStorage.setItem('tipoDia',t);localStorage.setItem('tipoDiaFecha',hoyIso);
  syncSegUI();renderLinkRutina();
 }
-function de(cat){return Object.keys(despensa).filter(n=>despensa[n].cat===cat);}
+function de(cat){return Object.keys(despensa).filter(function(n){return despensa[n].cat===cat;});}
 function has(n){return !!despensa[n];}
 function pick(a){return a[Math.floor(Math.random()*a.length)];}
-function pick2(a){const b=[...a].sort(()=>Math.random()-.5);return b.slice(0,Math.min(2,b.length));}
+function pick2(a){const b=a.slice().sort(function(){return Math.random()-.5;});return b.slice(0,Math.min(2,b.length));}
 function qtyTag(n){return despensa[n]&&despensa[n].qty?' <span style="color:#6b7280;font-weight:400;font-size:11px;">(tienes: '+despensa[n].qty+')</span>':'';}
 function generarDia(){
  const out=document.getElementById('menu-out');
@@ -537,32 +734,32 @@ function generarDia(){
  const alerts=[];
  if(!prots.length)alerts.push('<div class="al"><strong>Sin proteína marcada:</strong> así no alcanzo tu meta de proteína del día. Lo más barato por gramo: huevo y atún.</div>');
  if(!vegs.length)alerts.push('<div class="al"><strong>Sin verduras:</strong> agrega al menos una para volumen y fibra — nopales o lechuga cuestan casi nada.</div>');
- const crudas=vegs.filter(v=>['Lechuga','Pepino','Zanahoria','Jitomate','Cebolla','Espinaca'].includes(v));
- const guisar=vegs.filter(v=>!['Lechuga','Pepino'].includes(v));
- const carnes=prots.filter(p=>!['Huevo','Queso panela','Leche','Atún','Frijoles','Lentejas'].includes(p));
+ const crudas=vegs.filter(function(v){return ['Lechuga','Pepino','Zanahoria','Jitomate','Cebolla','Espinaca'].includes(v);});
+ const guisar=vegs.filter(function(v){return !['Lechuga','Pepino'].includes(v);});
+ const carnes=prots.filter(function(p){return !['Huevo','Queso panela','Leche','Atún','Frijoles','Lentejas'].includes(p);});
  const meals=[];
  /* Desayuno */
  (function(){
   const items=[],saz=[];
   if(has('Huevo')){
-   const vv=guisar.filter(v=>v!=='Elote');
+   const vv=guisar.filter(function(v){return v!=='Elote';});
    items.push('<strong>3 huevos</strong>'+(vv.length?' revueltos con '+pick2(vv).join(' y ').toLowerCase():' revueltos')+qtyTag('Huevo'));
    saz.push(SAZON['Huevo']);
   }else if(has('Atún')){
-   items.push('<strong>1 lata de atún</strong> con jitomate y cebolla'+qtyTag('Atún'));saz.push(SAZON['Atún']);
+   items.push('<strong>1 lata de atún</strong> drenado con jitomate y cebolla'+qtyTag('Atún'));saz.push(SAZON['Atún']);
   }else if(prots.length){
    items.push('<strong>'+prots[0]+'</strong> (~100g) a la plancha');
   }
   if(has('Leche'))items.push('<strong>1 taza de leche</strong> (240 ml)');
   if(has('Queso panela'))items.push('<strong>30g queso panela</strong>');
   if(fruts.length)items.push('<strong>150g de '+pick(fruts).toLowerCase()+'</strong>');
-  if(items.length)meals.push({ic:'🌅',n:'Desayuno',t:tipoDia==='gym'?'07:00 – 08:00':'08:00 – 09:00',items,saz});
+  if(items.length)meals.push({ic:'🌅',n:'Desayuno',t:horaDe('desayuno'),items:items,saz:saz});
  })();
- /* Snack AM */
+ /* Snack */
  (function(){
   const items=[],saz=[];
   if(has('Atún')&&has('Arroz')){
-   items.push('<strong>Bolitas de arroz:</strong> 1.5 latas de atún + 1 taza de arroz cocido'+qtyTag('Arroz'));
+   items.push('<strong>Bolitas de arroz:</strong> 1.5 latas de atún drenado + 1 taza de arroz cocido'+qtyTag('Arroz'));
    items.push('<strong>Aderezo:</strong> '+(has('Crema')?'poca crema + ':'')+'salsa picante'+(has('Limón')?' + limón':''));
    saz.push(SAZON['Atún']);
   }else if(has('Queso panela')&&fruts.length){
@@ -573,20 +770,20 @@ function generarDia(){
    items.push('<strong>1-2 piezas de fruta</strong>');
   }
   if(crudas.length)items.push('<strong>Ensalada:</strong> '+pick2(crudas).join(' + ').toLowerCase()+(has('Limón')?' con limón':''));
-  if(items.length)meals.push({ic:'🍙',n:'Snack AM',t:'10:30 – 11:00',items,saz});
+  if(items.length)meals.push({ic:'🍙',n:'Snack',t:horaDe('snack'),items:items,saz:saz});
  })();
  /* Comida */
  let mainComida=null;
  (function(){
   const items=[],saz=[];
-  const mp=carnes.length?carnes:prots.filter(p=>p!=='Leche');
+  const mp=carnes.length?carnes:prots.filter(function(p){return p!=='Leche';});
   if(mp.length){
    mainComida=pick(mp);
-   const porc={'Huevo':'3 huevos','Atún':'1.5 latas de atún','Queso panela':'80g queso panela','Frijoles':'1 taza de frijoles','Lentejas':'1 taza de lentejas'}[mainComida]||('180g de '+mainComida.toLowerCase()+' en crudo (~135g cocido)');
+   const porc={'Huevo':'3 huevos','Atún':'1.5 latas de atún drenado','Queso panela':'80g queso panela','Frijoles':'1 taza de frijoles','Lentejas':'1 taza de lentejas'}[mainComida]||('180g de '+mainComida.toLowerCase()+' en crudo (~'+cocido(180)+'g cocido)');
    items.push('<strong>'+porc+'</strong>'+(carnes.includes(mainComida)?' a la plancha':'')+qtyTag(mainComida));
    saz.push(SAZON[mainComida]||'sal + pimienta + ajo y un toque de limón nunca fallan. Prueba también comino u orégano.');
   }
-  const cbs=carbs.filter(c=>c!=='Galletas de animalito'&&c!=='Avena');
+  const cbs=carbs.filter(function(c){return c!=='Galletas de animalito'&&c!=='Avena';});
   if(cbs.length){
    const cb=pick(cbs);
    const porcC={'Arroz':'½ – 1 taza de arroz cocido','Tortillas':'2 tortillas de maíz','Elote':'½ elote','Papa':'1 papa mediana al horno','Pasta':'¾ taza de pasta cocida'}[cb]||cb;
@@ -595,7 +792,7 @@ function generarDia(){
   }
   if(crudas.length)items.push('<strong>Ensalada:</strong> '+pick2(crudas).join(' + ').toLowerCase()+(has('Limón')?' + limón':'')+(has('Aguacate')?' + ¼ de aguacate':''));
   if(has('Queso panela')&&mainComida!=='Queso panela')items.push('<strong>30g queso panela</strong>');
-  if(items.length)meals.push({ic:'🍛',n:'Comida',t:'14:00 – 15:00',items,saz});
+  if(items.length)meals.push({ic:'🍛',n:'Comida',t:horaDe('comida'),items:items,saz:saz});
  })();
  /* Pre/Post entreno o Merienda */
  if(tipoDia==='gym'){
@@ -608,16 +805,16 @@ function generarDia(){
    else if(has('Tortillas'))items.push('<strong>2 tortillas</strong> con la proteína');
    if(has('Plátano'))items.push('<strong>1 plátano mediano</strong>');
    else if(fruts.length)items.push('<strong>1 fruta</strong> ('+pick(fruts).toLowerCase()+')');
-   if(items.length)meals.push({ic:'💜',n:'Pre-entreno',t:'90 min antes del gym',items,saz:[],nota:'⚠️ Pocos lípidos aquí — digiere rápido y no pesa en el entreno.'});
+   if(items.length)meals.push({ic:'💜',n:'Pre-entreno',t:horaDe('pre'),items:items,saz:[],nota:'⚠️ Pocos lípidos aquí — digiere rápido y no pesa en el entreno.'});
   })();
   (function(){
    const items=[];
-   if(has('Galletas de animalito'))items.push('<strong>20-25 galletas de animalito</strong> al salir del gym');
+   if(has('Galletas de animalito'))items.push('<strong>12-15 galletas de animalito</strong> al salir del gym');
    if(has('Leche'))items.push('<strong>1 taza de leche</strong> llegando a casa');
    if(has('Plátano'))items.push('<strong>1 plátano</strong>');
    else if(fruts.length)items.push('<strong>150g de '+pick(fruts).toLowerCase()+'</strong>');
    if(!items.length)items.push('<strong>HC rápido + proteína:</strong> lo que tengas a la mano — fruta + huevo cocido funciona');
-   meals.push({ic:'💚',n:'Post-entreno',t:'antes de 45 min',items,saz:[],nota:'💡 HC rápido + proteína = recuperación.'});
+   meals.push({ic:'💚',n:'Post-entreno',t:horaDe('post'),items:items,saz:[],nota:'💡 HC rápido + proteína = recuperación.'});
   })();
  }else{
   (function(){
@@ -625,16 +822,16 @@ function generarDia(){
    if(has('Huevo'))items.push('<strong>2 huevos cocidos</strong>');
    if(has('Queso panela'))items.push('<strong>30g queso panela</strong>');
    if(fruts.length)items.push('<strong>150g de '+pick(fruts).toLowerCase()+'</strong>');
-   if(items.length)meals.push({ic:'🍎',n:'Merienda',t:'17:00',items,saz:[]});
+   if(items.length)meals.push({ic:'🍎',n:'Merienda',t:horaDe('merienda'),items:items,saz:[]});
   })();
  }
  /* Cena */
  (function(){
   const items=[],saz=[];
-  const cp=prots.filter(p=>p!==mainComida&&p!=='Leche');
+  const cp=prots.filter(function(p){return p!==mainComida&&p!=='Leche';});
   const cenaP=cp.length?pick(cp):mainComida;
   if(cenaP){
-   const porc={'Huevo':'2 huevos','Atún':'1 lata de atún','Queso panela':'60g queso panela','Frijoles':'¾ taza de frijoles','Lentejas':'¾ taza de lentejas'}[cenaP]||('120g de '+cenaP.toLowerCase()+' en crudo (~90g cocido)');
+   const porc={'Huevo':'2 huevos','Atún':'1 lata de atún drenado','Queso panela':'60g queso panela','Frijoles':'¾ taza de frijoles','Lentejas':'¾ taza de lentejas'}[cenaP]||('120g de '+cenaP.toLowerCase()+' en crudo (~'+cocido(120)+'g cocido)');
    items.push('<strong>'+porc+'</strong>'+qtyTag(cenaP));
    if(SAZON[cenaP])saz.push(SAZON[cenaP]);
   }
@@ -647,13 +844,14 @@ function generarDia(){
    items.push('<strong>'+pick(guisar)+'</strong> salteado con ajo y cebolla');saz.push(SAZON['Verduras']);
   }
   if(crudas.length)items.push('<strong>Ensalada</strong>'+(has('Limón')?' con limón':''));
-  if(items.length)meals.push({ic:'🌙',n:'Cena',t:tipoDia==='gym'?'21:00 – 21:30':'20:00 – 21:00',items,saz,nota:'💡 Cena ligera en HC — la proteína y verdura sacian sin frenar el déficit.'});
+  if(items.length)meals.push({ic:'🌙',n:'Cena',t:horaDe('cena'),items:items,saz:saz,nota:'💡 Cena ligera en HC — la proteína y verdura sacian sin frenar el déficit.'});
  })();
  /* Render */
+ const T=totalesDe(tipoDia==='gym'?'gym':'descanso');
  let h=alerts.join('');
- h+='<div class="hl" style="margin-bottom:12px;">Menú de hoy — '+(tipoDia==='gym'?'🏋️ día de gym (~2,000-2,100 kcal)':'😴 día de descanso (~1,850-1,950 kcal)')+'</div>';
- meals.forEach(m=>{
-  h+='<div class="card"><div class="meal-hdr"><span class="meal-name">'+m.ic+' '+m.n+'</span><span class="meal-time">'+m.t+'</span></div><ul class="food-list">'+m.items.map(i=>'<li>'+i+'</li>').join('')+'</ul>';
+ h+='<div class="hl" style="margin-bottom:12px;">Menú de hoy — '+(tipoDia==='gym'?'🏋️ día de gym':'😴 día de descanso')+' (~'+T.kcal.toLocaleString('es-MX')+' kcal objetivo) · horarios de '+TURNOS[turnoActual].label+'</div>';
+ meals.forEach(function(m){
+  h+='<div class="card"><div class="meal-hdr"><span class="meal-name">'+m.ic+' '+m.n+'</span><span class="meal-time">'+m.t+'</span></div><ul class="food-list">'+m.items.map(function(i){return '<li>'+i+'</li>';}).join('')+'</ul>';
   const s=(m.saz||[]).filter(Boolean);
   if(s.length)h+='<div class="sazon">🌶️ <strong>Sazón:</strong> '+s.join(' — ')+'</div>';
   if(m.nota)h+='<p class="note">'+m.nota+'</p>';
@@ -664,77 +862,21 @@ function generarDia(){
  out.innerHTML=h;
  out.scrollIntoView({behavior:'smooth',block:'start'});
 }
-/* ===== Mi Turno: acomoda horarios de comida y sueño según el turno de trabajo ===== */
-const TURNOS={
- noche:{
-  label:'🌙 Turno noche',
-  horario:'Trabajas 10:00 pm – 6:00 am',
-  sueno:'Dormir de ~7:30 am a ~2:30 pm (unas 7 h). Cuarto oscuro y antifaz ayudan muchísimo con el sueño de día.',
-  comidas:[
-   {t:'2:30 pm',ic:'☀️',n:'Al despertar',d:'☕ Café + Desayuno: 3 huevos, leche, fruta.'},
-   {t:'5:00 pm',ic:'🍙',n:'Snack',d:'Bolitas de arroz con atún + ensalada.'},
-   {t:'8:00 pm',ic:'🍛',n:'Comida principal — antes de entrar',d:'La más fuerte del día: cerdo + arroz o elote + ensalada + panela. Te da energía para el turno.'},
-   {t:'12:30 am',ic:'🌙',n:'Comida en el turno',d:'Ligera y con proteína: atún o cerdo + verdura. Evita lo más pesado en plena madrugada.'},
-   {t:'4:00 am',ic:'🍎',n:'Snack (si hay hambre o sueño)',d:'Fruta + algo de proteína. Día de gym: galletas si entrenaste.'},
-   {t:'6:30 am',ic:'🥛',n:'Al salir',d:'Algo muy ligero (leche o fruta). Nada pesado justo antes de dormir.'}
-  ],
-  tip:'⚠️ Tu comida más fuerte va ANTES de entrar (noche), no en la madrugada — el cuerpo digiere peor de 1 a 5 am. Sin café después de las 2:00 am para no arruinar el sueño del día.'
- },
- tarde:{
-  label:'🌆 Turno tarde',
-  horario:'Trabajas 2:00 pm – 10:00 pm',
-  sueno:'Dormir de ~12:30 am a ~8:30 am (unas 8 h). Horario casi normal.',
-  comidas:[
-   {t:'8:30 am',ic:'🌅',n:'Al despertar',d:'☕ Café + Desayuno: 3 huevos, leche, fruta.'},
-   {t:'11:00 am',ic:'🍙',n:'Snack',d:'Bolitas de arroz con atún.'},
-   {t:'1:00 pm',ic:'🍛',n:'Comida principal — antes de entrar',d:'La más fuerte: cerdo + arroz o elote + ensalada + panela.'},
-   {t:'5:00 pm',ic:'🍎',n:'Merienda en el turno',d:'Fruta + queso panela, o 2 huevos cocidos.'},
-   {t:'8:00 pm',ic:'🌙',n:'Comida en el turno',d:'Proteína + verdura, moderada.'},
-   {t:'10:30 pm',ic:'🥗',n:'Al salir',d:'Cena ligera: atún o cerdo + ensalada. Sin exceso antes de dormir.'}
-  ],
-  tip:'💡 Haz tu comida fuerte antes de entrar (mediodía). Durante el turno, una merienda y una comida moderada; al salir, cena ligera para dormir bien.'
- },
- dia:{
-  label:'☀️ Día estándar / libre',
-  horario:'Horario normal, sin turno nocturno',
-  sueno:'Dormir de ~11:00 pm a ~7:00 am.',
-  comidas:[
-   {t:'7:30 am',ic:'🌅',n:'Desayuno',d:'☕ Café + huevos, leche, fruta.'},
-   {t:'10:30 am',ic:'🍙',n:'Snack AM',d:'Bolitas de arroz con atún.'},
-   {t:'2:00 pm',ic:'🍛',n:'Comida',d:'Principal: cerdo + arroz/elote + ensalada.'},
-   {t:'5:00 pm',ic:'🍎',n:'Merienda',d:'Fruta + queso panela.'},
-   {t:'9:00 pm',ic:'🌙',n:'Cena',d:'Ligera: proteína + verdura.'}
-  ],
-  tip:'💡 Estos son los horarios tal cual vienen en Día Gym / Descanso.'
- }
-};
-let turnoActual;
-try{turnoActual=localStorage.getItem('turnoActual')||'noche';}catch(e){turnoActual='noche';}
-function setTurno(id){turnoActual=id;localStorage.setItem('turnoActual',id);renderTurno();}
-function renderTurno(){
- const out=document.getElementById('turno-out');
- if(!out)return;
- document.querySelectorAll('#turno-seg .seg-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-turno')===turnoActual));
- const T=TURNOS[turnoActual];
- let h='<div class="hl"><strong>'+T.label+'</strong> — '+T.horario+'</div>';
- h+='<div class="card" style="border:1.5px solid #7F77DD;"><div class="meal-hdr"><span class="meal-name">😴 Sueño</span></div><p style="font-size:13px;color:#374151;">'+T.sueno+'</p></div>';
- T.comidas.forEach(c=>{
-  h+='<div class="card"><div class="meal-hdr"><span class="meal-name">'+c.ic+' '+c.n+'</span><span class="meal-time">'+c.t+'</span></div><p style="font-size:13px;color:#374151;">'+c.d+'</p></div>';
- });
- h+='<div class="al">'+T.tip+'</div>';
- h+='<div class="info">🏋️ <strong>Entreno:</strong> pon el pre-entreno ~90 min antes y el post-entreno justo al terminar, a la hora que entrenes ese día (las comidas son las de Día Gym). 💊 <strong>Suplementos:</strong> Berberina con tu comida principal; Ashwagandha antes de dormir — en turno noche eso cae en la mañana (~7 am).</div>';
- out.innerHTML=h;
-}
 
+/* ================= INIT ================= */
 renderChips();
 syncSegUI();
 renderLinkRutina();
+renderPlan('gym');
+renderPlan('descanso');
 renderSupl();
 renderTurno();
+renderProgreso();
+renderCompras();
 saveD();
 
-/* Deep-link desde la notificación push: dieta.html#supl abre directo Suplementos */
 if(location.hash==='#supl')show('supl');
+if(location.hash==='#progreso')show('progreso');
 
 /* ===== Frase del día ===== */
 function idxHoy(n){const d=new Date();return Math.round(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000)%n;}
@@ -777,6 +919,13 @@ const db = getFirestore(app);
 const messaging = getMessaging(app);
 const VAPID_KEY = "BEJm4aVSkUMdvwc5eHLdGaayMcCvnt4hVoatcaqdAfgjt9oz0sAyyZhA6zKz4Cwb9qRDZ0OuYwURBr4Uu1QhIaA";
 
+/* El turno vive en Firestore para que el robot de recordatorios sepa a qué
+   hora mandarte los suplementos. */
+window.syncTurnoRemoto = async function(turno){
+  try{ await setDoc(doc(db,'dietaConfig','turno'),{turno:turno,updated:Date.now()}); }
+  catch(e){ console.warn('No se pudo sincronizar el turno:',e); }
+};
+
 async function registrarTokenFrase(){
   const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js', { scope: './firebase-push/' });
   const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
@@ -803,18 +952,21 @@ window.activarFrase = async function(){
   }
   try{
     const t = await registrarTokenFrase();
-    if(t){ localStorage.setItem('fraseNotif','1'); marcarActivado(); }
+    if(t){
+      localStorage.setItem('fraseNotif','1');
+      marcarActivado();
+      window.syncTurnoRemoto(localStorage.getItem('turnoActual')||'noche');
+    }
     else alert('No se pudo registrar el dispositivo. Intenta de nuevo.');
   }catch(e){
     alert('Error al activar: ' + e.message);
   }
 };
-// Si ya activó antes, refresca el token en silencio y marca el botón
 if(('Notification' in window) && Notification.permission === 'granted' && localStorage.getItem('fraseNotif') === '1'){
   marcarActivado();
   registrarTokenFrase().catch(function(){});
+  window.syncTurnoRemoto(localStorage.getItem('turnoActual')||'noche');
 }
-// Si la app está abierta cuando llega la frase (primer plano)
 onMessage(messaging, function(payload){
   const n = payload.notification || {};
   navigator.serviceWorker.ready.then(function(reg){
