@@ -111,8 +111,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <p class="sec-title">Presupuesto semanal — $350 MXN</p>
   <div class="grid3">
     <div class="mcard" style="border:1.5px solid #1D9E75;"><p class="mlabel">Presupuesto</p><p class="mval green">$350 <span class="munit">MXN</span></p></div>
-    <div class="mcard"><p class="mlabel">Total a gastar</p><p class="mval">$314 <span class="munit">MXN</span></p></div>
-    <div class="mcard"><p class="mlabel">Sobrante</p><p class="mval green">$36 <span class="munit">MXN</span></p></div>
+    <div class="mcard"><p class="mlabel">Total a gastar</p><p class="mval">$285 <span class="munit">MXN</span></p></div>
+    <div class="mcard"><p class="mlabel">Sobrante</p><p class="mval green">$65 <span class="munit">MXN</span></p></div>
   </div>
   <div class="hl" id="compras-progreso">Toca cada producto para tacharlo mientras compras.</div>
   <div class="card">
@@ -127,16 +127,15 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
     <div class="buy-row" data-buy="panela"><span class="buy-box">✓</span><div style="flex:1;"><span class="buy-name" style="font-weight:500;">Queso panela</span><br><span style="font-size:11px;color:#6b7280;">200 g — el mejor para tu objetivo</span></div><span style="font-weight:700;">~$30</span></div>
   </div>
   <div class="card">
-    <p style="font-size:11px;font-weight:700;color:#185FA5;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">🍪 HC rápidos + condimentos — $49 MXN</p>
-    <div class="buy-row" data-buy="galletas"><span class="buy-box">✓</span><div style="flex:1;"><span class="buy-name" style="font-weight:500;">Galletas de animalito</span><br><span style="font-size:11px;color:#6b7280;">4 paquetes de 60g</span></div><span style="font-weight:700;">~$28</span></div>
+    <p style="font-size:11px;font-weight:700;color:#185FA5;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">🧅 Condimentos — $20 MXN</p>
     <div class="buy-row" data-buy="condimentos"><span class="buy-box">✓</span><div style="flex:1;"><span class="buy-name" style="font-weight:500;">Cebolla · ajo · limones</span><br><span style="font-size:11px;color:#6b7280;">condimentos semana</span></div><span style="font-weight:700;">~$20</span></div>
   </div>
   <div class="total-bar">
     <span style="font-weight:700;">TOTAL</span>
-    <div><span class="pill p-coral">Proteínas $207</span><span class="pill p-amber">Lácteos $58</span><span class="pill p-blue">Otros $49</span><span style="font-weight:700;font-size:16px;color:#0f6e56;margin-left:8px;">= $314</span></div>
+    <div><span class="pill p-coral">Proteínas $207</span><span class="pill p-amber">Lácteos $58</span><span class="pill p-blue">Condimentos $20</span><span style="font-weight:700;font-size:16px;color:#0f6e56;margin-left:8px;">= $285</span></div>
   </div>
   <button class="btn-sec" style="margin-top:10px;" onclick="resetCompras()">↺ Reiniciar lista</button>
-  <div style="margin-top:10px;" class="hl"><strong>$36 de sobrante:</strong> Guárdalos para si se acaba alguna verdura a mitad de semana o necesitas más tortillas.</div>
+  <div style="margin-top:10px;" class="hl"><strong>$65 de sobrante:</strong> Al quitar las galletas se liberaron $28. Úsalos para más verdura, fruta o una proteína extra a mitad de semana.</div>
 </div>
 
 <!-- INVENTARIO -->
@@ -357,14 +356,10 @@ const PLAN={
     items:['<strong>1 lata atún Tuny</strong> drenado','<strong>½ taza arroz cocido</strong>','<strong>1 plátano mediano</strong>'],
     P:25,HC:49,L:2,kcal:320,
     nota:'⚠️ Sin lípidos altos — digiere rápido y no te pesará en el gym.'},
-   {id:'g-intra',slot:'intra',ic:'🍪',n:'Intra-entreno (opcional)',borde:'#854F0B',opcional:true,
-    items:['<strong>15-20 galletas de animalito</strong> (~30g)'],
-    P:2,HC:21,L:0,kcal:125,
-    nota:'Solo si notas caída de energía. No está sumado en el total. Si lo usas, quita ½ taza de arroz del snack.'},
    {id:'g-post',slot:'post',ic:'💚',n:'Post-entreno',borde:'#1D9E75',
-    items:['<strong>12-15 galletas de animalito</strong> — al salir del gym','<strong>1 taza leche Lala</strong> cuando llegues a casa'],
-    P:10,HC:45,L:5,kcal:270,
-    nota:'💡 La leche aporta suero + caseína natural — sustituye parcialmente la proteína en polvo.'},
+    items:['<strong>1 taza leche Lala</strong> (240 ml) al llegar a casa'],
+    P:8,HC:12,L:5,kcal:130,
+    nota:'💡 Sin galletas. La leche sola aporta suero + caseína natural — proteína completa y de calidad, y así el día cae dentro del objetivo.'},
    {id:'g-cena',slot:'cena',ic:'🌙',n:'Cena',
     ajustable:{nombre:'Cerdo',base:120,min:60,max:250,paso:10,por100:CERDO100,
      texto:function(g){return '<strong>'+g+'g cerdo en crudo</strong> (~'+cocido(g)+'g ya cocido) a la plancha';}},
@@ -385,8 +380,7 @@ const PLAN={
     P:32,HC:30,L:20,kcal:420},
    {id:'d-snack',slot:'snack',ic:'🍙',n:'Snack',
     items:['<strong>1.5 latas atún Tuny</strong> drenado','<strong>1 taza arroz cocido</strong>','<strong>Ensalada:</strong> zanahoria, pepino, limón'],
-    P:46,HC:44,L:2,kcal:380,
-    nota:'💡 Sin galletas de animalito los días de descanso.'},
+    P:46,HC:44,L:2,kcal:380},
    {id:'d-comida',slot:'comida',ic:'🍛',n:'Comida',
     ajustable:{nombre:'Cerdo',base:200,min:60,max:320,paso:10,por100:CERDO100,
      texto:function(g){return '<strong>'+g+'g cerdo en crudo</strong> (~'+cocido(g)+'g ya cocido) al horno con ajo y limón';}},
@@ -488,7 +482,7 @@ function renderPlan(planKey){
  document.getElementById(pre+'-total').innerHTML=
   '<div class="total-bar"><span style="font-weight:700;">Total '+(planKey==='gym'?'día gym':'día descanso')+'</span>'
   +'<div><span class="pill p-blue">P: ~'+T.P+'g</span><span class="pill p-amber">HC: ~'+T.HC+'g</span><span class="pill p-teal">L: ~'+T.L+'g</span><span class="pill p-coral">~'+T.kcal.toLocaleString('es-MX')+' kcal</span></div></div>'
-  +'<p style="font-size:11px;color:#6b7280;margin-top:6px;">Objetivo: ~'+D.objetivo.toLocaleString('es-MX')+' kcal · vas <strong>'+sig+dif+' kcal</strong>. Los totales se calculan sumando las comidas de arriba, así que siempre cuadran. El intra-entreno es opcional y no se suma.</p>';
+  +'<p style="font-size:11px;color:#6b7280;margin-top:6px;">Objetivo: ~'+D.objetivo.toLocaleString('es-MX')+' kcal · vas <strong>'+sig+dif+' kcal</strong>. Los totales se calculan sumando las comidas de arriba, así que siempre cuadran.</p>';
 }
 
 /* ================= SUPLEMENTOS ================= */
@@ -639,7 +633,7 @@ document.querySelectorAll('#p-compras .buy-row').forEach(function(f){
 /* ================= MI COCINA ================= */
 const CATS={
  proteina:{label:'🥩 Proteínas',items:['Huevo','Atún','Cerdo','Pollo','Res','Queso panela','Leche','Frijoles','Lentejas']},
- carbo:{label:'🌾 Hidratos de Carbono',items:['Arroz','Tortillas','Elote','Papa','Avena','Pasta','Galletas de animalito']},
+ carbo:{label:'🌾 Hidratos de Carbono',items:['Arroz','Tortillas','Elote','Papa','Avena','Pasta']},
  verdura:{label:'🥦 Verduras',items:['Nopales','Chile poblano','Jitomate','Cebolla','Zanahoria','Pepino','Lechuga','Brócoli','Calabacita','Espinaca','Champiñones','Chayote']},
  fruta:{label:'🍎 Frutas',items:['Plátano','Papaya','Piña','Manzana','Naranja','Melón','Sandía','Mango','Fresas','Guayaba']},
  extra:{label:'🥑 Extras',items:['Aguacate','Crema','Limón','Ajo','Chile serrano','Cilantro']}
@@ -809,7 +803,6 @@ function generarDia(){
   })();
   (function(){
    const items=[];
-   if(has('Galletas de animalito'))items.push('<strong>12-15 galletas de animalito</strong> al salir del gym');
    if(has('Leche'))items.push('<strong>1 taza de leche</strong> llegando a casa');
    if(has('Plátano'))items.push('<strong>1 plátano</strong>');
    else if(fruts.length)items.push('<strong>150g de '+pick(fruts).toLowerCase()+'</strong>');
