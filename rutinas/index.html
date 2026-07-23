@@ -155,6 +155,9 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0d0e12;color:#e8
   <button class="timer-btn" id="timer-btn" onclick="toggleTimerPanel()">⏱️<br>Desc.</button>
 </div>
 
+<input type="file" id="file-import" accept="application/json,.json" style="display:none" onchange="importarDatos(this)">
+<datalist id="lista-ex"></datalist>
+
 <script>
 /* ===== Plantillas de rutina (desc = descanso en segundos) ===== */
 const RUTINA_DEFAULT=[
@@ -247,6 +250,9 @@ const PLANTILLAS={
 
 /* ===== Estado + migraciones ===== */
 function hoyStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+/* Clave normalizada de ejercicio: así "Press de banca", "press banca " y "Press de Banca"
+   comparten historial y PR en vez de perderse por mayúsculas, acentos o espacios de más. */
+function keyEx(n){return String(n||'').normalize('NFC').toLowerCase().replace(/[áàâä]/g,'a').replace(/[éèêë]/g,'e').replace(/[íìîï]/g,'i').replace(/[óòôö]/g,'o').replace(/[úùûü]/g,'u').replace(/ñ/g,'n').replace(/\s+/g,' ').trim();}
 let onboarding=!localStorage.getItem('rutinasData');
 let rutina=JSON.parse(localStorage.getItem('rutinasData')||'null')||copia(RUTINA_DEFAULT);
 let hist=JSON.parse(localStorage.getItem('rutinasHist')||'[]');
@@ -258,6 +264,9 @@ let editMode=false;
 let progEx=null,progMet='peso';
 let perfil=JSON.parse(localStorage.getItem('rutinasPerfil')||'{}');
 let meta=JSON.parse(localStorage.getItem('rutinasMeta')||'null')||{inicioBF:33.6,actualBF:33.6,metaBF:15,deadline:'2026-10-31'};
+/* Mediciones corporales: [{f:'YYYY-MM-DD', kg:peso, bf:%grasa}] ordenadas de vieja a nueva */
+let pesos=JSON.parse(localStorage.getItem('rutinasPesos')||'[]');
+let progMedida='kg';
 
 /* Migración: historial viejo {peso,hechas} → {sets:[{p,r}]} + vol */
 hist.forEach(function(s){
@@ -281,12 +290,32 @@ Object.keys(ultPesos).forEach(function(k){
 if(!Object.keys(prs).length&&hist.length){
  for(let i=hist.length-1;i>=0;i--){
   hist[i].ejercicios.forEach(function(e){
+   const k=keyEx(e.n);
    e.sets.forEach(function(st){
     const p=parseFloat(st.p);
-    if(p&&(!prs[e.n]||p>prs[e.n].p))prs[e.n]={p:p,r:st.r||null,fecha:hist[i].fecha};
+    if(p&&(!prs[k]||p>prs[k].p))prs[k]={p:p,r:st.r||null,fecha:hist[i].fecha,n:e.n};
    });
   });
  }
+}
+/* Migración: pasar PRs y últimos pesos a claves normalizadas (fusiona duplicados por typo) */
+(function(){
+ const np={};
+ Object.keys(prs).forEach(function(k){
+  const v=prs[k];
+  if(!v||typeof v!=='object')return;
+  if(!v.n)v.n=k;                       // conserva el nombre bonito para mostrarlo
+  const nk=keyEx(k);
+  if(!np[nk]||v.p>np[nk].p)np[nk]=v;   // si hubo duplicados, gana el PR más alto
+ });
+ prs=np;
+ const nu={};
+ Object.keys(ultPesos).forEach(function(k){nu[keyEx(k)]=ultPesos[k];});
+ ultPesos=nu;
+})();
+/* Sembrar la primera medición corporal desde el perfil, para que la gráfica tenga punto de partida */
+if(!pesos.length&&parseFloat(perfil.peso)>0){
+ pesos.push({f:hoyStr(),kg:parseFloat(perfil.peso),bf:parseFloat(meta.actualBF)||null});
 }
 /* Sesión del día: migrar formato viejo sets:[bool]+pesos */
 let ses=JSON.parse(localStorage.getItem('rutinasSes')||'null');
@@ -302,6 +331,7 @@ else Object.keys(ses.dias).forEach(function(d){
  delete sd.pesos;
 });
 
+const LS_KEYS=['rutinasData','rutinasHist','rutinasUlt','rutinasPRs','rutinasSes','rutinasVista','rutinasPerfil','rutinasMeta','rutinasPesos','rutinasAutoT','rutinasBackup'];
 function saveAll(){
  if(onboarding)return; // no persistir hasta que elija plantilla
  localStorage.setItem('rutinasData',JSON.stringify(rutina));
@@ -312,8 +342,60 @@ function saveAll(){
  localStorage.setItem('rutinasVista',String(vista));
  localStorage.setItem('rutinasPerfil',JSON.stringify(perfil));
  localStorage.setItem('rutinasMeta',JSON.stringify(meta));
+ localStorage.setItem('rutinasPesos',JSON.stringify(pesos));
 }
 saveAll(); // persiste las migraciones de formato al cargar
+
+/* ===== Respaldo: exportar / importar todos los datos ===== */
+function diasDesdeBackup(){
+ const b=localStorage.getItem('rutinasBackup');
+ if(!b)return null;
+ const d=new Date(b+'T00:00:00');
+ if(isNaN(d))return null;
+ const hoy=new Date();hoy.setHours(0,0,0,0);
+ return Math.round((hoy-d)/86400000);
+}
+function exportarDatos(){
+ const datos={app:'rutinas',version:1,fecha:new Date().toISOString(),datos:{}};
+ LS_KEYS.forEach(function(k){
+  const v=localStorage.getItem(k);
+  if(v!==null)datos.datos[k]=v;
+ });
+ const txt=JSON.stringify(datos,null,1);
+ const blob=new Blob([txt],{type:'application/json'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');
+ a.href=url;a.download='rutinas-respaldo-'+hoyStr()+'.json';
+ document.body.appendChild(a);a.click();document.body.removeChild(a);
+ setTimeout(function(){URL.revokeObjectURL(url);},2000);
+ localStorage.setItem('rutinasBackup',hoyStr());
+ render();
+}
+function pedirImportar(){document.getElementById('file-import').click();}
+function importarDatos(input){
+ const f=input.files&&input.files[0];
+ input.value='';
+ if(!f)return;
+ const lector=new FileReader();
+ lector.onload=function(ev){
+  let j=null;
+  try{j=JSON.parse(ev.target.result);}catch(e){alert('❌ El archivo no es un respaldo válido (no se pudo leer).');return;}
+  if(!j||j.app!=='rutinas'||!j.datos){alert('❌ Ese archivo no es un respaldo de Mis Rutinas.');return;}
+  const nEnt=(function(){try{return (JSON.parse(j.datos.rutinasHist||'[]')).length;}catch(e){return 0;}})();
+  const fec=(j.fecha||'').slice(0,10);
+  if(!confirm('Vas a RESTAURAR el respaldo del '+fec+' ('+nEnt+' entrenos).\n\n⚠️ Esto REEMPLAZA todos los datos que tienes ahora en la app. ¿Continuar?'))return;
+  LS_KEYS.forEach(function(k){
+   if(j.datos[k]!==undefined)localStorage.setItem(k,j.datos[k]);
+   else localStorage.removeItem(k);
+  });
+  // El archivo se creó en esa fecha: esa es tu última copia real
+  if(fec)localStorage.setItem('rutinasBackup',fec);
+  alert('✅ Respaldo restaurado. La app se va a recargar.');
+  location.reload();
+ };
+ lector.onerror=function(){alert('❌ No se pudo leer el archivo.');};
+ lector.readAsText(f);
+}
 function sesDia(i){
  if(!ses.dias[i])ses.dias[i]={sets:{}};
  return ses.dias[i];
@@ -533,8 +615,8 @@ function render(){
   const arr=sd.sets[i]||[];
   const on=arr.filter(function(x){return x&&x.ok;}).length;
   const done=on>=ex.s;
-  const ult=ultPesos[ex.n];
-  const pr=prs[ex.n];
+  const ult=ultPesos[keyEx(ex.n)];
+  const pr=prs[keyEx(ex.n)];
   let rows='';
   for(let s=0;s<ex.s;s++){
    const st=arr[s]||{};
@@ -596,7 +678,7 @@ function terminar(){
   arr.forEach(function(x){if(x&&x.ok)sets.push({p:x.p||'',r:x.r||''});});
   if(!sets.length)return;
   regs.push({n:ex.n,sets:sets,total:ex.s,rec:recoDe(ex,sets)});
-  ultPesos[ex.n]={sets:sets};
+  ultPesos[keyEx(ex.n)]={sets:sets};
   sets.forEach(function(s2){const p=parseFloat(s2.p),r=parseInt(s2.r);if(p&&r)vol+=p*r;});
  });
  if(!regs.length)return;
@@ -607,8 +689,8 @@ function terminar(){
   let maxP=0,maxR=null;
   e.sets.forEach(function(s2){const p=parseFloat(s2.p);if(p>maxP){maxP=p;maxR=s2.r||null;}});
   if(maxP>0){
-   const pr=prs[e.n];
-   if(!pr||maxP>pr.p){prs[e.n]={p:maxP,r:maxR,fecha:hoyStr()};nuevos.push(e.n+': '+fmt(maxP)+' kg');}
+   const k=keyEx(e.n),pr=prs[k];
+   if(!pr||maxP>pr.p){prs[k]={p:maxP,r:maxR,fecha:hoyStr(),n:e.n};nuevos.push(e.n+': '+fmt(maxP)+' kg');}
   }
  });
  hist.unshift({fecha:hoyStr(),dia:dia.nombre,ejercicios:regs,vol:vol});
@@ -637,6 +719,10 @@ function terminar(){
  });
  if(!perfilOk())rh+='<div class="info" style="margin-top:12px;">👤 Llena tu <strong>Perfil</strong> (peso corporal, edad, natural/ciclo) y aquí te diré también si tus pesos son altos o bajos según estándares de fuerza.</div>';
  rh+='<p style="font-size:11px;color:#8b93a3;margin:10px 0 12px;">💡 Estás en déficit: mantener tus pesos semana a semana ya es progreso. Sube solo cuando el recuadro esté en verde.</p>';
+ const bajas=analizarEstancamiento().filter(function(x){return x.tipo==='baja';});
+ if(bajas.length>=2)rh+='<div style="border-left:3px solid #FB7185;background:rgba(244,63,94,.10);border-radius:0 8px 8px 0;padding:10px 12px;font-size:12.5px;color:#FB7185;margin-bottom:10px;line-height:1.5;">🚨 <strong>Tu fuerza va cayendo en '+bajas.length+' ejercicios.</strong> En déficit agresivo eso suele significar pérdida de músculo. Sube un poco las calorías (proteína primero) o baja el volumen una semana. Detalle en 📈 Progreso.</div>';
+ const db=diasDesdeBackup();
+ if(db===null||db>14)rh+='<div class="info" style="margin-bottom:10px;">💾 '+(db===null?'Aún no has respaldado tus datos.':'Llevas '+db+' días sin respaldo.')+' Ve a <strong>👤 Perfil → Descargar respaldo</strong> para no perder tu historial.</div>';
  mostrarResumen(rh);
  render();
 }
@@ -666,11 +752,11 @@ function elegirPlantilla(k){
 
 /* ===== Progreso: gráficas + historial ===== */
 function datosProg(n,met){
- const pts=[];
+ const pts=[],kn=keyEx(n);
  for(let i=hist.length-1;i>=0;i--){
   const s=hist[i];
   let e=null;
-  s.ejercicios.forEach(function(x){if(x.n===n)e=x;});
+  s.ejercicios.forEach(function(x){if(keyEx(x.n)===kn)e=x;});
   if(!e)continue;
   let v=0;
   e.sets.forEach(function(st){
@@ -682,7 +768,8 @@ function datosProg(n,met){
  }
  return pts;
 }
-function chartSVG(pts,unidad){
+function chartSVG(pts,unidad,col,colFuerte){
+ col=col||'#F43F5E';colFuerte=colFuerte||'#FB7185';
  const W=340,H=170,L=42,R=14,T=18,B=26;
  let mn=Infinity,mx=-Infinity;
  pts.forEach(function(p){if(p.v<mn)mn=p.v;if(p.v>mx)mx=p.v;});
@@ -698,25 +785,28 @@ function chartSVG(pts,unidad){
  });
  let linea='';
  pts.forEach(function(p,i){linea+=X(i)+','+Y(p.v)+' ';});
- h+='<polygon points="'+L+','+Y(mn)+' '+linea+(W-R)+','+Y(mn)+'" fill="rgba(244,63,94,.09)"/>';
- h+='<polyline points="'+linea.trim()+'" fill="none" stroke="#F43F5E" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+ h+='<polygon points="'+L+','+Y(mn)+' '+linea+(W-R)+','+Y(mn)+'" fill="'+col+'" fill-opacity=".09"/>';
+ h+='<polyline points="'+linea.trim()+'" fill="none" stroke="'+col+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
  pts.forEach(function(p,i){
   const last=i===pts.length-1;
-  h+='<circle cx="'+X(i)+'" cy="'+Y(p.v)+'" r="'+(last?4.5:3)+'" fill="'+(last?'#FB7185':'#F43F5E')+'"'+(last?' stroke="#fff" stroke-width="1.5"':'')+'/>';
+  h+='<circle cx="'+X(i)+'" cy="'+Y(p.v)+'" r="'+(last?4.5:3)+'" fill="'+(last?colFuerte:col)+'"'+(last?' stroke="#fff" stroke-width="1.5"':'')+'/>';
  });
  const lx=X(pts.length-1),ly=Y(pts[pts.length-1].v);
- h+='<text x="'+Math.min(lx,W-R-2)+'" y="'+Math.max(ly-9,10)+'" text-anchor="end" font-size="11" font-weight="700" fill="#FB7185">'+fmt(pts[pts.length-1].v)+' '+unidad+'</text>';
+ h+='<text x="'+Math.min(lx,W-R-2)+'" y="'+Math.max(ly-9,10)+'" text-anchor="end" font-size="11" font-weight="700" fill="'+colFuerte+'">'+fmt(pts[pts.length-1].v)+' '+unidad+'</text>';
  h+='<text x="'+L+'" y="'+(H-6)+'" font-size="9" fill="#8b93a3">'+fmtF(pts[0].f)+'</text>';
  h+='<text x="'+(W-R)+'" y="'+(H-6)+'" text-anchor="end" font-size="9" fill="#8b93a3">'+fmtF(pts[pts.length-1].f)+'</text>';
  h+='</svg>';
  return h;
 }
 function renderHist(){
- let h='';
- const nombres=[];
- hist.forEach(function(s){s.ejercicios.forEach(function(e){if(nombres.indexOf(e.n)<0)nombres.push(e.n);});});
+ let h=cardEstancamiento();
+ const nombres=[],vistos={};
+ hist.forEach(function(s){s.ejercicios.forEach(function(e){
+  const k=keyEx(e.n);
+  if(!vistos[k]){vistos[k]=1;nombres.push(e.n);}
+ });});
  if(nombres.length){
-  if(!progEx||nombres.indexOf(progEx)<0)progEx=nombres[0];
+  if(!progEx||!vistos[keyEx(progEx)])progEx=nombres[0];
   h+='<div class="card"><p class="sec-title">📊 Progresión</p>';
   h+='<select class="sel" onchange="progEx=this.value;render()">';
   nombres.forEach(function(n){h+='<option'+(n===progEx?' selected':'')+' value="'+esc(n)+'">'+esc(n)+'</option>';});
@@ -725,7 +815,7 @@ function renderHist(){
   const pts=datosProg(progEx,progMet);
   if(pts.length>=2)h+=chartSVG(pts,'kg');
   else h+='<p class="empty" style="padding:16px 8px;">Guarda al menos 2 entrenos con peso en este ejercicio para ver la gráfica.</p>';
-  const pr=prs[progEx];
+  const pr=prs[keyEx(progEx)];
   if(pr)h+='<p style="font-size:12px;color:#FBBF24;font-weight:700;margin-top:8px;">🏆 PR: '+fmt(pr.p)+' kg'+(pr.r?' × '+esc(pr.r):'')+' <span style="color:#8b93a3;font-weight:500;">('+esc(pr.fecha)+')</span></p>';
   h+='</div>';
  }
@@ -759,13 +849,15 @@ function renderPerfil(){
   +'</div>'
   +(perfil.modo==='ciclo'?'<p style="font-size:11px;color:#8b93a3;margin-top:8px;">💉 En ciclo la vara sube ~15%: lo que para un natural es avanzado, con asistencia se espera más. Cuídate — chequeos médicos regulares.</p>':'')
   +'</div>';
+ h+=cardRespaldo();
  if(!perfilOk())return h+'<div class="empty">Pon tu peso corporal para ver tu nivel de fuerza en cada básico. 💪</div>';
  const items=[];
- Object.keys(prs).forEach(function(n){
-  const std=stdDe(n);if(!std)return;
-  const rm=est1RM(prs[n].p,prs[n].r);
+ Object.keys(prs).forEach(function(k){
+  const nombre=prs[k].n||k;
+  const std=stdDe(nombre);if(!std)return;
+  const rm=est1RM(prs[k].p,prs[k].r);
   const nv=nivelDe(rm,std);if(!nv||!rm)return;
-  items.push({n:n,nv:nv});
+  items.push({n:nombre,nv:nv});
  });
  if(!items.length)return h+'<div class="empty">Aún no tienes récords en ejercicios con estándar (banca, sentadilla, peso muerto, militar, remo con barra, prensa, jalón, curl con barra).<br>Registra pesos en tus entrenos y aquí aparecerá tu nivel. 💪</div>';
  h+='<p class="sec-title">🏋️ Mi nivel de fuerza — según 1RM estimado de tus PRs</p>';
@@ -785,6 +877,75 @@ function renderPerfil(){
 }
 function edPerfil(k,v){perfil[k]=v;saveAll();render();}
 
+function cardRespaldo(){
+ const d=diasDesdeBackup();
+ let estado,col;
+ if(d===null){estado='⚠️ Nunca has hecho un respaldo. Si limpias el navegador o cambias de teléfono, pierdes todo tu historial.';col='#FB7185';}
+ else if(d===0){estado='✅ Respaldaste hoy. Vas al corriente.';col='#34D399';}
+ else if(d<=14){estado='✅ Último respaldo hace '+d+' día'+(d===1?'':'s')+'.';col='#34D399';}
+ else{estado='⚠️ Tu último respaldo fue hace '+d+' días. Descarga uno nuevo.';col='#FB923C';}
+ return '<div class="card" style="border-left:4px solid #FBBF24;">'
+  +'<p class="sec-title">💾 Respaldo de mis datos</p>'
+  +'<p style="font-size:12.5px;color:'+col+';font-weight:700;line-height:1.5;">'+estado+'</p>'
+  +'<p style="font-size:12px;color:#a9b0bd;margin-top:6px;line-height:1.5;">Todo (rutinas, historial, récords, perfil y mediciones) se guarda <strong>solo en este teléfono</strong>. El respaldo baja un archivo que puedes guardar en Drive o mandarte por WhatsApp.</p>'
+  +'<div style="display:flex;gap:8px;margin-top:10px;">'
+  +'<button class="btn-sec" style="flex:1;" onclick="exportarDatos()">⬇️ Descargar respaldo</button>'
+  +'<button class="btn-mini" style="flex:1;" onclick="pedirImportar()">⬆️ Restaurar</button>'
+  +'</div>'
+  +'<p style="font-size:11px;color:#5b6270;margin-top:8px;">Restaurar reemplaza todos los datos actuales por los del archivo.</p>'
+  +'</div>';
+}
+
+/* ===== Detección de estancamiento / señal de deload ===== */
+function mejor1RMSesion(e){
+ let best=0;
+ e.sets.forEach(function(st){const v=est1RM(st.p,st.r);if(v>best)best=v;});
+ return best;
+}
+function analizarEstancamiento(){
+ const porEj={};
+ hist.forEach(function(s){
+  s.ejercicios.forEach(function(e){
+   const k=keyEx(e.n),rm=mejor1RMSesion(e);
+   if(!rm)return;
+   if(!porEj[k])porEj[k]={n:e.n,pts:[]};
+   if(porEj[k].pts.length<4)porEj[k].pts.push({f:s.fecha,rm:rm}); // hist viene de nuevo a viejo
+  });
+ });
+ const alertas=[];
+ Object.keys(porEj).forEach(function(k){
+  const p=porEj[k].pts;
+  if(p.length<3)return;                       // hacen falta 3 sesiones para opinar
+  const actual=p[0].rm,previas=p.slice(1);
+  const maxPrev=Math.max.apply(null,previas.map(function(x){return x.rm;}));
+  const caida=(maxPrev-actual)/maxPrev;
+  if(caida>=0.05)alertas.push({n:porEj[k].n,tipo:'baja',pct:Math.round(caida*100)});
+  else if(Math.abs(caida)<0.02&&p.length>=3){
+   const rango=Math.max.apply(null,p.map(function(x){return x.rm;}))-Math.min.apply(null,p.map(function(x){return x.rm;}));
+   if(rango/maxPrev<0.02)alertas.push({n:porEj[k].n,tipo:'estanca',pct:0});
+  }
+ });
+ return alertas;
+}
+function cardEstancamiento(){
+ const a=analizarEstancamiento();
+ if(!a.length)return '';
+ const bajas=a.filter(function(x){return x.tipo==='baja';});
+ let h='<div class="card" style="border-left:4px solid '+(bajas.length>=2?'#FB7185':'#FB923C')+';">'
+  +'<p class="sec-title">'+(bajas.length>=2?'🚨 Señal de alerta':'📌 Ojo con estos')+'</p>';
+ a.forEach(function(x){
+  h+='<div class="metric"><span>'+esc(x.n)+'</span><b style="color:'+(x.tipo==='baja'?'#FB7185':'#FB923C')+';">'
+   +(x.tipo==='baja'?'▼ bajó '+x.pct+'%':'→ estancado')+'</b></div>';
+ });
+ if(bajas.length>=2){
+  h+='<p style="font-size:12.5px;color:#FB7185;font-weight:700;margin-top:10px;line-height:1.5;">Tu fuerza está cayendo en '+bajas.length+' ejercicios a la vez. En déficit agresivo eso normalmente significa que <strong>estás perdiendo músculo</strong>, no solo grasa.</p>'
+   +'<p style="font-size:12px;color:#a9b0bd;margin-top:6px;line-height:1.5;">Qué hacer: sube un poco las calorías (sobre todo proteína), duerme más, o baja una semana el volumen. Frenar aquí no es rendirse — es lo que protege lo que ya construiste.</p>';
+ }else{
+  h+='<p style="font-size:12px;color:#a9b0bd;margin-top:10px;line-height:1.5;">Estancarte en déficit es normal y no es alarma. Mantén el peso y busca sumar reps. Si además empieza a <strong>bajar</strong> en varios ejercicios, ahí sí hay que aflojar el déficit.</p>';
+ }
+ return h+'</div>';
+}
+
 /* ===== 🔥 Quema de grasa ===== */
 function diasRestantes(){
  const hoy=new Date();hoy.setHours(0,0,0,0);
@@ -792,6 +953,43 @@ function diasRestantes(){
  return Math.max(0,Math.round((dl-hoy)/86400000));
 }
 function edMeta(k,v){meta[k]=(k==='deadline')?v:(parseFloat(v)||0);saveAll();render();}
+
+/* Mediciones corporales */
+function syncUltimaMedicion(){
+ const u=pesos[pesos.length-1];
+ if(!u)return;
+ if(u.kg>0)perfil.peso=String(u.kg);
+ if(u.bf>0)meta.actualBF=u.bf;
+}
+function guardarMedicion(){
+ const f=document.getElementById('med-fecha').value||hoyStr();
+ const kg=parseFloat(document.getElementById('med-kg').value);
+ const bf=parseFloat(document.getElementById('med-bf').value);
+ if(!(kg>0)&&!(bf>0)){alert('Pon al menos tu peso o tu % de grasa.');return;}
+ let ex=null;
+ pesos.forEach(function(x){if(x.f===f)ex=x;});
+ if(ex){if(kg>0)ex.kg=kg;if(bf>0)ex.bf=bf;}
+ else pesos.push({f:f,kg:kg>0?kg:null,bf:bf>0?bf:null});
+ pesos.sort(function(a,b){return a.f<b.f?-1:(a.f>b.f?1:0);});
+ syncUltimaMedicion();
+ saveAll();render();
+}
+function borrarMedicion(i){
+ if(!confirm('¿Borrar esta medición?'))return;
+ pesos.splice(i,1);
+ syncUltimaMedicion();
+ saveAll();render();
+}
+/* Ritmo real medido entre la primera y la última medición con dato */
+function ritmoDe(campo){
+ const arr=pesos.filter(function(x){return x[campo]>0;});
+ if(arr.length<2)return null;
+ const a=arr[0],b=arr[arr.length-1];
+ const dias=(new Date(b.f+'T00:00:00')-new Date(a.f+'T00:00:00'))/86400000;
+ if(dias<=0)return null;
+ const delta=b[campo]-a[campo];
+ return {delta:delta,porSem:delta/dias*7,dias:dias,desde:a.f,hasta:b.f};
+}
 function renderQuema(){
  const dias=diasRestantes();
  const sem=Math.max(1,Math.round(dias/7));
@@ -814,6 +1012,60 @@ function renderQuema(){
   +'</div>';
  if(!bw)h+='<p style="font-size:12px;color:#FB923C;margin-top:8px;">💡 Pon tu peso corporal en <strong>👤 Perfil</strong> para calcular kilos de grasa, déficit y ritmo exactos.</p>';
  h+='</div>';
+
+ // Registrar medición corporal
+ h+='<div class="card"><p class="sec-title">📏 Registrar medición</p><div class="perfil-grid">'
+  +'<label>Fecha<input type="date" id="med-fecha" value="'+hoyStr()+'"></label>'
+  +'<label>Peso (kg)<input type="number" step="0.1" inputmode="decimal" id="med-kg" placeholder="'+(bw?fmt(bw):'--')+'"></label>'
+  +'<label>% grasa<input type="number" step="0.1" inputmode="decimal" id="med-bf" placeholder="'+(act?fmt(act):'--')+'"></label>'
+  +'</div>'
+  +'<button class="btn-main" style="margin-top:10px;" onclick="guardarMedicion()">Guardar medición</button>'
+  +'<p style="font-size:11px;color:#5b6270;margin-top:8px;">Mídete en las mismas condiciones (en ayunas, después del baño). La última medición actualiza sola tu peso y tu % de grasa arriba.</p>'
+  +'</div>';
+
+ // Evolución: gráfica + ritmo real vs necesario
+ if(pesos.length){
+  const ptsKg=pesos.filter(function(x){return x.kg>0;}).map(function(x){return {f:x.f,v:x.kg};});
+  const ptsBf=pesos.filter(function(x){return x.bf>0;}).map(function(x){return {f:x.f,v:x.bf};});
+  const serie=progMedida==='kg'?ptsKg:ptsBf;
+  h+='<div class="card"><p class="sec-title">📉 Mi evolución — '+pesos.length+' medicion'+(pesos.length===1?'':'es')+'</p>'
+   +'<div class="seg"><button class="seg-btn'+(progMedida==='kg'?' active':'')+'" onclick="progMedida=\'kg\';render()">Peso</button>'
+   +'<button class="seg-btn'+(progMedida==='bf'?' active':'')+'" onclick="progMedida=\'bf\';render()">% grasa</button></div>';
+  if(serie.length>=2)h+=chartSVG(serie,progMedida==='kg'?'kg':'%','#60A5FA','#93C5FD');
+  else h+='<p class="empty" style="padding:14px 8px;">Registra al menos 2 mediciones para ver tu curva.</p>';
+
+  const rb=ritmoDe('bf'),rk=ritmoDe('kg');
+  if(rk)h+='<div class="metric"><span>Peso corporal</span><b>'+(rk.delta>0?'+':'')+fmt(Math.round(rk.delta*10)/10)+' kg en '+Math.round(rk.dias)+' días</b></div>';
+  if(rb){
+   const reqSem=sem>0?puntosFalt/sem:0;
+   h+='<div class="metric"><span>Ritmo real</span><b>'+(rb.porSem>0?'+':'')+fmt(Math.round(rb.porSem*100)/100)+' pts grasa/sem</b></div>'
+    +'<div class="metric"><span>Ritmo necesario</span><b>'+fmt(Math.round(reqSem*100)/100)+' pts/sem</b></div>';
+   if(rb.porSem<0&&puntosFalt>0){
+    const semNec=puntosFalt/Math.abs(rb.porSem);
+    const proy=new Date();proy.setDate(proy.getDate()+Math.round(semNec*7));
+    const fp=proy.getFullYear()+'-'+String(proy.getMonth()+1).padStart(2,'0')+'-'+String(proy.getDate()).padStart(2,'0');
+    const aTiempo=fp<=meta.deadline;
+    h+='<p style="font-size:12.5px;font-weight:700;margin-top:10px;line-height:1.5;color:'+(aTiempo?'#34D399':'#FB923C')+';">'
+     +(aTiempo?'✅ Vas en ritmo. A este paso tocas '+fmt(obj)+'% alrededor del '+fp+', antes de tu fecha meta.'
+              :'⚠️ Vas más lento de lo necesario. A este ritmo llegarías a '+fmt(obj)+'% hasta el '+fp+', después de tu meta ('+esc(meta.deadline)+').')+'</p>';
+    if(!aTiempo)h+='<p style="font-size:12px;color:#a9b0bd;margin-top:6px;line-height:1.5;">No es fracaso: es información. Puedes apretar un poco el déficit y los pasos, o mover la fecha meta. Antes de apretar, revisa en 📈 Progreso que tu fuerza no esté cayendo.</p>';
+   }else if(rb.porSem>=0){
+    h+='<p style="font-size:12.5px;color:#FB923C;font-weight:700;margin-top:10px;line-height:1.5;">Tu % de grasa no ha bajado entre mediciones. Si ya pasaron 2+ semanas así, revisa el déficit real (porciones, bebidas, fines de semana) antes de meter más cardio.</p>';
+   }
+  }else if(pesos.length===1){
+   h+='<p style="font-size:12px;color:#8b93a3;margin-top:10px;">Con una segunda medición podré decirte tu ritmo real y si llegas a tiempo. 📅</p>';
+  }
+
+  // Listado de mediciones (más recientes primero)
+  h+='<div style="margin-top:12px;">';
+  pesos.slice().reverse().slice(0,8).forEach(function(m){
+   const idx=pesos.indexOf(m);
+   h+='<div class="hist-row"><span>'+esc(m.f)+'</span><span style="font-weight:600;color:#c7cbd4;">'
+    +(m.kg?fmt(m.kg)+' kg':'—')+(m.bf?' · '+fmt(m.bf)+'%':'')
+    +' <button class="btn-mini" style="padding:2px 7px;margin-left:6px;color:#FB7185;" onclick="borrarMedicion('+idx+')">🗑️</button></span></div>';
+  });
+  h+='</div></div>';
+ }
 
  // Proyección con matemática real
  if(bw&&puntosFalt>0){
@@ -870,15 +1122,30 @@ function toggleEdit(){
  document.getElementById('btn-edit').textContent=editMode?'✔️ Listo':'✏️ Editar';
  render();
 }
+/* Sugerencias de ejercicios: escribir el mismo nombre siempre evita perder historial y PRs */
+const EJERCICIOS_SUGERIDOS=['Press de banca','Press inclinado con mancuernas','Press militar','Press militar con mancuernas','Aperturas con mancuernas','Fondos','Extensión de tríceps en polea','Extensión de tríceps sobre cabeza','Elevaciones laterales','Elevaciones frontales','Pájaros (deltoide posterior)','Jalón al pecho','Dominadas','Remo con barra','Remo con mancuerna','Remo en polea baja','Face pull','Encogimientos de hombros','Curl de bíceps con barra','Curl martillo','Curl concentrado','Sentadilla','Sentadilla frontal','Prensa','Peso muerto','Peso muerto rumano','Zancadas','Sentadilla búlgara','Extensión de cuádriceps','Curl femoral','Hip thrust','Pantorrilla de pie','Pantorrilla sentado','Plancha','Crunch en polea','Elevación de piernas'];
+function poblarDatalist(){
+ const dl=document.getElementById('lista-ex');
+ if(!dl)return;
+ const set={},nombres=[];
+ function add(n){const k=keyEx(n);if(n&&!set[k]){set[k]=1;nombres.push(n);}}
+ EJERCICIOS_SUGERIDOS.forEach(add);
+ [RUTINA_DEFAULT,TORSO_PIERNA,FULL_BODY].forEach(function(pl){pl.forEach(function(d){d.ejercicios.forEach(function(e){add(e.n);});});});
+ rutina.forEach(function(d){d.ejercicios.forEach(function(e){add(e.n);});});
+ hist.forEach(function(s){s.ejercicios.forEach(function(e){add(e.n);});});
+ nombres.sort(function(a,b){return a.localeCompare(b,'es');});
+ dl.innerHTML=nombres.map(function(n){return '<option value="'+esc(n)+'">';}).join('');
+}
 function renderEdit(){
  const dia=rutina[vista];
- let h='<div class="info">Modo edición: cambia nombres, series, reps y descanso. Los cambios se guardan solos.</div>';
+ poblarDatalist();
+ let h='<div class="info">Modo edición: cambia nombres, series, reps y descanso. Los cambios se guardan solos.<br><span style="font-size:11.5px;">💡 Al escribir el ejercicio te salen sugerencias — úsalas. Si escribes un nombre distinto al de antes, ese ejercicio empieza su historial y su PR desde cero.</span></div>';
  h+='<p class="sec-title">Nombre del día</p><input class="edit-input" value="'+esc(dia.nombre)+'" onchange="edDia(this.value)">';
  h+='<p class="sec-title" style="margin-top:10px;">Ejercicios — nombre · series · reps · descanso (seg)</p>';
  dia.ejercicios.forEach(function(ex,i){
   h+='<div class="card" style="padding:10px 12px;">'
    +'<div class="edit-grid">'
-   +'<input value="'+esc(ex.n)+'" placeholder="Ejercicio" onchange="edEx('+i+',\'n\',this.value)">'
+   +'<input list="lista-ex" value="'+esc(ex.n)+'" placeholder="Ejercicio" onchange="edEx('+i+',\'n\',this.value)">'
    +'<input type="number" min="1" max="10" value="'+ex.s+'" onchange="edEx('+i+',\'s\',this.value)">'
    +'<input value="'+esc(ex.r)+'" placeholder="reps" onchange="edEx('+i+',\'r\',this.value)">'
    +'<input type="number" min="15" max="600" step="5" value="'+(ex.desc||90)+'" onchange="edEx('+i+',\'desc\',this.value)">'
@@ -1116,6 +1383,7 @@ actualizarLinkDieta();
 pintarFrase();
 pintarAuto();
 render();
+poblarDatalist();
 
 /* ===== PWA: instalación y offline ===== */
 if('serviceWorker' in navigator){
