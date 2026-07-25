@@ -1,13 +1,14 @@
 // Service worker exclusivo de la app de Rutinas.
 // Vive en /CLAUDE/rutinas/ y su alcance es solo esta carpeta, así no
 // choca con Emboobate ni con Dieta (cada app tiene su propio SW).
-const CACHE_NAME = 'rutinas-cache-v1';
+const CACHE_NAME = 'rutinas-cache-v2';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './three.min.js'
 ];
 
 self.addEventListener('install', (event) => {

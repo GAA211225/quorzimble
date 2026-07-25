@@ -114,6 +114,20 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0d0e12;color:#e8
 .chk-row.on .chk-n{color:#8b93a3;text-decoration:line-through;}
 .chk-d{color:#60A5FA;font-weight:600;font-size:12px;}
 .chk-nota{font-size:11px;color:#8b93a3;font-style:italic;margin-top:2px;}
+.ex3d-btn{margin-left:8px;padding:2px 9px;border:1.5px solid #34363f;border-radius:12px;background:#21232b;color:#60A5FA;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.d3-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:120;display:flex;align-items:center;justify-content:center;padding:14px;}
+.d3-card{background:#16181d;border:1px solid #34363f;border-radius:16px;width:100%;max-width:460px;box-shadow:0 12px 44px rgba(0,0,0,.6);overflow:hidden;}
+.d3-hd{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:13px 15px;border-bottom:1px solid #262933;}
+.d3-title{font-size:15px;font-weight:800;color:#f3f4f6;}
+.d3-sub{font-size:11px;color:#8b93a3;margin-top:2px;}
+.d3-x{width:32px;height:32px;border-radius:50%;border:none;background:#21232b;color:#e8e9ec;font-size:16px;font-weight:700;cursor:pointer;flex-shrink:0;}
+.d3-stage{position:relative;width:100%;height:340px;background:radial-gradient(ellipse at 50% 38%,#20242c,#111318 72%);touch-action:none;cursor:grab;}
+.d3-stage:active{cursor:grabbing;}
+.d3-stage canvas{display:block;width:100%;height:100%;}
+.d3-hint{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:11px;color:#8b93a3;pointer-events:none;}
+.d3-err{padding:26px 18px;text-align:center;font-size:13px;color:#FB923C;line-height:1.5;}
+.d3-foot{padding:11px 15px;border-top:1px solid #262933;font-size:12px;color:#a9b0bd;line-height:1.5;}
+.d3-tag{display:inline-block;font-size:11px;font-weight:700;color:#34D399;background:rgba(52,211,153,.12);padding:2px 8px;border-radius:10px;}
 </style>
 </head>
 <body>
@@ -157,6 +171,17 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0d0e12;color:#e8
 
 <input type="file" id="file-import" accept="application/json,.json" style="display:none" onchange="importarDatos(this)">
 <datalist id="lista-ex"></datalist>
+
+<div class="d3-overlay" id="d3-overlay" style="display:none" onclick="if(event.target===this)cerrar3D()">
+  <div class="d3-card">
+    <div class="d3-hd">
+      <div><div class="d3-title" id="d3-title">Ejercicio</div><div class="d3-sub" id="d3-sub"></div></div>
+      <button class="d3-x" onclick="cerrar3D()">✕</button>
+    </div>
+    <div class="d3-stage" id="d3-stage"><div class="d3-hint">🖐️ arrastra para girar</div></div>
+    <div class="d3-foot" id="d3-foot"></div>
+  </div>
+</div>
 
 <script>
 /* ===== Plantillas de rutina (desc = descanso en segundos) ===== */
@@ -633,7 +658,7 @@ function render(){
     +'</div>';
   }
   h+='<div class="card'+(done?' done':'')+'">'
-   +'<div class="ex-hdr"><span class="ex-name">'+(done?'✅ ':'')+esc(ex.n)+(pr?'<span class="prb">🏆 '+fmt(pr.p)+'</span>':'')+'</span><span class="ex-meta">'+ex.s+' × '+esc(ex.r)+' · ⏱'+(ex.desc||90)+'s</span></div>'
+   +'<div class="ex-hdr"><span class="ex-name">'+(done?'✅ ':'')+esc(ex.n)+(pr?'<span class="prb">🏆 '+fmt(pr.p)+'</span>':'')+'<button class="ex3d-btn" onclick="abrir3D(this.getAttribute(\'data-n\'))" data-n="'+esc(ex.n)+'">🧍 3D</button></span><span class="ex-meta">'+ex.s+' × '+esc(ex.r)+' · ⏱'+(ex.desc||90)+'s</span></div>'
    +rows
    +(ex.nota?'<p class="ex-nota">💡 '+esc(ex.nota)+'</p>':'')
    +'</div>';
@@ -1384,6 +1409,234 @@ pintarFrase();
 pintarAuto();
 render();
 poblarDatalist();
+
+/* ============================================================
+   Visor 3D de ejercicios (Three.js local, funciona offline)
+   Un maniquí low-poly articulado que gira con el dedo y anima
+   la repetición. Se mapea cada ejercicio a un patrón de movimiento.
+   ============================================================ */
+let threeReady=null;      // promesa de carga de three.min.js
+let d3={};                // escena persistente (se crea una sola vez)
+let d3RAF=null;
+
+function cargarThree(){
+ if(window.THREE)return Promise.resolve(true);
+ if(threeReady)return threeReady;
+ threeReady=new Promise(function(res){
+  const s=document.createElement('script');
+  s.src='three.min.js';
+  s.onload=function(){res(!!window.THREE);};
+  s.onerror=function(){res(false);};
+  document.head.appendChild(s);
+ });
+ return threeReady;
+}
+
+/* Qué patrón de movimiento le toca a cada ejercicio (por palabras clave) */
+function patronDe(n){
+ const s=keyEx(n);
+ if(/militar|overhead|push press|arnold|hombro con|sobre la cabeza/.test(s))return 'overhead';
+ if(/jalon|dominad|pull ?up|pull-up|pull over/.test(s))return 'pull';
+ if(/remo|face pull/.test(s))return 'row';
+ if(/lateral|pajaro|deltoide|elevacion frontal|elevaciones frontal/.test(s))return 'lateral';
+ if(/curl femoral|femoral/.test(s))return 'legcurl';
+ if(/curl|biceps/.test(s))return 'curl';
+ if(/tricep|copa|frances|patada/.test(s))return 'triceps';
+ if(/press|banca|pecho|fondos|apertura|pec/.test(s))return 'bench';
+ if(/sentadilla|prensa|hack|cuadriceps|extension de cuadr/.test(s))return 'squat';
+ if(/zancada|desplante|bulgar|lunge|step/.test(s))return 'lunge';
+ if(/peso muerto|rumano|hip thrust|gluteo|puente|buenos dias|hiperext|superman|espalda baja/.test(s))return 'hinge';
+ if(/pantorrilla|gemelo|calf/.test(s))return 'calf';
+ if(/plancha|crunch|abdomen|elevacion de pierna|dead bug|bird|core|oblicuo|russian/.test(s))return 'core';
+ return 'bench';
+}
+const PATRON_TXT={
+ overhead:{t:'Empuje vertical',b:'Barra o mancuernas desde los hombros hasta arriba. Aprieta glúteo y abdomen, no arquees la espalda baja.'},
+ bench:{t:'Empuje horizontal',b:'Empuja alejando el peso del pecho. Baja controlado, codos ~45°, pausa y empuja.'},
+ pull:{t:'Jalón vertical',b:'Lleva los codos hacia abajo y atrás, junta las escápulas. Pecho arriba, sin balancear.'},
+ row:{t:'Remo (jalón horizontal)',b:'Bisagra de cadera, espalda recta. Jala hacia el abdomen llevando los codos atrás.'},
+ curl:{t:'Curl de bíceps',b:'Codos pegados al cuerpo, sube sin balancear el torso. Baja lento controlando.'},
+ triceps:{t:'Tríceps',b:'Mantén el codo fijo; solo se mueve el antebrazo. Extiende del todo y regresa lento.'},
+ lateral:{t:'Elevación lateral',b:'Sube los brazos a los lados hasta la altura de los hombros. Peso ligero, técnica limpia.'},
+ squat:{t:'Sentadilla / pierna',b:'Baja empujando cadera atrás y rodillas afuera. Talones firmes, pecho arriba.'},
+ hinge:{t:'Bisagra de cadera',b:'Empuja la cadera hacia atrás con la espalda recta. Siente el estiramiento en femoral y sube apretando glúteo.'},
+ lunge:{t:'Zancada',b:'Paso al frente, baja la rodilla trasera hacia el piso. Torso erguido, empuja con el talón de adelante.'},
+ calf:{t:'Pantorrilla',b:'Sube sobre las puntas lo más alto posible, pausa arriba y baja controlando el estiramiento.'},
+ core:{t:'Core',b:'Movimiento controlado desde el abdomen. Aprieta, no jales con el cuello ni la inercia.'},
+ legcurl:{t:'Curl femoral',b:'Flexiona la rodilla llevando el talón al glúteo. Controla la bajada.'}
+};
+
+/* Poses por patrón: cada param es un ángulo (rad) o desplazamiento.
+   Se interpola A↔B con una onda para animar la repetición. */
+const D=Math.PI/180;
+function poseBase(){return {rootY:0,hip:0,spine:0,shpL:0,shpR:0,shrL:0,shrR:0,elL:0,elR:0,lhipL:0,lhipR:0,knL:0,knR:0,bar:0,barY:0,barZ:0,db:0};}
+function poses(pat){
+ const A=poseBase(),B=poseBase();
+ function set(o,v){for(const k in v)o[k]=v[k];}
+ if(pat==='overhead'){
+  set(A,{bar:1,barY:1.42,shpL:-40*D,shpR:-40*D,shrL:-18*D,shrR:18*D,elL:-110*D,elR:-110*D});
+  set(B,{bar:1,barY:2.05,shpL:-168*D,shpR:-168*D,shrL:-6*D,shrR:6*D,elL:-6*D,elR:-6*D});
+ }else if(pat==='bench'){
+  set(A,{bar:1,barZ:.30,barY:1.35,shpL:-88*D,shpR:-88*D,shrL:-20*D,shrR:20*D,elL:-95*D,elR:-95*D});
+  set(B,{bar:1,barZ:.72,barY:1.35,shpL:-92*D,shpR:-92*D,shrL:-6*D,shrR:6*D,elL:-8*D,elR:-8*D});
+ }else if(pat==='pull'){
+  set(A,{bar:1,barY:2.05,shpL:-165*D,shpR:-165*D,shrL:-14*D,shrR:14*D,elL:-14*D,elR:-14*D});
+  set(B,{bar:1,barY:1.5,shpL:-92*D,shpR:-92*D,shrL:-24*D,shrR:24*D,elL:-96*D,elR:-96*D});
+ }else if(pat==='row'){
+  set(A,{hip:-58*D,bar:1,barZ:.42,barY:.95,shpL:-58*D,shpR:-58*D,elL:-18*D,elR:-18*D});
+  set(B,{hip:-58*D,bar:1,barZ:.16,barY:1.05,shpL:-40*D,shpR:-40*D,elL:-110*D,elR:-110*D});
+ }else if(pat==='curl'){
+  set(A,{db:1,elL:-6*D,elR:-6*D,shpL:-8*D,shpR:-8*D});
+  set(B,{db:1,elL:-150*D,elR:-150*D,shpL:-14*D,shpR:-14*D});
+ }else if(pat==='triceps'){
+  set(A,{db:1,shpL:-150*D,shpR:-150*D,elL:-150*D,elR:-150*D,shrL:-8*D,shrR:8*D});
+  set(B,{db:1,shpL:-150*D,shpR:-150*D,elL:-8*D,elR:-8*D,shrL:-8*D,shrR:8*D});
+ }else if(pat==='lateral'){
+  set(A,{db:1,shrL:-8*D,shrR:8*D,elL:-12*D,elR:-12*D});
+  set(B,{db:1,shrL:-92*D,shrR:92*D,elL:-14*D,elR:-14*D});
+ }else if(pat==='squat'){
+  set(A,{rootY:0,hip:-8*D,knL:6*D,knR:6*D,lhipL:-6*D,lhipR:-6*D,shpL:-70*D,shpR:-70*D,elL:-20*D,elR:-20*D});
+  set(B,{rootY:-.42,hip:-32*D,knL:95*D,knR:95*D,lhipL:-60*D,lhipR:-60*D,shpL:-70*D,shpR:-70*D,elL:-20*D,elR:-20*D});
+ }else if(pat==='hinge'){
+  set(A,{hip:-4*D,knL:8*D,knR:8*D,bar:1,barY:.62,barZ:.14,shpL:-4*D,shpR:-4*D});
+  set(B,{hip:-72*D,knL:20*D,knR:20*D,bar:1,barY:.62,barZ:.14,shpL:-4*D,shpR:-4*D});
+ }else if(pat==='lunge'){
+  set(A,{rootY:0,lhipL:-10*D,knL:8*D,lhipR:8*D,knR:8*D});
+  set(B,{rootY:-.34,lhipL:-70*D,knL:90*D,lhipR:34*D,knR:100*D});
+ }else if(pat==='calf'){
+  set(A,{rootY:0});
+  set(B,{rootY:.16});
+ }else if(pat==='legcurl'){
+  set(A,{hip:-52*D,knL:6*D,knR:6*D});
+  set(B,{hip:-52*D,knL:8*D,knR:100*D});
+ }else{ /* core: flexión de torso */
+  set(A,{spine:6*D,shpL:-150*D,shpR:-150*D,elL:-40*D,elR:-40*D});
+  set(B,{spine:48*D,shpL:-150*D,shpR:-150*D,elL:-40*D,elR:-40*D});
+ }
+ return {A:A,B:B};
+}
+
+function matFig(c){return new THREE.MeshStandardMaterial({color:c,roughness:.62,metalness:.15});}
+function pivot(parent,x,y,z){const g=new THREE.Group();g.position.set(x,y,z);parent.add(g);return g;}
+function limb(par,w,h,d,color){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),matFig(color));m.position.y=-h/2;par.add(m);return m;}
+
+function construirFigura(){
+ const skin=0x6ea8ff,skin2=0x4f86e6,dark=0x2f3a4d;
+ const rig=new THREE.Group();
+ const j={};
+ j.rig=rig;
+ j.hips=pivot(rig,0,0.95,0);
+ // pelvis
+ const pel=new THREE.Mesh(new THREE.BoxGeometry(0.34,0.22,0.22),matFig(skin2));pel.position.y=0;j.hips.add(pel);
+ // torso
+ j.torso=pivot(j.hips,0,0.13,0);
+ const to=new THREE.Mesh(new THREE.BoxGeometry(0.40,0.50,0.24),matFig(skin));to.position.y=0.27;j.torso.add(to);
+ const nk=new THREE.Mesh(new THREE.BoxGeometry(0.10,0.08,0.10),matFig(skin2));nk.position.y=0.56;j.torso.add(nk);
+ const hd=new THREE.Mesh(new THREE.SphereGeometry(0.145,18,14),matFig(skin));hd.position.y=0.71;j.torso.add(hd);
+ // brazos
+ j.shL=pivot(j.torso,-0.27,0.47,0); limb(j.shL,0.11,0.30,0.11,skin2);
+ j.elL=pivot(j.shL,0,-0.30,0); limb(j.elL,0.095,0.29,0.095,skin);
+ j.hL=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.11,0.11),matFig(dark));j.hL.position.y=-0.30;j.elL.add(j.hL);
+ j.dbL=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,0.30,10),matFig(0x9aa4b2));j.dbL.rotation.z=Math.PI/2;j.dbL.position.y=-0.30;j.elL.add(j.dbL);
+ j.shR=pivot(j.torso,0.27,0.47,0); limb(j.shR,0.11,0.30,0.11,skin2);
+ j.elR=pivot(j.shR,0,-0.30,0); limb(j.elR,0.095,0.29,0.095,skin);
+ j.hR=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.11,0.11),matFig(dark));j.hR.position.y=-0.30;j.elR.add(j.hR);
+ j.dbR=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,0.30,10),matFig(0x9aa4b2));j.dbR.rotation.z=Math.PI/2;j.dbR.position.y=-0.30;j.elR.add(j.dbR);
+ // piernas
+ j.hipL=pivot(j.hips,-0.12,-0.06,0); limb(j.hipL,0.15,0.42,0.15,skin2);
+ j.knL=pivot(j.hipL,0,-0.42,0); limb(j.knL,0.13,0.44,0.13,skin);
+ const ftL=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.09,0.28),matFig(dark));ftL.position.set(0,-0.44,0.07);j.knL.add(ftL);
+ j.hipR=pivot(j.hips,0.12,-0.06,0); limb(j.hipR,0.15,0.42,0.15,skin2);
+ j.knR=pivot(j.hipR,0,-0.42,0); limb(j.knR,0.13,0.44,0.13,skin);
+ const ftR=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.09,0.28),matFig(dark));ftR.position.set(0,-0.44,0.07);j.knR.add(ftR);
+ // barra (para patrones con barra), hija del rig para posicionarla en el mundo del rig
+ j.barbell=new THREE.Group();
+ const barra=new THREE.Mesh(new THREE.CylinderGeometry(0.028,0.028,1.15,12),matFig(0xcfd6e0));barra.rotation.z=Math.PI/2;j.barbell.add(barra);
+ [-0.52,0.52].forEach(function(x){const pl=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.13,0.06,16),matFig(0x2b3240));pl.rotation.z=Math.PI/2;pl.position.x=x;j.barbell.add(pl);});
+ rig.add(j.barbell);
+ return j;
+}
+
+function initD3(){
+ const stage=document.getElementById('d3-stage');
+ const w=stage.clientWidth||440,h=stage.clientHeight||340;
+ const scene=new THREE.Scene();
+ const cam=new THREE.PerspectiveCamera(42,w/h,0.1,50);
+ cam.position.set(0,1.15,3.7);cam.lookAt(0,1.02,0);
+ const rend=new THREE.WebGLRenderer({antialias:true,alpha:true});
+ rend.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+ rend.setSize(w,h);
+ stage.appendChild(rend.domElement);
+ scene.add(new THREE.HemisphereLight(0xbcd2ff,0x20242c,0.95));
+ const dir=new THREE.DirectionalLight(0xffffff,0.9);dir.position.set(2.5,4,3);scene.add(dir);
+ // piso sutil
+ const piso=new THREE.Mesh(new THREE.CircleGeometry(1.5,40),new THREE.MeshStandardMaterial({color:0x161a20,roughness:1}));
+ piso.rotation.x=-Math.PI/2;scene.add(piso);
+ const orbit=new THREE.Group();scene.add(orbit);
+ const fig=construirFigura();orbit.add(fig.rig);
+ d3={scene:scene,cam:cam,rend:rend,orbit:orbit,fig:fig,stage:stage,pose:null,t0:performance.now()};
+ // arrastrar para girar
+ let drag=false,px=0,py=0;
+ orbit.rotation.y=-0.35;
+ stage.addEventListener('pointerdown',function(e){drag=true;px=e.clientX;py=e.clientY;stage.setPointerCapture(e.pointerId);});
+ stage.addEventListener('pointermove',function(e){if(!drag)return;orbit.rotation.y+=(e.clientX-px)*0.01;orbit.rotation.x=Math.max(-1.1,Math.min(1.1,orbit.rotation.x+(e.clientY-py)*0.008));px=e.clientX;py=e.clientY;});
+ stage.addEventListener('pointerup',function(e){drag=false;});
+ stage.addEventListener('pointercancel',function(){drag=false;});
+ window.addEventListener('resize',resizeD3);
+}
+function resizeD3(){
+ if(!d3.rend)return;
+ const w=d3.stage.clientWidth,h=d3.stage.clientHeight;
+ d3.cam.aspect=w/h;d3.cam.updateProjectionMatrix();d3.rend.setSize(w,h);
+}
+function aplicarPose(p){
+ const f=d3.fig;
+ f.rig.position.y=p.rootY;
+ f.hips.rotation.x=p.hip;
+ f.torso.rotation.x=p.spine;
+ f.shL.rotation.x=p.shpL;f.shL.rotation.z=p.shrL;
+ f.shR.rotation.x=p.shpR;f.shR.rotation.z=p.shrR;
+ f.elL.rotation.x=p.elL;f.elR.rotation.x=p.elR;
+ f.hipL.rotation.x=p.lhipL;f.hipR.rotation.x=p.lhipR;
+ f.knL.rotation.x=p.knL;f.knR.rotation.x=p.knR;
+ f.barbell.visible=p.bar>0.5;
+ f.dbL.visible=f.dbR.visible=p.db>0.5;
+ if(p.bar>0.5){f.barbell.position.set(0,p.barY,p.barZ);}
+}
+function loopD3(){
+ d3RAF=requestAnimationFrame(loopD3);
+ const pp=d3.pose;if(!pp)return;
+ const t=(Math.sin((performance.now()-d3.t0)/650)+1)/2; // 0..1 suave
+ const cur=poseBase();
+ for(const k in cur)cur[k]=pp.A[k]+(pp.B[k]-pp.A[k])*t;
+ aplicarPose(cur);
+ d3.rend.render(d3.scene,d3.cam);
+}
+function abrir3D(nombre){
+ const ov=document.getElementById('d3-overlay');
+ const pat=patronDe(nombre),info=PATRON_TXT[pat];
+ document.getElementById('d3-title').textContent=nombre;
+ document.getElementById('d3-sub').innerHTML='<span class="d3-tag">'+esc(info.t)+'</span>';
+ document.getElementById('d3-foot').textContent=info.b;
+ ov.style.display='flex';
+ cargarThree().then(function(ok){
+  if(!ok){document.getElementById('d3-stage').innerHTML='<div class="d3-err">No se pudo cargar el visor 3D.<br>Ábrelo una vez con internet para guardarlo y luego funciona sin conexión.</div>';return;}
+  try{
+   if(!d3.rend)initD3();
+   d3.pose=poses(pat);
+   d3.t0=performance.now();
+   resizeD3();
+   if(d3RAF)cancelAnimationFrame(d3RAF);
+   loopD3();
+  }catch(e){
+   document.getElementById('d3-stage').innerHTML='<div class="d3-err">Tu navegador no pudo iniciar el 3D (WebGL).<br>'+esc(e.message)+'</div>';
+  }
+ });
+}
+function cerrar3D(){
+ document.getElementById('d3-overlay').style.display='none';
+ if(d3RAF){cancelAnimationFrame(d3RAF);d3RAF=null;}
+}
 
 /* ===== PWA: instalación y offline ===== */
 if('serviceWorker' in navigator){
