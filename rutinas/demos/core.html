@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demo 3D — Ejercicio</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0d0e12;color:#e8e9ec;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px;}
+.wrap{width:100%;max-width:460px;}
+.hd{text-align:center;margin-bottom:10px;}
+.hd h1{font-size:20px;font-weight:800;}
+.tag{display:inline-block;margin-top:6px;font-size:12px;font-weight:700;color:#34D399;background:rgba(52,211,153,.12);padding:3px 10px;border-radius:12px;}
+.stage{position:relative;width:100%;height:400px;background:radial-gradient(ellipse at 50% 40%,#20242c,#111318 72%);border:1px solid #2c2f38;border-radius:16px;overflow:hidden;touch-action:none;cursor:grab;}
+.stage:active{cursor:grabbing;}
+.stage canvas{display:block;width:100%;height:100%;}
+.hint{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:11px;color:#8b93a3;pointer-events:none;}
+.foot{margin-top:12px;background:#1a1c22;border:1px solid #2c2f38;border-left:4px solid #F43F5E;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;color:#c7cbd4;}
+.foot b{color:#f3f4f6;}
+.err{padding:24px;text-align:center;color:#FB923C;font-size:13px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd">
+    <h1 id="ex-name">Plancha</h1>
+    <div class="tag" id="ex-tag">Isométrico · core</div>
+  </div>
+  <div class="stage" id="stage"><div class="hint">🖐️ arrastra para girar</div></div>
+  <div class="foot" id="ex-cue"></div>
+</div>
+
+<script src="../three.min.js"></script>
+<script>
+const EJ={
+ nombre:'Plancha',
+ tag:'Isométrico · core',
+ cue:'<b>Boca abajo, apoyado en antebrazos y puntas de los pies.</b> Codos justo debajo de los hombros y antebrazos planos en el piso. Mantén una <b>línea recta de la cabeza a los talones</b>: no dejes caer la cadera ni subas los glúteos. Aprieta el abdomen y sostén respirando suave. Gíralo con el dedo para verlo desde cualquier ángulo.'
+};
+document.getElementById('ex-name').textContent=EJ.nombre;
+document.getElementById('ex-tag').textContent=EJ.tag;
+document.getElementById('ex-cue').innerHTML=EJ.cue;
+
+const stage=document.getElementById('stage');
+function boot(){
+ if(!window.THREE){stage.innerHTML='<div class="err">No se pudo cargar el visor 3D. Ábrelo una vez con internet.</div>';return;}
+ const w=stage.clientWidth,h=stage.clientHeight;
+ const scene=new THREE.Scene();
+ const cam=new THREE.PerspectiveCamera(42,w/h,0.1,50);
+ cam.position.set(2.3,1.15,1.7);cam.lookAt(0,0.28,-0.05);
+ const rend=new THREE.WebGLRenderer({antialias:true,alpha:true});
+ rend.setPixelRatio(Math.min(devicePixelRatio||1,2));rend.setSize(w,h);
+ stage.appendChild(rend.domElement);
+ scene.add(new THREE.HemisphereLight(0xbcd2ff,0x20242c,1.0));
+ const dir=new THREE.DirectionalLight(0xffffff,0.9);dir.position.set(3,5,2);scene.add(dir);
+ // piso
+ const piso=new THREE.Mesh(new THREE.CircleGeometry(2,48),new THREE.MeshStandardMaterial({color:0x14171d,roughness:1}));
+ piso.rotation.x=-Math.PI/2;scene.add(piso);
+
+ const skin=0x6ea8ff,skin2=0x4f86e6,dark=0x2f3a4d;
+ function mat(c){return new THREE.MeshStandardMaterial({color:c,roughness:.6,metalness:.15});}
+ function box(par,w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x||0,y||0,z||0);par.add(m);return m;}
+ function rbox(par,w,h,d,c,x,y,z,rx){const m=box(par,w,h,d,c,x,y,z);m.rotation.x=rx||0;return m;}
+
+ const orbit=new THREE.Group();scene.add(orbit);
+
+ // ===== Plancha: cuerpo horizontal boca abajo, cabeza -Z, pies +Z =====
+ // Apoyos FIJOS en el piso (hijos de orbit): antebrazos y puntas de los pies.
+ // Antebrazos planos en el piso (y≈0.055): codo bajo el hombro (z=-0.50) -> mano adelante (z=-0.78)
+ [-0.20,0.20].forEach(function(sx){
+  box(orbit,0.10,0.09,0.30,dark,sx,0.055,-0.64);         // antebrazo plano en el piso
+  box(orbit,0.09,0.09,0.09,skin2,sx,0.055,-0.50);        // codo
+  box(orbit,0.09,0.07,0.11,dark,sx,0.05,-0.80);          // mano/puño en el piso
+ });
+ // Pies: puntas (metatarsos) en el piso al final (+Z); el pie baja del tobillo a la punta
+ [-0.10,0.10].forEach(function(sx){
+  rbox(orbit,0.12,0.10,0.26,dark,sx,0.11,0.68,1.07);     // pie inclinado: tobillo arriba (-Z), punta en el piso (+Z)
+ });
+
+ // ===== Núcleo del cuerpo (recto de hombros a tobillos, ligera inclinación) =====
+ // Grupo 'core' hace un bob de respiración muy sutil; los apoyos quedan fijos.
+ const core=new THREE.Group();orbit.add(core);
+ // Brazo alto: hombro (y=0.40, z=-0.50) baja al codo (y≈0.06)
+ [-0.20,0.20].forEach(function(sx){
+  box(core,0.10,0.35,0.10,skin2,sx,0.225,-0.50);         // brazo (hombro 0.40 -> codo 0.055)
+ });
+ // Tronco inclinado: hombros (y0.40,z-0.50) -> cadera (y0.32,z0.10)
+ rbox(core,0.36,0.22,0.62,skin,0,0.37,-0.20,0.14);       // torso (hombros -Z más altos que cadera +Z)
+ box(core,0.11,0.10,0.11,skin2,0,0.42,-0.58);            // cuello
+ const head=new THREE.Mesh(new THREE.SphereGeometry(0.14,18,14),mat(skin));head.position.set(0,0.44,-0.73);core.add(head);
+ box(core,0.34,0.22,0.26,skin2,0,0.32,0.12);             // pelvis
+ // Piernas rectas: cadera (y0.32,z0.10) -> rodilla (y0.26,z0.42) -> tobillo (y0.22,z0.62)
+ [-0.10,0.10].forEach(function(sx){
+  rbox(core,0.13,0.13,0.34,skin2,sx,0.29,0.26,0.186);    // muslo
+  rbox(core,0.12,0.12,0.22,skin ,sx,0.24,0.52,0.197);    // espinilla (hasta el tobillo)
+ });
+
+ // Poses: hold isométrico. Bob de "respiración" mínimo (unos milímetros) en el core.
+ const A={bob:-0.006};
+ const B={bob: 0.010};
+ function applyPose(p){ core.position.y=p.bob; }
+
+ // rotación inicial agradable + arrastre
+ orbit.rotation.y=-0.55;
+ let drag=false,px=0,py=0;
+ stage.addEventListener('pointerdown',function(e){drag=true;px=e.clientX;py=e.clientY;stage.setPointerCapture(e.pointerId);});
+ stage.addEventListener('pointermove',function(e){if(!drag)return;orbit.rotation.y+=(e.clientX-px)*0.01;orbit.rotation.x=Math.max(-1.0,Math.min(1.0,orbit.rotation.x+(e.clientY-py)*0.008));px=e.clientX;py=e.clientY;});
+ stage.addEventListener('pointerup',function(){drag=false;});
+ stage.addEventListener('pointercancel',function(){drag=false;});
+ addEventListener('resize',function(){const w=stage.clientWidth,h=stage.clientHeight;cam.aspect=w/h;cam.updateProjectionMatrix();rend.setSize(w,h);});
+
+ const t0=performance.now();
+ (function loop(){
+  requestAnimationFrame(loop);
+  const t=(Math.sin((performance.now()-t0)/1600)+1)/2; // lento: respiración
+  const cur={};for(const k in A)cur[k]=A[k]+(B[k]-A[k])*t;
+  applyPose(cur);
+  rend.render(scene,cam);
+ })();
+}
+boot();
+</script>
+</body>
+</html>

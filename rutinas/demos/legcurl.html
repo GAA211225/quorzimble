@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demo 3D — Ejercicio</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0d0e12;color:#e8e9ec;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px;}
+.wrap{width:100%;max-width:460px;}
+.hd{text-align:center;margin-bottom:10px;}
+.hd h1{font-size:20px;font-weight:800;}
+.tag{display:inline-block;margin-top:6px;font-size:12px;font-weight:700;color:#34D399;background:rgba(52,211,153,.12);padding:3px 10px;border-radius:12px;}
+.stage{position:relative;width:100%;height:400px;background:radial-gradient(ellipse at 50% 40%,#20242c,#111318 72%);border:1px solid #2c2f38;border-radius:16px;overflow:hidden;touch-action:none;cursor:grab;}
+.stage:active{cursor:grabbing;}
+.stage canvas{display:block;width:100%;height:100%;}
+.hint{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:11px;color:#8b93a3;pointer-events:none;}
+.foot{margin-top:12px;background:#1a1c22;border:1px solid #2c2f38;border-left:4px solid #F43F5E;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;color:#c7cbd4;}
+.foot b{color:#f3f4f6;}
+.err{padding:24px;text-align:center;color:#FB923C;font-size:13px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd">
+    <h1 id="ex-name">Curl femoral acostado</h1>
+    <div class="tag" id="ex-tag">Aislamiento · isquiotibiales</div>
+  </div>
+  <div class="stage" id="stage"><div class="hint">🖐️ arrastra para girar</div></div>
+  <div class="foot" id="ex-cue"></div>
+</div>
+
+<script src="../three.min.js"></script>
+<script>
+const EJ={
+ nombre:'Curl femoral acostado',
+ tag:'Aislamiento · isquiotibiales',
+ cue:'<b>Boca abajo en el banco</b>, pecho, cadera y muslos apoyados; las rodillas justo en el borde. Con el <b>torso y los muslos quietos</b>, flexiona las rodillas y <b>lleva los talones hacia los glúteos</b> apretando el femoral. Baja controlado hasta estirar las piernas. Gíralo con el dedo para verlo desde cualquier ángulo.'
+};
+document.getElementById('ex-name').textContent=EJ.nombre;
+document.getElementById('ex-tag').textContent=EJ.tag;
+document.getElementById('ex-cue').innerHTML=EJ.cue;
+
+const stage=document.getElementById('stage');
+function boot(){
+ if(!window.THREE){stage.innerHTML='<div class="err">No se pudo cargar el visor 3D. Ábrelo una vez con internet.</div>';return;}
+ const w=stage.clientWidth,h=stage.clientHeight;
+ const scene=new THREE.Scene();
+ const cam=new THREE.PerspectiveCamera(42,w/h,0.1,50);
+ cam.position.set(2.4,1.35,1.9);cam.lookAt(0,0.55,0.10);
+ const rend=new THREE.WebGLRenderer({antialias:true,alpha:true});
+ rend.setPixelRatio(Math.min(devicePixelRatio||1,2));rend.setSize(w,h);
+ stage.appendChild(rend.domElement);
+ scene.add(new THREE.HemisphereLight(0xbcd2ff,0x20242c,1.0));
+ const dir=new THREE.DirectionalLight(0xffffff,0.9);dir.position.set(3,5,2);scene.add(dir);
+ // piso
+ const piso=new THREE.Mesh(new THREE.CircleGeometry(2,48),new THREE.MeshStandardMaterial({color:0x14171d,roughness:1}));
+ piso.rotation.x=-Math.PI/2;scene.add(piso);
+
+ const skin=0x6ea8ff,skin2=0x4f86e6,dark=0x2f3a4d;
+ function mat(c){return new THREE.MeshStandardMaterial({color:c,roughness:.6,metalness:.15});}
+ function box(par,w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x||0,y||0,z||0);par.add(m);return m;}
+ function piv(par,x,y,z){const g=new THREE.Group();g.position.set(x,y,z);par.add(g);return g;}
+ function limbUp(par,w,h,d,c){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.y=h/2;par.add(m);return m;} // apunta +Y
+
+ const orbit=new THREE.Group();scene.add(orbit);
+
+ // ===== Banco (superficie superior en y=0.55) =====
+ const bench=new THREE.Group();orbit.add(bench);
+ box(bench,0.46,0.10,1.35,0x22262e,0,0.50,-0.10);        // colchón (borde de rodilla en z≈0.45)
+ [[-0.17,-0.60],[0.17,-0.60],[-0.17,0.35],[0.17,0.35]].forEach(function(p){box(bench,0.05,0.45,0.05,0x1a1d24,p[0],0.225,p[1]);}); // patas
+
+ // ===== Cuerpo boca abajo SOBRE el banco (cabeza -Z, rodillas al borde +Z) =====
+ const body=new THREE.Group();orbit.add(body);
+ box(body,0.38,0.22,0.60,skin ,0,0.66,-0.30);            // torso (apoyado en el banco, base y=0.55)
+ box(body,0.11,0.09,0.11,skin2,0,0.66,-0.66);            // cuello
+ const head=new THREE.Mesh(new THREE.SphereGeometry(0.14,18,14),mat(skin));head.position.set(0,0.66,-0.82);body.add(head);
+ box(body,0.36,0.22,0.24,skin2,0,0.64,0.14);             // pelvis
+ // Brazos adelante, apoyados en el banco junto a la cabeza
+ [-1,1].forEach(function(s){
+  box(body,0.09,0.09,0.34,skin2,s*0.16,0.62,-0.66);      // brazo hacia adelante
+  box(body,0.085,0.085,0.30,skin,s*0.13,0.61,-0.92);     // antebrazo hacia adelante
+ });
+ // Muslos apoyados en el banco: cadera (z0.14) -> rodilla al borde (z0.45), horizontal en y≈0.62
+ [-0.12,0.12].forEach(function(sx){
+  box(body,0.15,0.13,0.34,skin2,sx,0.615,0.30);          // muslo sobre el banco
+ });
+
+ // ===== Espinillas: ÚNICA parte que se mueve. Pivote en la rodilla (borde del banco) =====
+ const knees=[];
+ [-0.12,0.12].forEach(function(sx){
+  const knee=piv(body,sx,0.62,0.45);                     // rodilla en el borde del banco
+  limbUp(knee,0.13,0.42,0.13,skin);                      // espinilla
+  box(knee,0.13,0.11,0.20,dark,0,0.44,0.03);             // pie/talón al final de la espinilla
+  knees.push(knee);
+ });
+
+ // Poses: A = piernas estiradas (espinilla horizontal +Z, pies a nivel del banco)
+ //        B = rodillas flexionadas, talones hacia los glúteos (espinilla arriba/atrás)
+ const A={knee: 1.571};   // +1.571 -> la espinilla apunta +Z (horizontal, extendida)
+ const B={knee:-0.150};   // sube y se lleva el talón hacia los glúteos (curl)
+ function applyPose(p){ knees.forEach(function(k){k.rotation.x=p.knee;}); }
+
+ // rotación inicial agradable + arrastre
+ orbit.rotation.y=-0.5;
+ let drag=false,px=0,py=0;
+ stage.addEventListener('pointerdown',function(e){drag=true;px=e.clientX;py=e.clientY;stage.setPointerCapture(e.pointerId);});
+ stage.addEventListener('pointermove',function(e){if(!drag)return;orbit.rotation.y+=(e.clientX-px)*0.01;orbit.rotation.x=Math.max(-1.0,Math.min(1.0,orbit.rotation.x+(e.clientY-py)*0.008));px=e.clientX;py=e.clientY;});
+ stage.addEventListener('pointerup',function(){drag=false;});
+ stage.addEventListener('pointercancel',function(){drag=false;});
+ addEventListener('resize',function(){const w=stage.clientWidth,h=stage.clientHeight;cam.aspect=w/h;cam.updateProjectionMatrix();rend.setSize(w,h);});
+
+ const t0=performance.now();
+ (function loop(){
+  requestAnimationFrame(loop);
+  const t=(Math.sin((performance.now()-t0)/700)+1)/2; // 0..1
+  const cur={};for(const k in A)cur[k]=A[k]+(B[k]-A[k])*t;
+  applyPose(cur);
+  rend.render(scene,cam);
+ })();
+}
+boot();
+</script>
+</body>
+</html>

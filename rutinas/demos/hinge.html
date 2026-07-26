@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demo 3D — Peso muerto con barra</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0d0e12;color:#e8e9ec;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px;}
+.wrap{width:100%;max-width:460px;}
+.hd{text-align:center;margin-bottom:10px;}
+.hd h1{font-size:20px;font-weight:800;}
+.tag{display:inline-block;margin-top:6px;font-size:12px;font-weight:700;color:#34D399;background:rgba(52,211,153,.12);padding:3px 10px;border-radius:12px;}
+.stage{position:relative;width:100%;height:400px;background:radial-gradient(ellipse at 50% 40%,#20242c,#111318 72%);border:1px solid #2c2f38;border-radius:16px;overflow:hidden;touch-action:none;cursor:grab;}
+.stage:active{cursor:grabbing;}
+.stage canvas{display:block;width:100%;height:100%;}
+.hint{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:11px;color:#8b93a3;pointer-events:none;}
+.foot{margin-top:12px;background:#1a1c22;border:1px solid #2c2f38;border-left:4px solid #F43F5E;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;color:#c7cbd4;}
+.foot b{color:#f3f4f6;}
+.err{padding:24px;text-align:center;color:#FB923C;font-size:13px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd">
+    <h1 id="ex-name">Peso muerto con barra</h1>
+    <div class="tag" id="ex-tag">Bisagra de cadera · cadena posterior</div>
+  </div>
+  <div class="stage" id="stage"><div class="hint">🖐️ arrastra para girar</div></div>
+  <div class="foot" id="ex-cue"></div>
+</div>
+
+<script src="../three.min.js"></script>
+<script>
+const EJ={
+ nombre:'Peso muerto con barra',
+ tag:'Bisagra de cadera · cadena posterior',
+ cue:'<b>De pie</b>, barra cerca de las espinillas. Baja llevando la <b>cadera hacia atrás</b> con la <b>espalda plana</b> (no redondeada), rodillas levemente flexionadas, brazos rectos sujetando la barra pegada a las piernas. Sube <b>empujando la cadera hacia adelante</b> hasta quedar totalmente erguido, hombros atrás. Los <b>pies no se despegan del suelo</b>. Gíralo con el dedo para verlo desde cualquier ángulo.'
+};
+document.getElementById('ex-name').textContent=EJ.nombre;
+document.getElementById('ex-tag').textContent=EJ.tag;
+document.getElementById('ex-cue').innerHTML=EJ.cue;
+
+const stage=document.getElementById('stage');
+function boot(){
+ if(!window.THREE){stage.innerHTML='<div class="err">No se pudo cargar el visor 3D. Ábrelo una vez con internet.</div>';return;}
+ const w=stage.clientWidth,h=stage.clientHeight;
+ const scene=new THREE.Scene();
+ const cam=new THREE.PerspectiveCamera(42,w/h,0.1,50);
+ cam.position.set(2.3,1.35,2.7);cam.lookAt(0,0.62,0.05);
+ const rend=new THREE.WebGLRenderer({antialias:true,alpha:true});
+ rend.setPixelRatio(Math.min(devicePixelRatio||1,2));rend.setSize(w,h);
+ stage.appendChild(rend.domElement);
+ scene.add(new THREE.HemisphereLight(0xbcd2ff,0x20242c,1.0));
+ const dir=new THREE.DirectionalLight(0xffffff,0.9);dir.position.set(3,5,2);scene.add(dir);
+ // piso
+ const piso=new THREE.Mesh(new THREE.CircleGeometry(2,48),new THREE.MeshStandardMaterial({color:0x14171d,roughness:1}));
+ piso.rotation.x=-Math.PI/2;scene.add(piso);
+
+ const skin=0x6ea8ff,skin2=0x4f86e6,dark=0x2f3a4d;
+ function mat(c){return new THREE.MeshStandardMaterial({color:c,roughness:.6,metalness:.15});}
+ function box(par,w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x||0,y||0,z||0);par.add(m);return m;}
+ function piv(par,x,y,z){const g=new THREE.Group();g.position.set(x,y,z);par.add(g);return g;}
+ function limbUp(par,w,h,d,c){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.y=h/2;par.add(m);return m;} // apunta +Y
+
+ // IK planar de 2 eslabones en el plano Y-Z: cadera (hy,hz) -> tobillo (ay,az)
+ const L1=0.42,L2=0.44; // muslo, espinilla
+ function legIK(hy,hz,ay,az){
+  const vy=ay-hy,vz=az-hz;
+  let D=Math.hypot(vy,vz);const maxD=L1+L2-0.002;if(D>maxD)D=maxD;
+  const base=Math.atan2(vz,vy);
+  let ck=(D*D-L1*L1-L2*L2)/(2*L1*L2);ck=Math.max(-1,Math.min(1,ck));
+  const q2=Math.acos(ck);
+  const q1=base-Math.atan2(L2*Math.sin(q2),L1+L2*Math.cos(q2));
+  return {t1:q1,t2:q2};
+ }
+
+ const orbit=new THREE.Group();scene.add(orbit);
+ const figure=new THREE.Group();orbit.add(figure);
+
+ // ===== Pies planos plantados en el piso (fijos) =====
+ const footAnkleY=0.06,footAnkleZ=0.02;
+ [-0.14,0.14].forEach(function(sx){box(figure,0.16,0.06,0.30,dark,sx,0.03,footAnkleZ);});
+
+ // ===== Cadera (se mueve: sube/baja y se atrasa) =====
+ const hips=new THREE.Group();figure.add(hips);
+ box(hips,0.36,0.20,0.24,skin2,0,0,0);                  // pelvis
+
+ const legs=[-0.14,0.14].map(function(sx){
+  const hip=piv(hips,sx,0,0);
+  limbUp(hip,0.15,L1,0.15,skin2);
+  const knee=piv(hip,0,L1,0);
+  limbUp(knee,0.13,L2,0.13,skin);
+  return {hip:hip,knee:knee};
+ });
+
+ // ===== Columna / torso (bisagra: se inclina hacia adelante con espalda plana) =====
+ const spine=piv(hips,0,0.12,0);
+ box(spine,0.40,0.42,0.22,skin,0,0.21,-0.02);           // torso
+ box(spine,0.10,0.08,0.10,skin2,0,0.46,-0.03);          // cuello
+ const head=new THREE.Mesh(new THREE.SphereGeometry(0.145,18,14),mat(skin));head.position.set(0,0.60,-0.04);spine.add(head);
+
+ // Brazos rectos colgando desde el hombro, sujetan la barra pegada a las piernas
+ const arms=[-1,1].map(function(sd){
+  const sh=piv(spine,sd*0.22,0.40,-0.02);
+  const upA=limbUp(sh,0.09,0.28,0.09,skin2);
+  const el=piv(sh,0,0.28,0);
+  limbUp(el,0.085,0.26,0.085,skin);
+  box(el,0.10,0.10,0.10,dark,0,0.26,0);                 // mano
+  return {sh:sh,el:el};
+ });
+
+ // Barra: sigue las manos (calculada por cinemática — ver comentario abajo)
+ const barbell=new THREE.Group();orbit.add(barbell);
+ const barra=new THREE.Mesh(new THREE.CylinderGeometry(0.028,0.028,1.15,12),mat(0xcfd6e0));barra.rotation.z=Math.PI/2;barbell.add(barra);
+ [-0.52,0.52].forEach(function(x){const pl=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.13,0.05,16),mat(0x2b3240));pl.rotation.z=Math.PI/2;pl.position.x=x;barbell.add(pl);});
+
+ // ===== Poses =====
+ // A = abajo: cadera baja y atrás, torso casi horizontal (espalda plana), barra cerca del piso junto a las espinillas.
+ // B = arriba: cadera alta (parada), torso casi vertical, barra a la altura de la cadera/muslo.
+ // Los brazos cuelgan RECTOS: el ángulo total (hombro+torso) se fija en Math.PI para apuntar siempre hacia -Y (abajo),
+ // por eso sh.rotation.x = PI - lean se recalcula cada frame a partir de la inclinación del torso.
+ // Cinemática de la barra (mano), calculada a mano para verificar que quede pegada a las piernas:
+ //  A: cadera(0.55,-0.15) + pivote columna(0,0.12,0) rotado lean=1.4 -> hombro≈(0.758,0.241);
+ //     brazo total 0.54 hacia abajo -> mano≈(0.218,0.241)  (cerca del piso, junto a las espinillas)
+ //  B: cadera(0.95,0) + columna rotada lean=0.05 -> hombro≈(1.471,0.000); mano≈(0.931,0.000) (altura de cadera/muslo)
+ const A={hy:0.55,hz:-0.15,lean:1.40,barY:0.22,barZ:0.24};
+ const B={hy:0.95,hz:0.00,lean:0.05,barY:0.93,barZ:0.00};
+ function applyPose(p){
+  hips.position.set(0,p.hy,p.hz);
+  spine.rotation.x=p.lean;
+  legs.forEach(function(lg){
+   const ik=legIK(p.hy,p.hz,footAnkleY,footAnkleZ);
+   lg.hip.rotation.x=ik.t1;lg.knee.rotation.x=ik.t2;
+  });
+  const shAngle=Math.PI-p.lean; // brazo recto: hombro+torso suman PI (apunta recto hacia abajo)
+  arms.forEach(function(a){a.sh.rotation.x=shAngle;a.sh.rotation.z=0;a.el.rotation.x=0;});
+  barbell.position.set(0,p.barY,p.barZ);
+ }
+
+ // rotacion inicial agradable + arrastre
+ orbit.rotation.y=-0.5;
+ let drag=false,px=0,py=0;
+ stage.addEventListener('pointerdown',function(e){drag=true;px=e.clientX;py=e.clientY;stage.setPointerCapture(e.pointerId);});
+ stage.addEventListener('pointermove',function(e){if(!drag)return;orbit.rotation.y+=(e.clientX-px)*0.01;orbit.rotation.x=Math.max(-1.0,Math.min(1.0,orbit.rotation.x+(e.clientY-py)*0.008));px=e.clientX;py=e.clientY;});
+ stage.addEventListener('pointerup',function(){drag=false;});
+ stage.addEventListener('pointercancel',function(){drag=false;});
+ addEventListener('resize',function(){const w=stage.clientWidth,h=stage.clientHeight;cam.aspect=w/h;cam.updateProjectionMatrix();rend.setSize(w,h);});
+
+ const t0=performance.now();
+ (function loop(){
+  requestAnimationFrame(loop);
+  const t=(Math.sin((performance.now()-t0)/900)+1)/2; // 0..1
+  const cur={};for(const k in A)cur[k]=A[k]+(B[k]-A[k])*t;
+  applyPose(cur);
+  rend.render(scene,cam);
+ })();
+}
+boot();
+</script>
+</body>
+</html>
