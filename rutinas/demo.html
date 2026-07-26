@@ -78,15 +78,17 @@ function boot(){
  const head=new THREE.Mesh(new THREE.SphereGeometry(0.15,18,14),mat(skin));head.position.set(0,backY+0.04,-0.60);body.add(head);
  box(body,0.36,0.22,0.24,skin2,0,backY,0.24);            // pelvis
 
- // Piernas: cadera -> muslo hacia +Z y arriba -> rodilla -> espinilla al piso
+ // Piernas: cadera en el banco -> muslo adelante y algo abajo -> rodilla al borde
+ //          -> espinilla baja al piso -> pie plano en el suelo (y=0)
  [-0.12,0.12].forEach(function(sx){
-  const hip=piv(body,sx,backY-0.02,0.34);
-  hip.rotation.x=-1.15;                                   // muslo sube hacia +Z
+  const hip=piv(body,sx,backY-0.02,0.32);
+  hip.rotation.x=1.76;                                    // muslo hacia adelante (+Z) y ligeramente abajo
   limbUp(hip,0.15,0.40,0.15,skin2);
   const knee=piv(hip,0,0.40,0);
-  knee.rotation.x=2.15;                                   // dobla la rodilla, espinilla baja al piso
+  knee.rotation.x=1.14;                                   // dobla la rodilla; la espinilla baja al piso
   limbUp(knee,0.13,0.42,0.13,skin);
-  box(knee,0.14,0.09,0.26,dark,0,0.44,0.09);             // pie
+  // pie plano en el suelo (hijo del cuerpo, no de la rodilla, para que quede horizontal)
+  box(body,0.15,0.07,0.30,dark,sx,0.035,0.90);
  });
 
  // Brazos: hombro en el pecho, brazo sube (+Y); animamos el press
