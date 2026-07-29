@@ -1,0 +1,8 @@
+
+# NUNCA subir el keystore de firma ni contraseñas (repo publico)
+android-build/keystore/
+
+
+# Proyecto de compilacion Android (se genera con Bubblewrap; el real vive en C:\irontrack-build fuera del repo)
+android-build/twa-project/
+
