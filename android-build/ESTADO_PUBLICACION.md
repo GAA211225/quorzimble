@@ -25,12 +25,27 @@ Documento de control. Se actualiza conforme avanzamos.
       técnico para que Android confíe en que la app y la web son del
       mismo dueño — este archivo DEBE vivir en la raíz del dominio, no
       dentro de /quorzimble/)
-- [ ] Descarga e instalación del Android SDK command-line tools — **en
-      progreso** en la máquina (necesario para compilar con Bubblewrap)
-- [ ] Generar el proyecto TWA con Bubblewrap (`bubblewrap init`) apuntando
-      a `https://gaa211225.github.io/quorzimble/rutinas-store/manifest.json`
-- [ ] Compilar un `.apk` de prueba (para instalar y probar en un Android
-      real antes de subir a Play Store) y el `.aab` final firmado
+- [x] Android SDK (cmdline-tools, platform-tools, build-tools 34,
+      platform 34) instalado localmente en
+      `~/.bubblewrap/android_sdk` (licencias aceptadas)
+- [x] Proyecto TWA generado con Bubblewrap en `C:\irontrack-build\twa-project`
+      (fuera de `Desktop`, en ruta 100% ASCII — la ruta con "Guzmán"
+      hace que Android Gradle Plugin y la invocación de Gradle de
+      Bubblewrap fallen; ver nota técnica abajo)
+- [x] **APK y AAB compilados y firmados** con el keystore de release:
+      - `Desktop/IronTrack-BUILD-FINAL/IronTrack3D-v1-para-PlayStore.aab`
+        (esto es lo que se sube a Play Console)
+      - `Desktop/IronTrack-BUILD-FINAL/IronTrack3D-v1-debug-test.apk`
+        (instálalo directo en un Android para probar antes de publicar —
+        necesitas activar "Instalar apps de origen desconocido")
+
+**Nota técnica — por qué hay una carpeta `C:\irontrack-build\` fuera de Desktop:**
+Android Gradle Plugin rechaza rutas con caracteres no-ASCII (tu carpeta
+de usuario tiene "Guzmán"), y por separado la propia invocación de
+Gradle que hace Bubblewrap fallaba en encontrar `gradlew.bat` en esa
+ruta. La solución fue compilar en `C:\irontrack-build\` (ruta ASCII).
+Si vuelves a compilar una actualización más adelante, hazlo desde ahí,
+no desde una copia en Desktop.
 
 ### Ficha de Play Store (contenido listo para copiar/pegar)
 - [x] Título, descripción corta y larga: `android-build/PLAY_STORE_LISTING.md`
@@ -68,3 +83,10 @@ Documento de control. Se actualiza conforme avanzamos.
 - Todo lo de empaquetado y documentos: `quorzimble/android-build/`
 - Repo de verificación de dominio: `GAA211225/GAA211225.github.io`
   (visible en `Desktop/gaa211225-root-site/` localmente)
+- **Proyecto de compilación Android**: `C:\irontrack-build\twa-project`
+  (fuera del repo, no se sube a git — contiene la config de firma)
+- **Keystore de firma (privado, NUNCA subir a git)**: `C:\irontrack-build\keystore-privado\`
+  y `Desktop\IronTrack-KEYSTORE-PRIVADO-NO-SUBIR\` (dos copias idénticas)
+  — contraseña en el archivo `LEEME_CONTRASENA.txt` de esa carpeta.
+  **Muévelas a un gestor de contraseñas en cuanto puedas.**
+- **APK y AAB finales**: `Desktop\IronTrack-BUILD-FINAL\`
