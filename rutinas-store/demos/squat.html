@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demo 3D — Sentadilla con barra</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0d0e12;color:#e8e9ec;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px;}
+.wrap{width:100%;max-width:460px;}
+.hd{text-align:center;margin-bottom:10px;}
+.hd h1{font-size:20px;font-weight:800;}
+.tag{display:inline-block;margin-top:6px;font-size:12px;font-weight:700;color:#34D399;background:rgba(52,211,153,.12);padding:3px 10px;border-radius:12px;}
+.stage{position:relative;width:100%;height:400px;background:radial-gradient(ellipse at 50% 40%,#20242c,#111318 72%);border:1px solid #2c2f38;border-radius:16px;overflow:hidden;touch-action:none;cursor:grab;}
+.stage:active{cursor:grabbing;}
+.stage canvas{display:block;width:100%;height:100%;}
+.hint{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:11px;color:#8b93a3;pointer-events:none;}
+.foot{margin-top:12px;background:#1a1c22;border:1px solid #2c2f38;border-left:4px solid #F43F5E;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;color:#c7cbd4;}
+.foot b{color:#f3f4f6;}
+.err{padding:24px;text-align:center;color:#FB923C;font-size:13px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd">
+    <h1 id="ex-name">Sentadilla con barra</h1>
+    <div class="tag" id="ex-tag">Dominante de rodilla · piernas</div>
+  </div>
+  <div class="stage" id="stage"><div class="hint">🖐️ arrastra para girar</div></div>
+  <div class="foot" id="ex-cue"></div>
+</div>
+
+<script src="../three.min.js"></script>
+<script>
+const EJ={
+ nombre:'Sentadilla con barra',
+ tag:'Dominante de rodilla · piernas',
+ cue:'<b>De pie</b>, barra apoyada en la parte alta de la espalda (detrás del cuello) y pies planos al ancho de hombros. Baja <b>llevando la cadera atrás y abajo</b> hasta que los muslos queden paralelos al piso, rodillas siguiendo la punta del pie, torso firme con ligera inclinación. Los <b>pies no se despegan del suelo</b>. Sube empujando con los talones. Gíralo con el dedo para verlo desde cualquier ángulo.'
+};
+document.getElementById('ex-name').textContent=EJ.nombre;
+document.getElementById('ex-tag').textContent=EJ.tag;
+document.getElementById('ex-cue').innerHTML=EJ.cue;
+
+const stage=document.getElementById('stage');
+function boot(){
+ if(!window.THREE){stage.innerHTML='<div class="err">No se pudo cargar el visor 3D. Ábrelo una vez con internet.</div>';return;}
+ const w=stage.clientWidth,h=stage.clientHeight;
+ const scene=new THREE.Scene();
+ const cam=new THREE.PerspectiveCamera(42,w/h,0.1,50);
+ cam.position.set(2.4,1.55,2.8);cam.lookAt(0,0.82,0.05);
+ const rend=new THREE.WebGLRenderer({antialias:true,alpha:true});
+ rend.setPixelRatio(Math.min(devicePixelRatio||1,2));rend.setSize(w,h);
+ stage.appendChild(rend.domElement);
+ scene.add(new THREE.HemisphereLight(0xbcd2ff,0x20242c,1.0));
+ const dir=new THREE.DirectionalLight(0xffffff,0.9);dir.position.set(3,5,2);scene.add(dir);
+ // piso
+ const piso=new THREE.Mesh(new THREE.CircleGeometry(2,48),new THREE.MeshStandardMaterial({color:0x14171d,roughness:1}));
+ piso.rotation.x=-Math.PI/2;scene.add(piso);
+
+ const skin=0x6ea8ff,skin2=0x4f86e6,dark=0x2f3a4d;
+ function mat(c){return new THREE.MeshStandardMaterial({color:c,roughness:.6,metalness:.15});}
+ function box(par,w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x||0,y||0,z||0);par.add(m);return m;}
+ function piv(par,x,y,z){const g=new THREE.Group();g.position.set(x,y,z);par.add(g);return g;}
+ function limbUp(par,w,h,d,c){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.y=h/2;par.add(m);return m;} // apunta +Y
+
+ // IK planar de 2 eslabones en el plano Y-Z: cadera (hy,hz) -> tobillo (ay,az)
+ // rotation.x=t: el eje +Y del pivote apunta a (0,cos t,sin t)
+ const L1=0.45,L2=0.47; // muslo, espinilla
+ function legIK(hy,hz,ay,az){
+  const vy=ay-hy,vz=az-hz;
+  let D=Math.hypot(vy,vz);const maxD=L1+L2-0.002;if(D>maxD)D=maxD;
+  const base=Math.atan2(vz,vy);
+  let ck=(D*D-L1*L1-L2*L2)/(2*L1*L2);ck=Math.max(-1,Math.min(1,ck));
+  const q2=Math.acos(ck);
+  const q1=base-Math.atan2(L2*Math.sin(q2),L1+L2*Math.cos(q2));
+  return {t1:q1,t2:q2};
+ }
+
+ const orbit=new THREE.Group();scene.add(orbit);
+ const figure=new THREE.Group();orbit.add(figure);
+
+ // ===== Pies planos plantados en el piso (hijos de figure, no se mueven) =====
+ // ancla de tobillo fija: y=0.06, z=0.16 ; caja de pie h=0.06 -> base en y=0, tope en 0.06
+ const footAnkleY=0.06,footAnkleZ=0.16;
+ [-0.14,0.14].forEach(function(sx){box(figure,0.16,0.06,0.30,dark,sx,0.03,footAnkleZ);});
+
+ // ===== Cadera (se mueve) =====
+ const hips=new THREE.Group();figure.add(hips);
+ box(hips,0.36,0.20,0.24,skin2,0,0,0);                 // pelvis
+
+ // Piernas: pivote de cadera en (sx,0,0); IK cada frame hacia el ancla del pie
+ const legs=[-0.14,0.14].map(function(sx){
+  const hip=piv(hips,sx,0,0);
+  limbUp(hip,0.15,L1,0.15,skin2);
+  const knee=piv(hip,0,L1,0);
+  limbUp(knee,0.13,L2,0.13,skin);
+  return {hip:hip,knee:knee};
+ });
+
+ // ===== Columna / torso (se inclina) =====
+ const spine=piv(hips,0,0.12,0);
+ box(spine,0.40,0.42,0.22,skin,0,0.21,-0.02);          // torso
+ box(spine,0.10,0.08,0.10,skin2,0,0.46,-0.03);         // cuello
+ const head=new THREE.Mesh(new THREE.SphereGeometry(0.145,18,14),mat(skin));head.position.set(0,0.60,-0.04);spine.add(head);
+
+ // Brazos sujetando la barra tras el cuello (pose estatica, se inclinan con el torso)
+ [-1,1].forEach(function(sd){
+  const sh=piv(spine,sd*0.21,0.36,-0.02);
+  sh.rotation.x=-0.15;sh.rotation.z=sd*0.5;
+  limbUp(sh,0.09,0.26,0.09,skin2);
+  const el=piv(sh,0,0.26,0);
+  el.rotation.x=1.5;
+  limbUp(el,0.085,0.24,0.085,skin);
+  box(el,0.10,0.10,0.10,dark,0,0.26,0);                // mano
+ });
+
+ // Barra sobre la espalda alta (detras del cuello); apoyada en el torso, se inclina con el
+ const barbell=new THREE.Group();spine.add(barbell);
+ barbell.position.set(0,0.40,-0.12);
+ const barra=new THREE.Mesh(new THREE.CylinderGeometry(0.026,0.026,1.20,12),mat(0xcfd6e0));barra.rotation.z=Math.PI/2;barbell.add(barra);
+ [-0.54,0.54].forEach(function(x){const pl=new THREE.Mesh(new THREE.CylinderGeometry(0.14,0.14,0.06,16),mat(0x2b3240));pl.rotation.z=Math.PI/2;pl.position.x=x;barbell.add(pl);});
+
+ // ===== Poses: A = de pie ; B = abajo (muslos paralelos) =====
+ // pies FIJOS en el piso; la cadera baja/atrasa y las piernas doblan (IK garantiza tobillo en el ancla)
+ const A={hy:0.96,hz:0.02,lean:0.05};   // de pie, casi extendido
+ const B={hy:0.60,hz:-0.10,lean:0.45};  // abajo, cadera atras, torso inclinado
+ function applyPose(p){
+  hips.position.set(0,p.hy,p.hz);
+  spine.rotation.x=p.lean;
+  legs.forEach(function(lg){
+   const ik=legIK(p.hy,p.hz,footAnkleY,footAnkleZ);
+   lg.hip.rotation.x=ik.t1;lg.knee.rotation.x=ik.t2;
+  });
+ }
+
+ // rotacion inicial agradable + arrastre
+ orbit.rotation.y=-0.5;
+ let drag=false,px=0,py=0;
+ stage.addEventListener('pointerdown',function(e){drag=true;px=e.clientX;py=e.clientY;stage.setPointerCapture(e.pointerId);});
+ stage.addEventListener('pointermove',function(e){if(!drag)return;orbit.rotation.y+=(e.clientX-px)*0.01;orbit.rotation.x=Math.max(-1.0,Math.min(1.0,orbit.rotation.x+(e.clientY-py)*0.008));px=e.clientX;py=e.clientY;});
+ stage.addEventListener('pointerup',function(){drag=false;});
+ stage.addEventListener('pointercancel',function(){drag=false;});
+ addEventListener('resize',function(){const w=stage.clientWidth,h=stage.clientHeight;cam.aspect=w/h;cam.updateProjectionMatrix();rend.setSize(w,h);});
+
+ const t0=performance.now();
+ (function loop(){
+  requestAnimationFrame(loop);
+  const t=(Math.sin((performance.now()-t0)/900)+1)/2; // 0..1
+  const cur={};for(const k in A)cur[k]=A[k]+(B[k]-A[k])*t;
+  applyPose(cur);
+  rend.render(scene,cam);
+ })();
+}
+boot();
+</script>
+</body>
+</html>

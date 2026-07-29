@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demo 3D — Zancada</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0d0e12;color:#e8e9ec;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px;}
+.wrap{width:100%;max-width:460px;}
+.hd{text-align:center;margin-bottom:10px;}
+.hd h1{font-size:20px;font-weight:800;}
+.tag{display:inline-block;margin-top:6px;font-size:12px;font-weight:700;color:#34D399;background:rgba(52,211,153,.12);padding:3px 10px;border-radius:12px;}
+.stage{position:relative;width:100%;height:400px;background:radial-gradient(ellipse at 50% 40%,#20242c,#111318 72%);border:1px solid #2c2f38;border-radius:16px;overflow:hidden;touch-action:none;cursor:grab;}
+.stage:active{cursor:grabbing;}
+.stage canvas{display:block;width:100%;height:100%;}
+.hint{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:11px;color:#8b93a3;pointer-events:none;}
+.foot{margin-top:12px;background:#1a1c22;border:1px solid #2c2f38;border-left:4px solid #F43F5E;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;color:#c7cbd4;}
+.foot b{color:#f3f4f6;}
+.err{padding:24px;text-align:center;color:#FB923C;font-size:13px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd">
+    <h1 id="ex-name">Zancada</h1>
+    <div class="tag" id="ex-tag">Unilateral · piernas y glúteo</div>
+  </div>
+  <div class="stage" id="stage"><div class="hint">🖐️ arrastra para girar</div></div>
+  <div class="foot" id="ex-cue"></div>
+</div>
+
+<script src="../three.min.js"></script>
+<script>
+const EJ={
+ nombre:'Zancada',
+ tag:'Unilateral · piernas y glúteo',
+ cue:'Un pie <b>adelante, plano en el piso</b>, la otra pierna se extiende atrás con el <b>talón levantado</b> (peso en la punta). Baja hasta que la rodilla de atrás se acerque al piso sin tocarlo y el muslo de adelante quede casi paralelo al suelo, rodilla delantera siguiendo la punta del pie. El <b>torso se mantiene erguido</b> todo el movimiento. Sube empujando con el pie delantero. Gíralo con el dedo para verlo desde cualquier ángulo.'
+};
+document.getElementById('ex-name').textContent=EJ.nombre;
+document.getElementById('ex-tag').textContent=EJ.tag;
+document.getElementById('ex-cue').innerHTML=EJ.cue;
+
+const stage=document.getElementById('stage');
+function boot(){
+ if(!window.THREE){stage.innerHTML='<div class="err">No se pudo cargar el visor 3D. Ábrelo una vez con internet.</div>';return;}
+ const w=stage.clientWidth,h=stage.clientHeight;
+ const scene=new THREE.Scene();
+ const cam=new THREE.PerspectiveCamera(42,w/h,0.1,50);
+ cam.position.set(2.5,1.35,2.6);cam.lookAt(0,0.5,-0.1);
+ const rend=new THREE.WebGLRenderer({antialias:true,alpha:true});
+ rend.setPixelRatio(Math.min(devicePixelRatio||1,2));rend.setSize(w,h);
+ stage.appendChild(rend.domElement);
+ scene.add(new THREE.HemisphereLight(0xbcd2ff,0x20242c,1.0));
+ const dir=new THREE.DirectionalLight(0xffffff,0.9);dir.position.set(3,5,2);scene.add(dir);
+ // piso
+ const piso=new THREE.Mesh(new THREE.CircleGeometry(2,48),new THREE.MeshStandardMaterial({color:0x14171d,roughness:1}));
+ piso.rotation.x=-Math.PI/2;scene.add(piso);
+
+ const skin=0x6ea8ff,skin2=0x4f86e6,dark=0x2f3a4d;
+ function mat(c){return new THREE.MeshStandardMaterial({color:c,roughness:.6,metalness:.15});}
+ function box(par,w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x||0,y||0,z||0);par.add(m);return m;}
+ function piv(par,x,y,z){const g=new THREE.Group();g.position.set(x,y,z);par.add(g);return g;}
+ function limbUp(par,w,h,d,c){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.y=h/2;par.add(m);return m;} // apunta +Y
+
+ // IK planar de 2 eslabones (pierna delantera): cadera (hy,hz) -> tobillo (ay,az), fijo en el piso
+ const L1=0.42,L2=0.44; // muslo, espinilla
+ function legIK(hy,hz,ay,az){
+  const vy=ay-hy,vz=az-hz;
+  let D=Math.hypot(vy,vz);const maxD=L1+L2-0.002;if(D>maxD)D=maxD;
+  const base=Math.atan2(vz,vy);
+  let ck=(D*D-L1*L1-L2*L2)/(2*L1*L2);ck=Math.max(-1,Math.min(1,ck));
+  const q2=Math.acos(ck);
+  const q1=base-Math.atan2(L2*Math.sin(q2),L1+L2*Math.cos(q2));
+  return {t1:q1,t2:q2};
+ }
+
+ const orbit=new THREE.Group();scene.add(orbit);
+ const figure=new THREE.Group();orbit.add(figure);
+
+ // ===== Pie delantero: plano, plantado y FIJO en el piso (ancla) =====
+ const frontAnkleY=0.06,frontAnkleZ=0.24;
+ box(figure,0.16,0.06,0.30,dark,-0.11,0.03,frontAnkleZ);
+
+ // ===== Cadera (sube/baja para la profundidad de la zancada) =====
+ const hips=new THREE.Group();figure.add(hips);
+ box(hips,0.34,0.20,0.22,skin2,0,0,0);                    // pelvis
+
+ // Pierna delantera: IK hacia el ancla fija del pie
+ const frontHip=piv(hips,-0.11,0,0);
+ limbUp(frontHip,0.15,L1,0.15,skin2);
+ const frontKnee=piv(frontHip,0,L1,0);
+ limbUp(frontKnee,0.13,L2,0.13,skin);
+
+ // Pierna trasera: cadena por cinemática directa (ángulos fijos por pose, verificados a mano)
+ // hombro->rodilla->tobillo->pie con pivote de pie para levantar el talón (bola del pie cerca de y=0)
+ const backHip=piv(hips,0.11,0,0);
+ limbUp(backHip,0.15,L1,0.15,skin2);
+ const backKnee=piv(backHip,0,L1,0);
+ limbUp(backKnee,0.13,L2,0.13,skin);
+ const backAnkle=piv(backKnee,0,L2,0);
+ // Pie trasero: la caja se dibuja centrada; la punta/bola queda hacia +Z (offset local antes de rotar)
+ box(backAnkle,0.10,0.045,0.20,dark,0,-0.03,0.055);
+
+ // ===== Columna / torso: se mantiene ERGUIDO en ambas poses =====
+ const spine=piv(hips,0,0.12,0);
+ box(spine,0.38,0.42,0.22,skin,0,0.21,-0.02);             // torso
+ box(spine,0.10,0.08,0.10,skin2,0,0.46,-0.03);            // cuello
+ const head=new THREE.Mesh(new THREE.SphereGeometry(0.145,18,14),mat(skin));head.position.set(0,0.60,-0.04);spine.add(head);
+
+ // Brazos relajados a los costados (estáticos)
+ [-1,1].forEach(function(sd){
+  const sh=piv(spine,sd*0.21,0.38,-0.02);
+  sh.rotation.x=2.9;sh.rotation.z=sd*0.10;
+  limbUp(sh,0.09,0.27,0.09,skin2);
+  const el=piv(sh,0,0.27,0);
+  el.rotation.x=0.35;
+  limbUp(el,0.085,0.25,0.085,skin);
+  box(el,0.10,0.10,0.10,dark,0,0.25,0);
+ });
+
+ // ===== Poses =====
+ // A = zancada corta (posición inicial, ambas rodillas apenas flexionadas):
+ //   cadera y=0.86 · pierna delantera por IK hacia el ancla (0.06,0.24), D≈0.835 (< alcance máx 0.858) -> rodilla apenas doblada
+ //   pierna trasera: cadera(0.11,0.86,0) + muslo(0.42,H=-3.05)-> rodilla≈(0.442,-0.038)
+ //     + espinilla(0.44,H+K=-2.6)-> tobillo≈(0.065,-0.265); pie pivote F=2.77 -> bola≈(y=0.020,z=-0.182), talón≈(y=0.047,z=-0.339)
+ // B = zancada profunda (muslo delantero casi paralelo al piso, rodilla trasera baja cerca del piso):
+ //   cadera y=0.60 · pierna delantera IK hacia (0.06,0.24), D≈0.591 -> rodilla muy doblada, muslo ~paralelo
+ //   pierna trasera: muslo(H=-3.0)-> rodilla≈(0.184,-0.059) (cerca del piso, sin tocarlo)
+ //     + espinilla(H+K=-1.8)-> tobillo≈(0.084,-0.488); pie pivote F=2.25 -> bola≈(y=0.018,z=-0.420), talón≈(y=0.087,z=-0.564) (talón bien levantado)
+ const A={hy:0.86, backH:-3.05, backK:0.45, backF:2.77, lean:0.05};
+ const B={hy:0.60, backH:-3.00, backK:1.20, backF:2.25, lean:0.08};
+ function applyPose(p){
+  hips.position.set(0,p.hy,0);
+  spine.rotation.x=p.lean; // torso prácticamente erguido en ambas poses
+  const ik=legIK(p.hy,0,frontAnkleY,frontAnkleZ);
+  frontHip.rotation.x=ik.t1;frontKnee.rotation.x=ik.t2;
+  backHip.rotation.x=p.backH;
+  backKnee.rotation.x=p.backK;
+  backAnkle.rotation.x=p.backF;
+ }
+
+ // rotacion inicial agradable + arrastre
+ orbit.rotation.y=-0.6;
+ let drag=false,px=0,py=0;
+ stage.addEventListener('pointerdown',function(e){drag=true;px=e.clientX;py=e.clientY;stage.setPointerCapture(e.pointerId);});
+ stage.addEventListener('pointermove',function(e){if(!drag)return;orbit.rotation.y+=(e.clientX-px)*0.01;orbit.rotation.x=Math.max(-1.0,Math.min(1.0,orbit.rotation.x+(e.clientY-py)*0.008));px=e.clientX;py=e.clientY;});
+ stage.addEventListener('pointerup',function(){drag=false;});
+ stage.addEventListener('pointercancel',function(){drag=false;});
+ addEventListener('resize',function(){const w=stage.clientWidth,h=stage.clientHeight;cam.aspect=w/h;cam.updateProjectionMatrix();rend.setSize(w,h);});
+
+ const t0=performance.now();
+ (function loop(){
+  requestAnimationFrame(loop);
+  const t=(Math.sin((performance.now()-t0)/900)+1)/2; // 0..1
+  const cur={};for(const k in A)cur[k]=A[k]+(B[k]-A[k])*t;
+  applyPose(cur);
+  rend.render(scene,cam);
+ })();
+}
+boot();
+</script>
+</body>
+</html>
