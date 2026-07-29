@@ -1,6 +1,6 @@
 // Service worker exclusivo de IronTrack 3D (versión de tienda, sin
 // dependencias de otras apps personales). Alcance limitado a su carpeta.
-const CACHE_NAME = 'irontrack-cache-v1';
+const CACHE_NAME = 'irontrack-cache-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,8 @@ const ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './three.min.js',
+  './privacy.html',
+  './terminos.html',
   './demo.html',
   './demos/overhead.html',
   './demos/triceps.html',

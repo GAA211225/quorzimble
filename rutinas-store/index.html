@@ -874,6 +874,7 @@ function renderPerfil(){
   +(perfil.modo==='ciclo'?'<p style="font-size:11px;color:#8b93a3;margin-top:8px;">💉 En ciclo la vara sube ~15%: lo que para un natural es avanzado, con asistencia se espera más. Cuídate — chequeos médicos regulares.</p>':'')
   +'</div>';
  h+=cardRespaldo();
+ h+='<p style="text-align:center;font-size:11px;color:#5b6270;margin:14px 0 4px;">IronTrack 3D · <a href="privacy.html" style="color:#5b6270;">Privacidad</a> · <a href="terminos.html" style="color:#5b6270;">Términos</a></p>';
  if(!perfilOk())return h+'<div class="empty">Pon tu peso corporal para ver tu nivel de fuerza en cada básico. 💪</div>';
  const items=[];
  Object.keys(prs).forEach(function(k){
