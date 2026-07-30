@@ -8,7 +8,7 @@
 <style>
   :root{
     --night:#1e2340; --night-2:#2a3055; --night-3:#39406e;
-    --amber:#f0a952; --amber-dark:#d98b32; --amber-pale:#fdf0dc;
+    --amber:#f0a952; --amber-dark:#d98b32;
     --ink:#eceaf5; --ink-dim:#a5a3bd; --line:#3a4068;
     --ok:#5fbf8a; --off:#6b6f8e; --alert:#e8705f;
   }
@@ -22,6 +22,7 @@
   header .clock{font-family:Georgia,serif;font-size:52px;line-height:1;color:var(--amber);
     font-variant-numeric:tabular-nums;letter-spacing:-0.02em;}
   header .fecha{color:var(--ink-dim);font-size:13.5px;margin-top:8px;text-transform:capitalize;}
+  header .prox{color:var(--ok);font-size:12.5px;margin-top:7px;min-height:16px;}
 
   nav{position:sticky;top:0;z-index:50;display:flex;background:rgba(30,35,64,.94);
     backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
@@ -40,7 +41,9 @@
   .hint{color:var(--ink-dim);font-size:13px;line-height:1.55;}
 
   .warn{background:rgba(240,169,82,.1);border:1px solid rgba(240,169,82,.35);border-radius:14px;
-    padding:12px 14px;font-size:12.5px;color:var(--amber);line-height:1.5;margin-bottom:14px;}
+    padding:13px 15px;font-size:12.5px;color:var(--amber);line-height:1.55;margin-bottom:14px;}
+  .warn.bad{background:rgba(232,112,95,.12);border-color:rgba(232,112,95,.4);color:#f0a094;}
+  .warn.good{background:rgba(95,191,138,.12);border-color:rgba(95,191,138,.4);color:var(--ok);}
 
   input,select{font-family:inherit;font-size:15px;color:var(--ink);background:var(--night);
     border:1px solid var(--line);border-radius:12px;padding:11px 13px;outline:none;}
@@ -57,7 +60,6 @@
   .btn-ghost:hover{background:rgba(240,169,82,.12);}
   .btn-sm{padding:7px 14px;font-size:12.5px;}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-  .row.end{justify-content:flex-end;}
   .mt{margin-top:13px;}
 
   .dias{display:flex;gap:5px;flex-wrap:wrap;}
@@ -84,6 +86,11 @@
   .alarma .del{background:none;border:none;color:var(--off);font-size:19px;cursor:pointer;padding:0 3px;line-height:1;}
   .alarma .del:hover{color:var(--alert);}
 
+  .opt{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line);}
+  .opt:first-of-type{border-top:none;}
+  .opt .tx{flex:1;} .opt .tx b{font-size:14px;font-weight:600;display:block;}
+  .opt .tx span{font-size:12px;color:var(--ink-dim);line-height:1.45;display:block;margin-top:2px;}
+
   .timer-big{font-family:Georgia,serif;font-size:64px;text-align:center;color:var(--amber);
     font-variant-numeric:tabular-nums;letter-spacing:-0.02em;margin:6px 0 4px;}
   .presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px;margin-top:12px;}
@@ -105,14 +112,13 @@
 
   .mail{background:var(--night-2);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:9px;}
   .mail .de{font-size:12px;color:var(--amber);font-weight:600;}
-  .mail .as{font-size:14.5px;margin:3px 0;line-height:1.35;}
   .mail .sn{font-size:12.5px;color:var(--ink-dim);line-height:1.5;}
   .mail .fe{font-size:11px;color:var(--off);margin-top:5px;}
 
   .empty{text-align:center;color:var(--ink-dim);padding:40px 18px;font-size:14px;line-height:1.6;}
   .empty .e{font-size:34px;display:block;margin-bottom:10px;opacity:.5;}
 
-  .modal{position:fixed;inset:0;background:rgba(15,18,36,.93);z-index:300;display:none;
+  .modal{position:fixed;inset:0;background:rgba(15,18,36,.95);z-index:300;display:none;
     align-items:center;justify-content:center;padding:24px;}
   .modal.on{display:flex;}
   .modal .box{background:var(--night-2);border:1px solid var(--amber);border-radius:24px;
@@ -126,7 +132,7 @@
 
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);
     background:var(--ink);color:var(--night);padding:12px 22px;border-radius:980px;font-size:13.5px;
-    font-weight:600;opacity:0;transition:.28s;z-index:400;pointer-events:none;}
+    font-weight:600;opacity:0;transition:.28s;z-index:400;pointer-events:none;max-width:90vw;text-align:center;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
@@ -135,10 +141,12 @@
 <header>
   <div class="clock" id="reloj">--:--</div>
   <div class="fecha" id="fecha"></div>
+  <div class="prox" id="prox"></div>
 </header>
 
 <nav>
   <button data-t="alarmas" class="active">Alarmas</button>
+  <button data-t="sonido">Sonido</button>
   <button data-t="timer">Temporizador</button>
   <button data-t="apps">Mis apps</button>
   <button data-t="correos">Correos</button>
@@ -147,9 +155,10 @@
 <main>
 
 <section id="alarmas" class="on">
-  <div class="warn" id="warnTab">
-    ⚠️ Para que suene, esta pestaña debe quedarse abierta. Si cierras el navegador la alarma no puede sonar.
-    <button class="btn btn-ghost btn-sm" style="margin-top:9px" id="pedirPerm">Activar notificaciones</button>
+  <div class="warn bad" id="avisoAudio">
+    🔇 <b>El sonido está bloqueado.</b> Los navegadores exigen un toque tuyo antes de poder reproducir audio.
+    Toca el botón una vez y la alarma ya podrá sonar sola.
+    <div class="row" style="margin-top:10px"><button class="btn btn-main btn-sm" id="desbloquear">Activar el sonido</button></div>
   </div>
 
   <div class="card">
@@ -163,6 +172,54 @@
   </div>
 
   <div id="listaAlarmas"></div>
+</section>
+
+<section id="sonido">
+  <div class="card">
+    <h2>Sonido de la alarma</h2>
+    <p class="hint">Elige uno de los tonos o usa una canción tuya del teléfono.</p>
+    <div class="mt"><label class="f">Tono</label>
+      <select id="selSonido" style="width:100%">
+        <option value="campana">Campana</option>
+        <option value="pitido">Pitido insistente</option>
+        <option value="sirena">Sirena</option>
+        <option value="propio">Mi música…</option>
+      </select>
+    </div>
+    <div class="mt" id="zonaArchivo" style="display:none">
+      <label class="f">Archivo de audio (MP3, M4A, WAV…)</label>
+      <input type="file" id="fileAudio" accept="audio/*" style="width:100%">
+      <p class="hint" style="margin-top:7px" id="nombreArchivo"></p>
+    </div>
+    <div class="row mt">
+      <button class="btn btn-main btn-sm" id="probar">Probar 4 segundos</button>
+      <button class="btn btn-ghost btn-sm" id="parar">Parar</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Confiabilidad</h2>
+    <p class="hint">Estas dos opciones evitan que el navegador congele la alarma cuando dejas de mirar la pantalla.</p>
+    <div class="mt"></div>
+    <div class="opt">
+      <div class="tx"><b>Mantener pantalla encendida</b>
+        <span>Lo más confiable. Impide que el teléfono se duerma mientras haya alarmas activas. Consume batería: úsalo con el cargador puesto.</span></div>
+      <label class="sw"><input type="checkbox" id="optWake"><i></i></label>
+    </div>
+    <div class="opt">
+      <div class="tx"><b>Tono inaudible de fondo</b>
+        <span>Reproduce un sonido imperceptible para que el navegador trate la pestaña como reproductor de música y no la congele.</span></div>
+      <label class="sw"><input type="checkbox" id="optKeep" checked><i></i></label>
+    </div>
+    <div class="opt">
+      <div class="tx"><b>Vibrar al sonar</b><span>Solo en teléfonos Android.</span></div>
+      <label class="sw"><input type="checkbox" id="optVibrar" checked><i></i></label>
+    </div>
+    <div class="warn" style="margin:14px 0 0">
+      ⚠️ Aun con todo esto activado, <b>ningún sitio web puede garantizar que sonará con el teléfono bloqueado</b>.
+      Para despertarte, usa el reloj del sistema. Esto es confiable con la app abierta.
+    </div>
+  </div>
 </section>
 
 <section id="timer">
@@ -191,7 +248,7 @@
       <div style="width:66px"><label class="f">Icono</label><input type="text" id="aIc" value="🔗" style="width:100%;text-align:center"></div>
       <div style="flex:1;min-width:120px"><label class="f">Nombre</label><input type="text" id="aNm" placeholder="Mi app" style="width:100%"></div>
     </div>
-    <div class="mt"><label class="f">Dirección (URL o archivo)</label><input type="text" id="aUrl" placeholder="https://… o archivo.html" style="width:100%"></div>
+    <div class="mt"><label class="f">Dirección</label><input type="text" id="aUrl" placeholder="https://…" style="width:100%"></div>
     <div class="mt"><label class="f">Descripción</label><input type="text" id="aDs" placeholder="Para qué sirve" style="width:100%"></div>
     <div class="row mt"><button class="btn btn-main btn-sm" id="addApp">Agregar</button>
       <button class="btn btn-ghost btn-sm" id="resetApps">Restaurar predeterminadas</button></div>
@@ -200,8 +257,7 @@
 
 <section id="correos">
   <div class="warn">
-    📬 Esta página no puede leer tu Gmail sola (es un archivo local, sin servidor). El resumen lo genero yo en el chat
-    y lo pegas aquí — igual que las recetas.
+    📬 Esta página no puede leer tu Gmail sola. El resumen lo genero yo en el chat y lo pegas aquí.
   </div>
   <div class="card">
     <h2>Pegar resumen de correos</h2>
@@ -229,70 +285,234 @@
   </div>
 </div>
 
+<audio id="audioAlarma" loop></audio>
+<audio id="audioKeep" loop></audio>
 <div class="toast" id="toast"></div>
 
 <script>
 const LS = 'centro-app-v1';
 const APPS_DEFAULT = [
-  { ic:'🍲', nm:'Recetas',    url:'recetas.html',        ds:'Recetas y lista de compras' },
-  { ic:'🥗', nm:'Dieta',      url:'https://gaa211225.github.io/quorzimble/dieta.html',   ds:'Plan de alimentación' },
-  { ic:'📈', nm:'Mercado',    url:'https://gaa211225.github.io/quorzimble/mercado.html', ds:'Brief antes de la apertura' },
-  { ic:'🏋️', nm:'Rutinas',    url:'https://gaa211225.github.io/quorzimble/rutinas/',     ds:'Entrenamiento y series' },
-  { ic:'🚚', nm:'Emboobate',  url:'https://gaa211225.github.io/nimbrocado/embobate.html',ds:'Programación de entregas' },
-  { ic:'💄', nm:'LIV Beauty', url:'https://gaa211225.github.io/liv-beauty/',             ds:'Tienda multi-marca' },
+  { ic:'🍲', nm:'Recetas',    url:'recetas.html',                                          ds:'Recetas y lista de compras' },
+  { ic:'🥗', nm:'Dieta',      url:'https://gaa211225.github.io/quorzimble/dieta.html',      ds:'Plan de alimentación' },
+  { ic:'📈', nm:'Mercado',    url:'https://gaa211225.github.io/quorzimble/mercado.html',    ds:'Brief antes de la apertura' },
+  { ic:'🏋️', nm:'Rutinas',    url:'https://gaa211225.github.io/quorzimble/rutinas/',        ds:'Entrenamiento y series' },
+  { ic:'🚚', nm:'Emboobate',  url:'https://gaa211225.github.io/nimbrocado/embobate.html',   ds:'Programación de entregas' },
+  { ic:'💄', nm:'LIV Beauty', url:'https://gaa211225.github.io/liv-beauty/',                ds:'Tienda multi-marca' },
 ];
-let state = JSON.parse(localStorage.getItem(LS) || 'null') || { alarmas:[], apps:APPS_DEFAULT, correos:null };
-if (!state.apps) state.apps = APPS_DEFAULT;
+const DEF = { alarmas:[], apps:APPS_DEFAULT, correos:null, sonido:'campana', archivo:'',
+              wake:false, keep:true, vibrar:true };
+let state = Object.assign({}, DEF, JSON.parse(localStorage.getItem(LS) || '{}'));
+if (!state.apps || !state.apps.length) state.apps = APPS_DEFAULT;
 const save = () => localStorage.setItem(LS, JSON.stringify(state));
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const toast = m => { const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); };
+const toast = m => { const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2600); };
+const p2 = n => String(n).padStart(2,'0');
 
-// ---------- reloj ----------
+// ==================== audio ====================
+// Los tonos se generan como WAV y se reproducen por <audio>, no por Web Audio:
+// así el navegador los trata como reproducción de medios y no los corta al pasar a segundo plano.
+function encodeWav(samples, sr) {
+  const buf = new ArrayBuffer(44 + samples.length*2), v = new DataView(buf);
+  const w = (o,s) => { for (let i=0;i<s.length;i++) v.setUint8(o+i, s.charCodeAt(i)); };
+  w(0,'RIFF'); v.setUint32(4, 36+samples.length*2, true); w(8,'WAVE');
+  w(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,sr,true); v.setUint32(28,sr*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true);
+  w(36,'data'); v.setUint32(40, samples.length*2, true);
+  let o = 44;
+  for (const s of samples) { const x = Math.max(-1, Math.min(1, s)); v.setInt16(o, x<0 ? x*32768 : x*32767, true); o += 2; }
+  return new Blob([buf], { type:'audio/wav' });
+}
+function generarTono(tipo) {
+  const sr = 22050, dur = 3, n = sr*dur, s = new Float32Array(n);
+  const sn = (t,f) => Math.sin(2*Math.PI*f*t);
+  for (let i=0;i<n;i++) {
+    const t = i/sr; let v = 0;
+    if (tipo === 'pitido') {
+      for (const st of [0,.34,.68]) if (t>=st && t<st+.17) v += sn(t,1000)*.75;
+    } else if (tipo === 'sirena') {
+      v = sn(t, 780 + 420*Math.sin(2*Math.PI*t/1.5))*.55;
+    } else {
+      for (const st of [0,.75,1.5,2.25]) if (t>=st && t<st+.72) {
+        const d = t-st; v += Math.exp(-d*4.5)*(sn(t,880)*.6 + sn(t,1320)*.28);
+      }
+    }
+    s[i] = v;
+  }
+  return encodeWav(s, sr);
+}
+function tonoSilencioso() {
+  const sr = 8000, n = sr, s = new Float32Array(n);
+  for (let i=0;i<n;i++) s[i] = Math.sin(2*Math.PI*45*i/sr)*.0006;  // inaudible, pero no cero
+  return encodeWav(s, sr);
+}
+
+// guardado del archivo propio en IndexedDB (localStorage no aguanta un MP3)
+const idb = () => new Promise((res,rej) => {
+  const r = indexedDB.open('centro-audio',1);
+  r.onupgradeneeded = () => r.result.createObjectStore('f');
+  r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+});
+async function guardarAudio(blob, nombre) {
+  const db = await idb();
+  return new Promise((res,rej) => {
+    const t = db.transaction('f','readwrite');
+    t.objectStore('f').put({ blob, nombre }, 'alarma');
+    t.oncomplete = res; t.onerror = () => rej(t.error);
+  });
+}
+async function leerAudio() {
+  try {
+    const db = await idb();
+    return await new Promise(res => {
+      const q = db.transaction('f','readonly').objectStore('f').get('alarma');
+      q.onsuccess = () => res(q.result || null); q.onerror = () => res(null);
+    });
+  } catch (e) { return null; }
+}
+
+const elAlarma = document.getElementById('audioAlarma');
+const elKeep = document.getElementById('audioKeep');
+let audioListo = false, urlCache = {}, urlPropio = null;
+
+async function urlDelSonido() {
+  if (state.sonido === 'propio') {
+    if (urlPropio) return urlPropio;
+    const r = await leerAudio();
+    if (r) return (urlPropio = URL.createObjectURL(r.blob));
+    toast('No has elegido archivo; uso Campana');
+  }
+  const k = state.sonido === 'propio' ? 'campana' : state.sonido;
+  return urlCache[k] || (urlCache[k] = URL.createObjectURL(generarTono(k)));
+}
+
+async function desbloquearAudio() {
+  try {
+    elAlarma.src = await urlDelSonido();
+    elAlarma.volume = 0;
+    await elAlarma.play();
+    elAlarma.pause(); elAlarma.currentTime = 0; elAlarma.volume = 1;
+    audioListo = true;
+    elKeep.src = URL.createObjectURL(tonoSilencioso());
+    elKeep.volume = .02;
+    pintarAvisoAudio(); arrancarKeep();
+    return true;
+  } catch (e) { toast('El navegador rechazó el audio: ' + e.name); return false; }
+}
+function pintarAvisoAudio() {
+  const a = document.getElementById('avisoAudio');
+  if (!audioListo) return;
+  a.className = 'warn good';
+  a.innerHTML = '🔊 <b>Sonido activado.</b> La alarma ya puede sonar sola mientras esta pestaña siga abierta.';
+}
+document.getElementById('desbloquear').onclick = async () => {
+  if (await desbloquearAudio()) { pedirWake(); toast('Sonido activado ✓'); }
+};
+
+async function sonar() {
+  if (!audioListo) { toast('Toca "Activar el sonido" primero'); return; }
+  elAlarma.src = await urlDelSonido();
+  elAlarma.loop = true; elAlarma.volume = 1;
+  elAlarma.play().catch(e => toast('No pudo sonar: ' + e.name));
+  if (state.vibrar && navigator.vibrate) {
+    navigator.vibrate([700,350,700]);
+    vibInt = setInterval(() => navigator.vibrate([700,350,700]), 2100);
+  }
+}
+let vibInt = null;
+function callar() {
+  elAlarma.pause(); elAlarma.currentTime = 0;
+  clearInterval(vibInt); vibInt = null;
+  if (navigator.vibrate) navigator.vibrate(0);
+}
+function arrancarKeep() {
+  if (!audioListo) return;
+  const hayActivas = state.alarmas.some(a => a.on) || tCorriendo;
+  if (state.keep && hayActivas) elKeep.play().catch(()=>{});
+  else elKeep.pause();
+}
+
+// pantalla encendida
+let wl = null;
+async function pedirWake() {
+  if (!state.wake || !('wakeLock' in navigator) || wl) return;
+  try { wl = await navigator.wakeLock.request('screen'); wl.addEventListener('release', () => wl = null); }
+  catch (e) {}
+}
+function soltarWake() { if (wl) { wl.release().catch(()=>{}); wl = null; } }
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') { pedirWake(); arrancarKeep(); }
+});
+
+// ==================== reloj y disparo ====================
 const DIAS = ['D','L','M','M','J','V','S'];
-const DIAS_L = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const DIAS_L = ['dom','lun','mar','mié','jue','vie','sáb'];
+
+// Marca de la última vez que sonó, para tolerar que el navegador congele la pestaña:
+// si despierta tarde, la alarma suena igual (hasta 15 min después) y no se repite.
+function ultimaOcurrencia(a, ahora) {
+  for (let d = 0; d < 8; d++) {
+    const c = new Date(ahora);
+    c.setDate(c.getDate() - d);
+    const [h,m] = a.hora.split(':').map(Number);
+    c.setHours(h, m, 0, 0);
+    if (c > ahora) continue;
+    if (a.dias.length && !a.dias.includes(c.getDay())) continue;
+    return c;
+  }
+  return null;
+}
+function proximaOcurrencia(a, ahora) {
+  for (let d = 0; d < 8; d++) {
+    const c = new Date(ahora);
+    c.setDate(c.getDate() + d);
+    const [h,m] = a.hora.split(':').map(Number);
+    c.setHours(h, m, 0, 0);
+    if (c <= ahora) continue;
+    if (a.dias.length && !a.dias.includes(c.getDay())) continue;
+    return c;
+  }
+  return null;
+}
+const claveMin = d => `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}T${p2(d.getHours())}:${p2(d.getMinutes())}`;
+
+function checarAlarmas(ahora) {
+  if (sonando !== null) return;
+  for (const a of state.alarmas) {
+    if (!a.on) continue;
+    if (a.snooze && ahora.getTime() >= a.snooze) {
+      a.snooze = null; save(); dispararAlarma(a.hora, a.etiqueta, a.id); return;
+    }
+    const oc = ultimaOcurrencia(a, ahora);
+    if (!oc) continue;
+    const k = claveMin(oc);
+    if (a.ultimo === k) continue;
+    if (ahora - oc > 15*60000) { a.ultimo = k; save(); continue; }  // demasiado viejo: solo marcar
+    a.ultimo = k;
+    if (!a.dias.length) a.on = false;
+    save(); renderAlarmas(); arrancarKeep();
+    dispararAlarma(a.hora, a.etiqueta, a.id);
+    return;
+  }
+}
+function pintarProxima(ahora) {
+  const cand = state.alarmas.filter(a => a.on)
+    .map(a => a.snooze ? new Date(a.snooze) : proximaOcurrencia(a, ahora))
+    .filter(Boolean).sort((x,y) => x-y)[0];
+  const el = document.getElementById('prox');
+  if (!cand) { el.textContent = state.alarmas.length ? 'Sin alarmas activas' : ''; return; }
+  const min = Math.round((cand - ahora)/60000);
+  const txt = min < 60 ? `en ${min} min` : min < 1440 ? `en ${Math.floor(min/60)} h ${min%60} min` : `en ${Math.floor(min/1440)} días`;
+  el.textContent = `⏰ Siguiente: ${p2(cand.getHours())}:${p2(cand.getMinutes())} · ${txt}`;
+}
 function tick() {
   const n = new Date();
-  document.getElementById('reloj').textContent =
-    String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
-  document.getElementById('fecha').textContent =
-    n.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
-  checarAlarmas(n);
-  tickTimer();
+  document.getElementById('reloj').textContent = p2(n.getHours()) + ':' + p2(n.getMinutes());
+  document.getElementById('fecha').textContent = n.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
+  pintarProxima(n); checarAlarmas(n); tickTimer();
 }
 setInterval(tick, 1000);
 
-// ---------- sonido ----------
-let ac = null, oscTimer = null;
-function beep() {
-  try {
-    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
-    if (ac.state === 'suspended') ac.resume();
-    const t0 = ac.currentTime;
-    [0, .28, .56].forEach(d => {
-      const o = ac.createOscillator(), g = ac.createGain();
-      o.type = 'sine'; o.frequency.value = 880;
-      g.gain.setValueAtTime(0, t0 + d);
-      g.gain.linearRampToValueAtTime(.32, t0 + d + .02);
-      g.gain.exponentialRampToValueAtTime(.001, t0 + d + .22);
-      o.connect(g); g.connect(ac.destination);
-      o.start(t0 + d); o.stop(t0 + d + .24);
-    });
-  } catch (e) {}
-}
-const sonarLoop = () => { beep(); oscTimer = setInterval(beep, 1000); };
-const pararSonido = () => { clearInterval(oscTimer); oscTimer = null; };
-
-document.getElementById('pedirPerm').onclick = () => {
-  beep();
-  if (!('Notification' in window)) return toast('Sin soporte de notificaciones');
-  Notification.requestPermission().then(p => toast(p === 'granted' ? 'Notificaciones activadas ✓' : 'Permiso denegado'));
-};
-function notificar(titulo, cuerpo) {
-  if ('Notification' in window && Notification.permission === 'granted')
-    try { new Notification(titulo, { body: cuerpo, icon: '' }); } catch (e) {}
-}
-
-// ---------- alarmas ----------
+// ==================== alarmas ====================
 let diasSel = [1,2,3,4,5];
 function renderDias() {
   document.getElementById('nDias').innerHTML = DIAS.map((d,i) =>
@@ -305,18 +525,21 @@ function renderDias() {
 }
 renderDias();
 
-document.getElementById('addAlarma').onclick = () => {
+document.getElementById('addAlarma').onclick = async () => {
   const hora = document.getElementById('nHora').value;
   if (!hora) return toast('Elige una hora');
-  state.alarmas.push({
-    id: Date.now(), hora,
+  if (!audioListo) await desbloquearAudio();
+  const ahora = new Date();
+  const a = { id: Date.now(), hora,
     etiqueta: document.getElementById('nEtiqueta').value.trim() || 'Alarma',
-    dias: [...diasSel].sort(), on: true, snooze: null
-  });
-  state.alarmas.sort((a,b) => a.hora.localeCompare(b.hora));
-  save(); renderAlarmas();
+    dias: [...diasSel].sort(), on: true, snooze: null, ultimo: null };
+  const oc = ultimaOcurrencia(a, ahora);          // no sonar por una hora que ya pasó hoy
+  if (oc) a.ultimo = claveMin(oc);
+  state.alarmas.push(a);
+  state.alarmas.sort((x,y) => x.hora.localeCompare(y.hora));
+  save(); renderAlarmas(); arrancarKeep(); pedirWake();
   document.getElementById('nEtiqueta').value = '';
-  toast('Alarma guardada');
+  toast('Alarma guardada' + (audioListo ? '' : ' — activa el sonido'));
 };
 
 const textoDias = d =>
@@ -324,56 +547,42 @@ const textoDias = d =>
   d.length === 7 ? 'Todos los días' :
   d.join() === '1,2,3,4,5' ? 'Entre semana' :
   d.join() === '0,6' ? 'Fines de semana' :
-  d.map(i => DIAS_L[i].slice(0,3)).join(', ');
+  d.map(i => DIAS_L[i]).join(', ');
 
 function renderAlarmas() {
   const c = document.getElementById('listaAlarmas');
   if (!state.alarmas.length) {
-    c.innerHTML = '<div class="empty"><span class="e">⏰</span>Sin alarmas todavía.</div>';
-    return;
+    c.innerHTML = '<div class="empty"><span class="e">⏰</span>Sin alarmas todavía.</div>'; return;
   }
   c.innerHTML = state.alarmas.map(a => `
     <div class="alarma ${a.on?'':'off'}">
       <div class="hora">${a.hora}</div>
-      <div class="info"><div class="et">${esc(a.etiqueta)}</div><div class="rep">${textoDias(a.dias)}</div></div>
+      <div class="info"><div class="et">${esc(a.etiqueta)}</div>
+        <div class="rep">${textoDias(a.dias)}${a.snooze ? ' · pospuesta' : ''}</div></div>
       <label class="sw"><input type="checkbox" ${a.on?'checked':''} onchange="toggleAlarma(${a.id})"><i></i></label>
       <button class="del" onclick="delAlarma(${a.id})">×</button>
     </div>`).join('');
 }
-window.toggleAlarma = id => { const a = state.alarmas.find(x=>x.id===id); if(a){ a.on=!a.on; a.snooze=null; save(); renderAlarmas(); } };
-window.delAlarma = id => { state.alarmas = state.alarmas.filter(x=>x.id!==id); save(); renderAlarmas(); };
+window.toggleAlarma = id => {
+  const a = state.alarmas.find(x => x.id === id); if (!a) return;
+  a.on = !a.on; a.snooze = null;
+  if (a.on) { const oc = ultimaOcurrencia(a, new Date()); a.ultimo = oc ? claveMin(oc) : null; }
+  save(); renderAlarmas(); arrancarKeep();
+};
+window.delAlarma = id => { state.alarmas = state.alarmas.filter(x => x.id !== id); save(); renderAlarmas(); arrancarKeep(); };
 
-let sonando = null, ultimoMin = '';
-function checarAlarmas(n) {
-  const hhmm = String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
-  if (hhmm === ultimoMin || sonando) return;
-  const dia = n.getDay();
-  for (const a of state.alarmas) {
-    if (!a.on) continue;
-    const coincide = (a.snooze === hhmm) || (a.hora === hhmm && (!a.dias.length || a.dias.includes(dia)));
-    if (!coincide) continue;
-    ultimoMin = hhmm;
-    a.snooze = null;
-    if (!a.dias.length) a.on = false;
-    save(); renderAlarmas();
-    dispararAlarma(a.hora, a.etiqueta, a.id);
-    return;
-  }
-  ultimoMin = hhmm;
-}
-
+let sonando = null;
 function dispararAlarma(hora, etiqueta, id) {
-  sonando = id;
+  sonando = id === null ? 'timer' : id;
   document.getElementById('mHora').textContent = hora;
   document.getElementById('mEt').textContent = etiqueta;
+  document.getElementById('posponer').style.display = id === null ? 'none' : '';
   document.getElementById('modal').classList.add('on');
-  document.getElementById('posponer').style.display = id ? '' : 'none';
   document.title = '🔔 ' + etiqueta;
-  sonarLoop();
-  notificar('🔔 ' + etiqueta, hora);
+  sonar();
 }
 function cerrarModal() {
-  pararSonido(); sonando = null;
+  callar(); sonando = null;
   document.getElementById('modal').classList.remove('on');
   document.title = 'Centro · Alarmas y Mis Apps';
 }
@@ -381,84 +590,125 @@ document.getElementById('apagar').onclick = cerrarModal;
 document.getElementById('posponer').onclick = () => {
   const a = state.alarmas.find(x => x.id === sonando);
   if (a) {
-    const t = new Date(Date.now() + 5*60000);
-    a.snooze = String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0');
-    a.on = true; save(); renderAlarmas(); toast('Suena de nuevo a las ' + a.snooze);
+    a.snooze = Date.now() + 5*60000; a.on = true;
+    save(); renderAlarmas();
+    toast('Suena de nuevo en 5 minutos');
   }
   cerrarModal();
 };
 
-// ---------- temporizador ----------
-let tRest = 0, tCorriendo = false, tEtiqueta = '';
+// ==================== ajustes de sonido ====================
+const sel = document.getElementById('selSonido');
+sel.value = state.sonido;
+const pintarZonaArchivo = () => {
+  document.getElementById('zonaArchivo').style.display = state.sonido === 'propio' ? '' : 'none';
+  document.getElementById('nombreArchivo').textContent = state.archivo ? 'Actual: ' + state.archivo : '';
+};
+sel.onchange = () => {
+  state.sonido = sel.value; save(); pintarZonaArchivo();
+  if (urlPropio) { URL.revokeObjectURL(urlPropio); urlPropio = null; }
+};
+pintarZonaArchivo();
+
+document.getElementById('fileAudio').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  if (f.size > 25*1024*1024) return toast('Archivo muy grande (máx 25 MB)');
+  try {
+    await guardarAudio(f, f.name);
+    state.archivo = f.name; state.sonido = 'propio'; sel.value = 'propio'; save();
+    if (urlPropio) { URL.revokeObjectURL(urlPropio); urlPropio = null; }
+    pintarZonaArchivo(); toast('Guardado: ' + f.name);
+  } catch (err) { toast('No se pudo guardar el archivo'); }
+};
+
+document.getElementById('probar').onclick = async () => {
+  if (!audioListo) await desbloquearAudio();
+  if (!audioListo) return;
+  await sonar();
+  setTimeout(callar, 4000);
+};
+document.getElementById('parar').onclick = callar;
+
+const optWake = document.getElementById('optWake'), optKeep = document.getElementById('optKeep'), optVib = document.getElementById('optVibrar');
+optWake.checked = state.wake; optKeep.checked = state.keep; optVib.checked = state.vibrar;
+if (!('wakeLock' in navigator)) {
+  optWake.disabled = true;
+  optWake.closest('.opt').querySelector('.tx span').textContent = 'Este navegador no lo soporta.';
+}
+optWake.onchange = () => { state.wake = optWake.checked; save(); state.wake ? pedirWake() : soltarWake(); };
+optKeep.onchange = () => { state.keep = optKeep.checked; save(); arrancarKeep(); };
+optVib.onchange = () => { state.vibrar = optVib.checked; save(); };
+
+// ==================== temporizador ====================
+let tRest = 0, tCorriendo = false, tEtiqueta = '', tFin = 0;
 const PRESETS = [['1 min',1],['3 min',3],['5 min',5],['10 min',10],['15 min',15],['20 min',20],['30 min',30],['45 min',45]];
 document.getElementById('presets').innerHTML = PRESETS.map(([t,m]) => `<button data-m="${m}">${t}</button>`).join('');
 document.querySelectorAll('#presets button').forEach(b => b.onclick = () => {
-  document.getElementById('tMin').value = b.dataset.m;
-  iniciarTimer();
+  document.getElementById('tMin').value = b.dataset.m; iniciarTimer();
 });
-function pintarTimer() {
-  const m = Math.floor(tRest/60), s = tRest%60;
-  document.getElementById('timerDisp').textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-}
-function iniciarTimer() {
+const pintarTimer = () => {
+  document.getElementById('timerDisp').textContent = p2(Math.floor(tRest/60)) + ':' + p2(tRest%60);
+};
+async function iniciarTimer() {
   const min = parseFloat(document.getElementById('tMin').value);
   if (!(min > 0)) return toast('Pon los minutos');
+  if (!audioListo) await desbloquearAudio();
   tEtiqueta = document.getElementById('tEt').value.trim() || 'Temporizador';
-  tRest = Math.round(min * 60); tCorriendo = true;
+  tRest = Math.round(min*60); tCorriendo = true; tFin = Date.now() + tRest*1000;
   document.getElementById('timerEt').textContent = tEtiqueta + ' · en marcha';
-  pintarTimer(); beep();
+  pintarTimer(); arrancarKeep(); pedirWake();
 }
 function tickTimer() {
-  if (!tCorriendo || tRest <= 0) return;
-  tRest--; pintarTimer();
+  if (!tCorriendo) return;
+  tRest = Math.max(0, Math.round((tFin - Date.now())/1000));   // basado en reloj real, aguanta congelamientos
+  pintarTimer();
   if (tRest === 0) {
-    tCorriendo = false;
+    tCorriendo = false; arrancarKeep();
     document.getElementById('timerEt').textContent = tEtiqueta + ' · ¡listo!';
     dispararAlarma('⏱', tEtiqueta, null);
   }
 }
 document.getElementById('tStart').onclick = () => {
-  if (tRest > 0 && !tCorriendo) { tCorriendo = true; document.getElementById('timerEt').textContent = tEtiqueta+' · en marcha'; beep(); }
-  else iniciarTimer();
+  if (tRest > 0 && !tCorriendo) {
+    tCorriendo = true; tFin = Date.now() + tRest*1000;
+    document.getElementById('timerEt').textContent = tEtiqueta + ' · en marcha'; arrancarKeep();
+  } else iniciarTimer();
 };
 document.getElementById('tPause').onclick = () => {
   if (!tCorriendo) return;
-  tCorriendo = false; document.getElementById('timerEt').textContent = tEtiqueta + ' · en pausa';
+  tCorriendo = false; arrancarKeep();
+  document.getElementById('timerEt').textContent = tEtiqueta + ' · en pausa';
 };
 document.getElementById('tReset').onclick = () => {
-  tCorriendo = false; tRest = 0; pintarTimer();
+  tCorriendo = false; tRest = 0; pintarTimer(); arrancarKeep();
   document.getElementById('timerEt').textContent = 'Elige un tiempo o escríbelo';
 };
 pintarTimer();
 
-// ---------- apps ----------
+// ==================== apps ====================
 function renderApps() {
   document.getElementById('gridApps').innerHTML = state.apps.map((a,i) => `
     <a class="app" href="${esc(a.url)}" target="_blank" rel="noopener">
       <button class="rm" onclick="event.preventDefault();delApp(${i})">×</button>
-      <span class="ic">${esc(a.ic)}</span>
-      <span class="nm">${esc(a.nm)}</span>
-      <span class="ds">${esc(a.ds || '')}</span>
-    </a>`).join('');
+      <span class="ic">${esc(a.ic)}</span><span class="nm">${esc(a.nm)}</span>
+      <span class="ds">${esc(a.ds || '')}</span></a>`).join('');
 }
 window.delApp = i => { state.apps.splice(i,1); save(); renderApps(); };
 document.getElementById('addApp').onclick = () => {
-  const url = document.getElementById('aUrl').value.trim();
-  const nm = document.getElementById('aNm').value.trim();
+  const url = document.getElementById('aUrl').value.trim(), nm = document.getElementById('aNm').value.trim();
   if (!url || !nm) return toast('Falta nombre o dirección');
   state.apps.push({ ic: document.getElementById('aIc').value.trim() || '🔗', nm, url,
     ds: document.getElementById('aDs').value.trim() });
   save(); renderApps();
   ['aNm','aUrl','aDs'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('aIc').value = '🔗';
-  toast('Acceso agregado');
+  document.getElementById('aIc').value = '🔗'; toast('Acceso agregado');
 };
 document.getElementById('resetApps').onclick = () => {
   if (!confirm('¿Restaurar la lista de apps predeterminada?')) return;
   state.apps = JSON.parse(JSON.stringify(APPS_DEFAULT)); save(); renderApps(); toast('Restaurado');
 };
 
-// ---------- correos ----------
+// ==================== correos ====================
 document.getElementById('guardarCorreos').onclick = () => {
   const v = document.getElementById('cPega').value.trim();
   if (!v) return toast('Pega primero el resumen');
@@ -468,17 +718,14 @@ document.getElementById('guardarCorreos').onclick = () => {
 document.getElementById('borrarCorreos').onclick = () => { state.correos = null; save(); renderCorreos(); };
 function renderCorreos() {
   const c = document.getElementById('correosBody');
-  if (!state.correos) {
-    c.innerHTML = '<div class="empty"><span class="e">📭</span>Sin resumen guardado.</div>';
-    return;
-  }
+  if (!state.correos) { c.innerHTML = '<div class="empty"><span class="e">📭</span>Sin resumen guardado.</div>'; return; }
   const f = new Date(state.correos.fecha).toLocaleString('es-MX',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
   c.innerHTML = `<div class="mail"><div class="de">Resumen guardado</div>
     <div class="sn" style="white-space:pre-wrap;margin-top:6px">${esc(state.correos.texto)}</div>
     <div class="fe">Actualizado el ${f}</div></div>`;
 }
 
-// ---------- tabs ----------
+// ==================== tabs ====================
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
   document.querySelectorAll('nav button').forEach(x => x.classList.toggle('active', x === b));
   document.querySelectorAll('main section').forEach(s => s.classList.toggle('on', s.id === b.dataset.t));
