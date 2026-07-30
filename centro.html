@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1e2340">
+<title>Centro · Alarmas y Mis Apps</title>
+<style>
+  :root{
+    --night:#1e2340; --night-2:#2a3055; --night-3:#39406e;
+    --amber:#f0a952; --amber-dark:#d98b32; --amber-pale:#fdf0dc;
+    --ink:#eceaf5; --ink-dim:#a5a3bd; --line:#3a4068;
+    --ok:#5fbf8a; --off:#6b6f8e; --alert:#e8705f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Arial,sans-serif;
+    background:var(--night);color:var(--ink);-webkit-font-smoothing:antialiased;padding-bottom:70px;}
+  h1,h2,h3{font-family:Georgia,'Times New Roman',serif;font-weight:600;letter-spacing:-0.01em;}
+
+  header{background:radial-gradient(120% 100% at 50% 0%,#333a66 0%,var(--night) 70%);
+    padding:30px 20px 24px;text-align:center;border-bottom:1px solid var(--line);}
+  header .clock{font-family:Georgia,serif;font-size:52px;line-height:1;color:var(--amber);
+    font-variant-numeric:tabular-nums;letter-spacing:-0.02em;}
+  header .fecha{color:var(--ink-dim);font-size:13.5px;margin-top:8px;text-transform:capitalize;}
+
+  nav{position:sticky;top:0;z-index:50;display:flex;background:rgba(30,35,64,.94);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
+    overflow-x:auto;scrollbar-width:none;}
+  nav::-webkit-scrollbar{display:none;}
+  nav button{flex:1;min-width:100px;padding:13px 10px;border:none;background:transparent;
+    font-size:13.5px;font-weight:600;color:var(--ink-dim);cursor:pointer;border-bottom:2.5px solid transparent;
+    transition:.2s;white-space:nowrap;font-family:inherit;}
+  nav button.active{color:var(--amber);border-bottom-color:var(--amber);}
+
+  main{max-width:780px;margin:0 auto;padding:22px 16px 40px;}
+  section{display:none;} section.on{display:block;}
+
+  .card{background:var(--night-2);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;}
+  .card h2{font-size:19px;margin-bottom:4px;}
+  .hint{color:var(--ink-dim);font-size:13px;line-height:1.55;}
+
+  .warn{background:rgba(240,169,82,.1);border:1px solid rgba(240,169,82,.35);border-radius:14px;
+    padding:12px 14px;font-size:12.5px;color:var(--amber);line-height:1.5;margin-bottom:14px;}
+
+  input,select{font-family:inherit;font-size:15px;color:var(--ink);background:var(--night);
+    border:1px solid var(--line);border-radius:12px;padding:11px 13px;outline:none;}
+  input:focus,select:focus{border-color:var(--amber);}
+  input[type=time]{font-variant-numeric:tabular-nums;}
+  label.f{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;
+    color:var(--ink-dim);margin-bottom:5px;font-weight:600;}
+
+  .btn{padding:11px 19px;border-radius:980px;border:none;font-size:14px;font-weight:600;cursor:pointer;
+    transition:.18s;font-family:inherit;}
+  .btn-main{background:var(--amber);color:#2a1d08;}
+  .btn-main:hover{background:var(--amber-dark);}
+  .btn-ghost{background:transparent;color:var(--amber);border:1px solid var(--amber);}
+  .btn-ghost:hover{background:rgba(240,169,82,.12);}
+  .btn-sm{padding:7px 14px;font-size:12.5px;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .row.end{justify-content:flex-end;}
+  .mt{margin-top:13px;}
+
+  .dias{display:flex;gap:5px;flex-wrap:wrap;}
+  .dias button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:transparent;
+    color:var(--ink-dim);font-size:12.5px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;}
+  .dias button.on{background:var(--amber);color:#2a1d08;border-color:var(--amber);}
+
+  .alarma{background:var(--night-2);border:1px solid var(--line);border-radius:18px;padding:16px 18px;
+    margin-bottom:11px;display:flex;align-items:center;gap:14px;transition:.2s;}
+  .alarma.off{opacity:.45;}
+  .alarma .hora{font-family:Georgia,serif;font-size:33px;line-height:1;color:var(--amber);
+    font-variant-numeric:tabular-nums;min-width:112px;}
+  .alarma.off .hora{color:var(--off);}
+  .alarma .info{flex:1;min-width:0;}
+  .alarma .et{font-size:14.5px;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .alarma .rep{font-size:11.5px;color:var(--ink-dim);}
+  .sw{position:relative;width:46px;height:27px;flex-shrink:0;cursor:pointer;}
+  .sw input{display:none;}
+  .sw i{position:absolute;inset:0;background:var(--night-3);border-radius:980px;transition:.2s;}
+  .sw i:before{content:'';position:absolute;width:21px;height:21px;left:3px;top:3px;background:#fff;
+    border-radius:50%;transition:.2s;}
+  .sw input:checked + i{background:var(--ok);}
+  .sw input:checked + i:before{transform:translateX(19px);}
+  .alarma .del{background:none;border:none;color:var(--off);font-size:19px;cursor:pointer;padding:0 3px;line-height:1;}
+  .alarma .del:hover{color:var(--alert);}
+
+  .timer-big{font-family:Georgia,serif;font-size:64px;text-align:center;color:var(--amber);
+    font-variant-numeric:tabular-nums;letter-spacing:-0.02em;margin:6px 0 4px;}
+  .presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px;margin-top:12px;}
+  .presets button{padding:11px 6px;border-radius:13px;border:1px solid var(--line);background:transparent;
+    color:var(--ink);font-size:13px;cursor:pointer;font-family:inherit;transition:.15s;}
+  .presets button:hover{border-color:var(--amber);color:var(--amber);}
+
+  .apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:11px;}
+  .app{background:var(--night-2);border:1px solid var(--line);border-radius:18px;padding:16px 14px;
+    text-decoration:none;color:var(--ink);display:flex;flex-direction:column;gap:5px;transition:.2s;position:relative;}
+  .app:hover{border-color:var(--amber);transform:translateY(-2px);}
+  .app .ic{font-size:27px;}
+  .app .nm{font-weight:600;font-size:14.5px;}
+  .app .ds{font-size:11.5px;color:var(--ink-dim);line-height:1.4;}
+  .app .rm{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--off);
+    font-size:16px;cursor:pointer;opacity:0;transition:.15s;line-height:1;}
+  .app:hover .rm{opacity:1;}
+  .app .rm:hover{color:var(--alert);}
+
+  .mail{background:var(--night-2);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:9px;}
+  .mail .de{font-size:12px;color:var(--amber);font-weight:600;}
+  .mail .as{font-size:14.5px;margin:3px 0;line-height:1.35;}
+  .mail .sn{font-size:12.5px;color:var(--ink-dim);line-height:1.5;}
+  .mail .fe{font-size:11px;color:var(--off);margin-top:5px;}
+
+  .empty{text-align:center;color:var(--ink-dim);padding:40px 18px;font-size:14px;line-height:1.6;}
+  .empty .e{font-size:34px;display:block;margin-bottom:10px;opacity:.5;}
+
+  .modal{position:fixed;inset:0;background:rgba(15,18,36,.93);z-index:300;display:none;
+    align-items:center;justify-content:center;padding:24px;}
+  .modal.on{display:flex;}
+  .modal .box{background:var(--night-2);border:1px solid var(--amber);border-radius:24px;
+    padding:36px 28px;text-align:center;max-width:340px;width:100%;animation:pop .3s;}
+  @keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+  .modal .bell{font-size:52px;display:block;margin-bottom:10px;animation:shake .8s infinite;}
+  @keyframes shake{0%,100%{transform:rotate(-11deg)}50%{transform:rotate(11deg)}}
+  .modal h2{font-size:26px;color:var(--amber);}
+  .modal p{color:var(--ink-dim);font-size:14.5px;margin-top:6px;}
+  .modal .row{margin-top:22px;justify-content:center;}
+
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);
+    background:var(--ink);color:var(--night);padding:12px 22px;border-radius:980px;font-size:13.5px;
+    font-weight:600;opacity:0;transition:.28s;z-index:400;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="clock" id="reloj">--:--</div>
+  <div class="fecha" id="fecha"></div>
+</header>
+
+<nav>
+  <button data-t="alarmas" class="active">Alarmas</button>
+  <button data-t="timer">Temporizador</button>
+  <button data-t="apps">Mis apps</button>
+  <button data-t="correos">Correos</button>
+</nav>
+
+<main>
+
+<section id="alarmas" class="on">
+  <div class="warn" id="warnTab">
+    ⚠️ Para que suene, esta pestaña debe quedarse abierta. Si cierras el navegador la alarma no puede sonar.
+    <button class="btn btn-ghost btn-sm" style="margin-top:9px" id="pedirPerm">Activar notificaciones</button>
+  </div>
+
+  <div class="card">
+    <h2>Nueva alarma</h2>
+    <div class="row mt" style="align-items:flex-end">
+      <div><label class="f">Hora</label><input type="time" id="nHora" value="07:00"></div>
+      <div style="flex:1;min-width:150px"><label class="f">Etiqueta</label><input type="text" id="nEtiqueta" placeholder="Despertar" style="width:100%"></div>
+    </div>
+    <div class="mt"><label class="f">Repetir</label><div class="dias" id="nDias"></div></div>
+    <div class="row mt"><button class="btn btn-main" id="addAlarma">Guardar alarma</button></div>
+  </div>
+
+  <div id="listaAlarmas"></div>
+</section>
+
+<section id="timer">
+  <div class="card">
+    <div class="timer-big" id="timerDisp">00:00</div>
+    <p class="hint" style="text-align:center" id="timerEt">Elige un tiempo o escríbelo</p>
+    <div class="presets" id="presets"></div>
+    <div class="row mt" style="align-items:flex-end">
+      <div style="flex:1;min-width:110px"><label class="f">Minutos</label><input type="number" id="tMin" min="0" max="600" value="10" style="width:100%"></div>
+      <div style="flex:1;min-width:110px"><label class="f">Etiqueta</label><input type="text" id="tEt" placeholder="Pasta" style="width:100%"></div>
+    </div>
+    <div class="row mt">
+      <button class="btn btn-main" id="tStart">Iniciar</button>
+      <button class="btn btn-ghost" id="tPause">Pausar</button>
+      <button class="btn btn-ghost" id="tReset">Reiniciar</button>
+    </div>
+  </div>
+</section>
+
+<section id="apps">
+  <p class="hint" style="margin-bottom:14px">Acceso rápido a todo lo que hemos construido. Puedes agregar las tuyas.</p>
+  <div class="apps" id="gridApps"></div>
+  <div class="card" style="margin-top:16px">
+    <h2>Agregar acceso</h2>
+    <div class="row mt" style="align-items:flex-end">
+      <div style="width:66px"><label class="f">Icono</label><input type="text" id="aIc" value="🔗" style="width:100%;text-align:center"></div>
+      <div style="flex:1;min-width:120px"><label class="f">Nombre</label><input type="text" id="aNm" placeholder="Mi app" style="width:100%"></div>
+    </div>
+    <div class="mt"><label class="f">Dirección (URL o archivo)</label><input type="text" id="aUrl" placeholder="https://… o archivo.html" style="width:100%"></div>
+    <div class="mt"><label class="f">Descripción</label><input type="text" id="aDs" placeholder="Para qué sirve" style="width:100%"></div>
+    <div class="row mt"><button class="btn btn-main btn-sm" id="addApp">Agregar</button>
+      <button class="btn btn-ghost btn-sm" id="resetApps">Restaurar predeterminadas</button></div>
+  </div>
+</section>
+
+<section id="correos">
+  <div class="warn">
+    📬 Esta página no puede leer tu Gmail sola (es un archivo local, sin servidor). El resumen lo genero yo en el chat
+    y lo pegas aquí — igual que las recetas.
+  </div>
+  <div class="card">
+    <h2>Pegar resumen de correos</h2>
+    <p class="hint">Pídeme en el chat: <i>"resúmeme mis correos de hoy"</i> y pega aquí lo que te dé.</p>
+    <div class="mt"><input type="text" id="cPega" placeholder="Pega aquí el resumen…" style="width:100%"></div>
+    <div class="row mt">
+      <button class="btn btn-main btn-sm" id="guardarCorreos">Guardar resumen</button>
+      <button class="btn btn-ghost btn-sm" id="borrarCorreos">Borrar</button>
+    </div>
+  </div>
+  <div id="correosBody"></div>
+</section>
+
+</main>
+
+<div class="modal" id="modal">
+  <div class="box">
+    <span class="bell">🔔</span>
+    <h2 id="mHora">07:00</h2>
+    <p id="mEt">Alarma</p>
+    <div class="row">
+      <button class="btn btn-ghost" id="posponer">Posponer 5 min</button>
+      <button class="btn btn-main" id="apagar">Apagar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LS = 'centro-app-v1';
+const APPS_DEFAULT = [
+  { ic:'🍲', nm:'Recetas',    url:'recetas.html',        ds:'Recetas y lista de compras' },
+  { ic:'🥗', nm:'Dieta',      url:'https://gaa211225.github.io/quorzimble/dieta.html',   ds:'Plan de alimentación' },
+  { ic:'📈', nm:'Mercado',    url:'https://gaa211225.github.io/quorzimble/mercado.html', ds:'Brief antes de la apertura' },
+  { ic:'🏋️', nm:'Rutinas',    url:'https://gaa211225.github.io/quorzimble/rutinas/',     ds:'Entrenamiento y series' },
+  { ic:'🚚', nm:'Emboobate',  url:'https://gaa211225.github.io/nimbrocado/embobate.html',ds:'Programación de entregas' },
+  { ic:'💄', nm:'LIV Beauty', url:'https://gaa211225.github.io/liv-beauty/',             ds:'Tienda multi-marca' },
+];
+let state = JSON.parse(localStorage.getItem(LS) || 'null') || { alarmas:[], apps:APPS_DEFAULT, correos:null };
+if (!state.apps) state.apps = APPS_DEFAULT;
+const save = () => localStorage.setItem(LS, JSON.stringify(state));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const toast = m => { const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); };
+
+// ---------- reloj ----------
+const DIAS = ['D','L','M','M','J','V','S'];
+const DIAS_L = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+function tick() {
+  const n = new Date();
+  document.getElementById('reloj').textContent =
+    String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+  document.getElementById('fecha').textContent =
+    n.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
+  checarAlarmas(n);
+  tickTimer();
+}
+setInterval(tick, 1000);
+
+// ---------- sonido ----------
+let ac = null, oscTimer = null;
+function beep() {
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    if (ac.state === 'suspended') ac.resume();
+    const t0 = ac.currentTime;
+    [0, .28, .56].forEach(d => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'sine'; o.frequency.value = 880;
+      g.gain.setValueAtTime(0, t0 + d);
+      g.gain.linearRampToValueAtTime(.32, t0 + d + .02);
+      g.gain.exponentialRampToValueAtTime(.001, t0 + d + .22);
+      o.connect(g); g.connect(ac.destination);
+      o.start(t0 + d); o.stop(t0 + d + .24);
+    });
+  } catch (e) {}
+}
+const sonarLoop = () => { beep(); oscTimer = setInterval(beep, 1000); };
+const pararSonido = () => { clearInterval(oscTimer); oscTimer = null; };
+
+document.getElementById('pedirPerm').onclick = () => {
+  beep();
+  if (!('Notification' in window)) return toast('Sin soporte de notificaciones');
+  Notification.requestPermission().then(p => toast(p === 'granted' ? 'Notificaciones activadas ✓' : 'Permiso denegado'));
+};
+function notificar(titulo, cuerpo) {
+  if ('Notification' in window && Notification.permission === 'granted')
+    try { new Notification(titulo, { body: cuerpo, icon: '' }); } catch (e) {}
+}
+
+// ---------- alarmas ----------
+let diasSel = [1,2,3,4,5];
+function renderDias() {
+  document.getElementById('nDias').innerHTML = DIAS.map((d,i) =>
+    `<button type="button" class="${diasSel.includes(i)?'on':''}" data-d="${i}">${d}</button>`).join('');
+  document.querySelectorAll('#nDias button').forEach(b => b.onclick = () => {
+    const d = +b.dataset.d;
+    diasSel = diasSel.includes(d) ? diasSel.filter(x => x !== d) : [...diasSel, d];
+    renderDias();
+  });
+}
+renderDias();
+
+document.getElementById('addAlarma').onclick = () => {
+  const hora = document.getElementById('nHora').value;
+  if (!hora) return toast('Elige una hora');
+  state.alarmas.push({
+    id: Date.now(), hora,
+    etiqueta: document.getElementById('nEtiqueta').value.trim() || 'Alarma',
+    dias: [...diasSel].sort(), on: true, snooze: null
+  });
+  state.alarmas.sort((a,b) => a.hora.localeCompare(b.hora));
+  save(); renderAlarmas();
+  document.getElementById('nEtiqueta').value = '';
+  toast('Alarma guardada');
+};
+
+const textoDias = d =>
+  !d.length ? 'Solo una vez' :
+  d.length === 7 ? 'Todos los días' :
+  d.join() === '1,2,3,4,5' ? 'Entre semana' :
+  d.join() === '0,6' ? 'Fines de semana' :
+  d.map(i => DIAS_L[i].slice(0,3)).join(', ');
+
+function renderAlarmas() {
+  const c = document.getElementById('listaAlarmas');
+  if (!state.alarmas.length) {
+    c.innerHTML = '<div class="empty"><span class="e">⏰</span>Sin alarmas todavía.</div>';
+    return;
+  }
+  c.innerHTML = state.alarmas.map(a => `
+    <div class="alarma ${a.on?'':'off'}">
+      <div class="hora">${a.hora}</div>
+      <div class="info"><div class="et">${esc(a.etiqueta)}</div><div class="rep">${textoDias(a.dias)}</div></div>
+      <label class="sw"><input type="checkbox" ${a.on?'checked':''} onchange="toggleAlarma(${a.id})"><i></i></label>
+      <button class="del" onclick="delAlarma(${a.id})">×</button>
+    </div>`).join('');
+}
+window.toggleAlarma = id => { const a = state.alarmas.find(x=>x.id===id); if(a){ a.on=!a.on; a.snooze=null; save(); renderAlarmas(); } };
+window.delAlarma = id => { state.alarmas = state.alarmas.filter(x=>x.id!==id); save(); renderAlarmas(); };
+
+let sonando = null, ultimoMin = '';
+function checarAlarmas(n) {
+  const hhmm = String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+  if (hhmm === ultimoMin || sonando) return;
+  const dia = n.getDay();
+  for (const a of state.alarmas) {
+    if (!a.on) continue;
+    const coincide = (a.snooze === hhmm) || (a.hora === hhmm && (!a.dias.length || a.dias.includes(dia)));
+    if (!coincide) continue;
+    ultimoMin = hhmm;
+    a.snooze = null;
+    if (!a.dias.length) a.on = false;
+    save(); renderAlarmas();
+    dispararAlarma(a.hora, a.etiqueta, a.id);
+    return;
+  }
+  ultimoMin = hhmm;
+}
+
+function dispararAlarma(hora, etiqueta, id) {
+  sonando = id;
+  document.getElementById('mHora').textContent = hora;
+  document.getElementById('mEt').textContent = etiqueta;
+  document.getElementById('modal').classList.add('on');
+  document.getElementById('posponer').style.display = id ? '' : 'none';
+  document.title = '🔔 ' + etiqueta;
+  sonarLoop();
+  notificar('🔔 ' + etiqueta, hora);
+}
+function cerrarModal() {
+  pararSonido(); sonando = null;
+  document.getElementById('modal').classList.remove('on');
+  document.title = 'Centro · Alarmas y Mis Apps';
+}
+document.getElementById('apagar').onclick = cerrarModal;
+document.getElementById('posponer').onclick = () => {
+  const a = state.alarmas.find(x => x.id === sonando);
+  if (a) {
+    const t = new Date(Date.now() + 5*60000);
+    a.snooze = String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0');
+    a.on = true; save(); renderAlarmas(); toast('Suena de nuevo a las ' + a.snooze);
+  }
+  cerrarModal();
+};
+
+// ---------- temporizador ----------
+let tRest = 0, tCorriendo = false, tEtiqueta = '';
+const PRESETS = [['1 min',1],['3 min',3],['5 min',5],['10 min',10],['15 min',15],['20 min',20],['30 min',30],['45 min',45]];
+document.getElementById('presets').innerHTML = PRESETS.map(([t,m]) => `<button data-m="${m}">${t}</button>`).join('');
+document.querySelectorAll('#presets button').forEach(b => b.onclick = () => {
+  document.getElementById('tMin').value = b.dataset.m;
+  iniciarTimer();
+});
+function pintarTimer() {
+  const m = Math.floor(tRest/60), s = tRest%60;
+  document.getElementById('timerDisp').textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+function iniciarTimer() {
+  const min = parseFloat(document.getElementById('tMin').value);
+  if (!(min > 0)) return toast('Pon los minutos');
+  tEtiqueta = document.getElementById('tEt').value.trim() || 'Temporizador';
+  tRest = Math.round(min * 60); tCorriendo = true;
+  document.getElementById('timerEt').textContent = tEtiqueta + ' · en marcha';
+  pintarTimer(); beep();
+}
+function tickTimer() {
+  if (!tCorriendo || tRest <= 0) return;
+  tRest--; pintarTimer();
+  if (tRest === 0) {
+    tCorriendo = false;
+    document.getElementById('timerEt').textContent = tEtiqueta + ' · ¡listo!';
+    dispararAlarma('⏱', tEtiqueta, null);
+  }
+}
+document.getElementById('tStart').onclick = () => {
+  if (tRest > 0 && !tCorriendo) { tCorriendo = true; document.getElementById('timerEt').textContent = tEtiqueta+' · en marcha'; beep(); }
+  else iniciarTimer();
+};
+document.getElementById('tPause').onclick = () => {
+  if (!tCorriendo) return;
+  tCorriendo = false; document.getElementById('timerEt').textContent = tEtiqueta + ' · en pausa';
+};
+document.getElementById('tReset').onclick = () => {
+  tCorriendo = false; tRest = 0; pintarTimer();
+  document.getElementById('timerEt').textContent = 'Elige un tiempo o escríbelo';
+};
+pintarTimer();
+
+// ---------- apps ----------
+function renderApps() {
+  document.getElementById('gridApps').innerHTML = state.apps.map((a,i) => `
+    <a class="app" href="${esc(a.url)}" target="_blank" rel="noopener">
+      <button class="rm" onclick="event.preventDefault();delApp(${i})">×</button>
+      <span class="ic">${esc(a.ic)}</span>
+      <span class="nm">${esc(a.nm)}</span>
+      <span class="ds">${esc(a.ds || '')}</span>
+    </a>`).join('');
+}
+window.delApp = i => { state.apps.splice(i,1); save(); renderApps(); };
+document.getElementById('addApp').onclick = () => {
+  const url = document.getElementById('aUrl').value.trim();
+  const nm = document.getElementById('aNm').value.trim();
+  if (!url || !nm) return toast('Falta nombre o dirección');
+  state.apps.push({ ic: document.getElementById('aIc').value.trim() || '🔗', nm, url,
+    ds: document.getElementById('aDs').value.trim() });
+  save(); renderApps();
+  ['aNm','aUrl','aDs'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('aIc').value = '🔗';
+  toast('Acceso agregado');
+};
+document.getElementById('resetApps').onclick = () => {
+  if (!confirm('¿Restaurar la lista de apps predeterminada?')) return;
+  state.apps = JSON.parse(JSON.stringify(APPS_DEFAULT)); save(); renderApps(); toast('Restaurado');
+};
+
+// ---------- correos ----------
+document.getElementById('guardarCorreos').onclick = () => {
+  const v = document.getElementById('cPega').value.trim();
+  if (!v) return toast('Pega primero el resumen');
+  state.correos = { texto: v, fecha: new Date().toISOString() };
+  save(); renderCorreos(); document.getElementById('cPega').value = ''; toast('Resumen guardado');
+};
+document.getElementById('borrarCorreos').onclick = () => { state.correos = null; save(); renderCorreos(); };
+function renderCorreos() {
+  const c = document.getElementById('correosBody');
+  if (!state.correos) {
+    c.innerHTML = '<div class="empty"><span class="e">📭</span>Sin resumen guardado.</div>';
+    return;
+  }
+  const f = new Date(state.correos.fecha).toLocaleString('es-MX',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
+  c.innerHTML = `<div class="mail"><div class="de">Resumen guardado</div>
+    <div class="sn" style="white-space:pre-wrap;margin-top:6px">${esc(state.correos.texto)}</div>
+    <div class="fe">Actualizado el ${f}</div></div>`;
+}
+
+// ---------- tabs ----------
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('active', x === b));
+  document.querySelectorAll('main section').forEach(s => s.classList.toggle('on', s.id === b.dataset.t));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+renderAlarmas(); renderApps(); renderCorreos(); tick();
+</script>
+</body>
+</html>

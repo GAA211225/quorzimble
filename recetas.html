@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#c1603f">
+<title>Cocina · Recetas y Lista de Compras</title>
+<style>
+  :root{
+    --terra:#c1603f; --terra-dark:#9d4a2e; --terra-pale:#fbeee8;
+    --olive:#6f7d4f; --olive-dark:#525d39;
+    --cream:#faf6ef; --cream-deep:#f2ead9; --card:#ffffff;
+    --text:#3a3229; --gray:#8d8474; --border:#e8dfcd;
+    --ok:#6f8f52; --warn:#c9a227;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Arial,sans-serif;
+    background:var(--cream);color:var(--text);-webkit-font-smoothing:antialiased;padding-bottom:80px;}
+  h1,h2,h3{font-family:Georgia,'Times New Roman',serif;font-weight:600;letter-spacing:-0.01em;}
+
+  header{background:linear-gradient(155deg,var(--terra-pale) 0%,var(--cream) 60%,var(--cream-deep) 100%);
+    padding:34px 20px 26px;text-align:center;border-bottom:1px solid var(--border);}
+  header .emoji{font-size:38px;display:block;margin-bottom:6px;}
+  header h1{font-size:32px;color:var(--terra-dark);}
+  header p{color:var(--gray);font-size:14px;margin-top:6px;}
+
+  nav.tabs{position:sticky;top:0;z-index:50;display:flex;background:rgba(250,246,239,.92);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);
+    overflow-x:auto;scrollbar-width:none;}
+  nav.tabs::-webkit-scrollbar{display:none;}
+  nav.tabs button{flex:1;min-width:110px;padding:14px 10px;border:none;background:transparent;
+    font-size:13.5px;font-weight:600;color:var(--gray);cursor:pointer;border-bottom:2.5px solid transparent;
+    transition:.2s;white-space:nowrap;}
+  nav.tabs button.active{color:var(--terra-dark);border-bottom-color:var(--terra);}
+
+  main{max-width:820px;margin:0 auto;padding:24px 18px 40px;}
+  section{display:none;} section.on{display:block;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:16px;}
+  .card h2{font-size:20px;margin-bottom:4px;}
+  .card .hint{color:var(--gray);font-size:13px;margin-bottom:14px;line-height:1.5;}
+
+  textarea{width:100%;min-height:220px;padding:14px;border:1px solid var(--border);border-radius:14px;
+    font-family:inherit;font-size:14.5px;line-height:1.6;color:var(--text);background:#fffdf9;resize:vertical;outline:none;}
+  textarea:focus{border-color:var(--terra);}
+  input[type=text]{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;
+    font-family:inherit;font-size:14.5px;background:#fffdf9;color:var(--text);outline:none;}
+  input[type=text]:focus{border-color:var(--terra);}
+
+  .btn{padding:12px 20px;border-radius:980px;border:none;font-size:14px;font-weight:600;cursor:pointer;
+    transition:.18s;font-family:inherit;}
+  .btn-main{background:var(--terra);color:#fff;}
+  .btn-main:hover{background:var(--terra-dark);}
+  .btn-ghost{background:transparent;color:var(--terra-dark);border:1px solid var(--terra);}
+  .btn-ghost:hover{background:var(--terra-pale);}
+  .btn-wa{background:#25D366;color:#fff;}
+  .btn-wa:hover{background:#1da851;}
+  .btn-sm{padding:7px 14px;font-size:12.5px;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .row.end{justify-content:flex-end;}
+  .mt{margin-top:14px;}
+
+  .cat{margin-bottom:20px;}
+  .cat h3{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--olive-dark);
+    font-family:inherit;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:7px;}
+  .cat h3 .n{background:var(--cream-deep);color:var(--gray);border-radius:980px;padding:1px 8px;font-size:11px;}
+
+  ul.items{list-style:none;}
+  ul.items li{display:flex;align-items:center;gap:11px;padding:11px 12px;background:var(--card);
+    border:1px solid var(--border);border-radius:13px;margin-bottom:7px;transition:.18s;}
+  ul.items li.done{opacity:.5;}
+  ul.items li.done .txt{text-decoration:line-through;}
+  ul.items li .txt{flex:1;font-size:14.5px;line-height:1.35;}
+  ul.items li .src{display:block;font-size:11.5px;color:var(--gray);margin-top:2px;}
+  ul.items li input[type=checkbox]{width:20px;height:20px;accent-color:var(--olive);cursor:pointer;flex-shrink:0;}
+  ul.items li .del{background:none;border:none;color:var(--gray);font-size:17px;cursor:pointer;padding:0 4px;line-height:1;}
+  ul.items li .del:hover{color:var(--terra);}
+
+  .recipe{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px 18px;margin-bottom:12px;}
+  .recipe .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .recipe h3{font-size:18px;margin-bottom:3px;}
+  .recipe .meta{font-size:12.5px;color:var(--gray);}
+  .badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:980px;white-space:nowrap;}
+  .badge.pend{background:var(--cream-deep);color:var(--gray);}
+  .badge.hecha{background:#e6f0dc;color:var(--olive-dark);}
+  .recipe details{margin-top:12px;}
+  .recipe summary{cursor:pointer;font-size:13px;color:var(--terra-dark);font-weight:600;}
+  .recipe .body{margin-top:10px;font-size:14px;line-height:1.65;white-space:pre-wrap;color:#514738;
+    border-top:1px solid var(--border);padding-top:10px;}
+
+  .sug{background:linear-gradient(150deg,var(--terra-pale),var(--card));border:1px solid var(--border);
+    border-radius:18px;padding:22px;text-align:center;margin-bottom:16px;}
+  .sug .k{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--terra);font-weight:700;}
+  .sug h2{font-size:26px;margin:8px 0 6px;color:var(--terra-dark);}
+  .sug p{color:var(--gray);font-size:14px;line-height:1.6;}
+  .sug .tags{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:12px;}
+  .sug .tags span{background:#fff;border:1px solid var(--border);border-radius:980px;padding:4px 12px;font-size:12px;color:var(--gray);}
+
+  .empty{text-align:center;color:var(--gray);padding:40px 20px;font-size:14px;line-height:1.6;}
+  .empty .e{font-size:34px;display:block;margin-bottom:10px;opacity:.6;}
+
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);
+    background:var(--text);color:#fff;padding:12px 22px;border-radius:980px;font-size:13.5px;
+    opacity:0;transition:.28s;z-index:200;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .stats{display:flex;gap:10px;margin-bottom:16px;}
+  .stats div{flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;}
+  .stats div b{display:block;font-size:22px;font-family:Georgia,serif;color:var(--terra-dark);}
+  .stats div span{font-size:11.5px;color:var(--gray);}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="emoji">🍲</span>
+  <h1>Mi Cocina</h1>
+  <p>Pega una receta · te armo la lista de compras</p>
+</header>
+
+<nav class="tabs">
+  <button data-t="pegar" class="active">Pegar receta</button>
+  <button data-t="lista">Lista de compras</button>
+  <button data-t="historial">Historial</button>
+  <button data-t="sugerencias">Sugerencias</button>
+</nav>
+
+<main>
+
+<section id="pegar" class="on">
+  <div class="card">
+    <h2>Pega tu receta</h2>
+    <p class="hint">Pega el texto completo tal cual te lo dio Claude. Detecto el nombre y los ingredientes automáticamente, y los mando a la lista de compras ya categorizados.</p>
+    <input type="text" id="nombreManual" placeholder="Nombre de la receta (opcional, si no lo detecto)">
+    <div class="mt"></div>
+    <textarea id="pegado" placeholder="Ejemplo:&#10;&#10;Pollo al limón&#10;&#10;Ingredientes:&#10;- 2 pechugas de pollo&#10;- 3 limones&#10;- 2 dientes de ajo&#10;- Sal y pimienta al gusto&#10;&#10;Preparación:&#10;1. Marina el pollo..."></textarea>
+    <div class="row mt">
+      <button class="btn btn-main" id="procesar">Procesar receta</button>
+      <button class="btn btn-ghost" id="limpiarPegado">Limpiar</button>
+    </div>
+  </div>
+  <div class="card" id="previewCard" style="display:none">
+    <h2 id="previewTitulo"></h2>
+    <p class="hint">Revisa y desmarca lo que ya tengas en casa. Solo lo marcado se agrega a la lista.</p>
+    <div id="previewIngredientes"></div>
+    <div class="row end mt">
+      <button class="btn btn-ghost btn-sm" id="cancelarPreview">Cancelar</button>
+      <button class="btn btn-main btn-sm" id="confirmar">Agregar a la lista</button>
+    </div>
+  </div>
+</section>
+
+<section id="lista">
+  <div class="row" style="justify-content:space-between;margin-bottom:16px">
+    <div>
+      <h2 style="font-size:22px">Lista de compras</h2>
+      <p style="font-size:13px;color:var(--gray)" id="resumenLista"></p>
+    </div>
+  </div>
+  <div class="row" style="margin-bottom:18px">
+    <input type="text" id="nuevoItem" placeholder="Agregar algo suelto…" style="flex:1;min-width:180px">
+    <button class="btn btn-ghost btn-sm" id="addItem">Agregar</button>
+  </div>
+  <div id="listaBody"></div>
+  <div class="row mt" id="listaAcciones" style="display:none">
+    <button class="btn btn-wa" id="compartirWA">Compartir por WhatsApp</button>
+    <button class="btn btn-ghost btn-sm" id="limpiarMarcados">Quitar marcados</button>
+    <button class="btn btn-ghost btn-sm" id="vaciarLista">Vaciar todo</button>
+  </div>
+</section>
+
+<section id="historial">
+  <div class="stats" id="stats"></div>
+  <div id="historialBody"></div>
+</section>
+
+<section id="sugerencias">
+  <div class="sug" id="sugHoy"></div>
+  <div class="card">
+    <h2>Cómo pedirle recetas a Claude</h2>
+    <p class="hint">Copia esta plantilla en el chat y pega aquí la respuesta:</p>
+    <div style="background:var(--cream-deep);border-radius:12px;padding:14px;font-size:13.5px;line-height:1.6;color:#514738">
+      "Dame la receta de <b>[platillo]</b> para <b>[N] personas</b>. Incluye una sección <b>Ingredientes</b> con cantidades y otra de <b>Preparación</b> paso a paso."
+    </div>
+    <div class="row mt">
+      <button class="btn btn-ghost btn-sm" id="copiarPlantilla">Copiar plantilla</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Otras ideas para hoy</h2>
+    <div id="otrasIdeas"></div>
+  </div>
+</section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LS = 'cocina-app-v1';
+let state = JSON.parse(localStorage.getItem(LS) || '{"lista":[],"recetas":[]}');
+const save = () => localStorage.setItem(LS, JSON.stringify(state));
+
+const toast = m => {
+  const t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+};
+
+// ---------- categorías ----------
+const CATS = [
+  ['Frutas y verduras','🥬',['jitomate','tomate','cebolla','ajo','chile','papa','zanahoria','lechuga','espinaca','brocoli','brócoli','calabaza','pepino','aguacate','limon','limón','naranja','manzana','platano','plátano','fresa','mango','piña','uva','pera','apio','cilantro','perejil','albahaca','champiñon','champiñón','hongo','elote','maiz','maíz','pimiento','morron','morrón','nopal','tomatillo','betabel','col','coliflor','ejote','chayote','camote','jengibre','poro','puerro','rabano','rábano','berenjena','durazno','melon','melón','sandia','sandía','kiwi','arandano','arándano','frambuesa','mora','coco','datil','dátil','higo','germinado','esparrago','espárrago','alcachofa','acelga','kale','arugula','arúgula','hierbabuena','menta','romero','tomillo','laurel','epazote','chalota','chalote']],
+  ['Carnes y pescados','🥩',['pollo','pechuga','muslo','res','carne','bistec','arrachera','molida','cerdo','puerco','chuleta','costilla','lomo','tocino','jamon','jamón','salchicha','chorizo','pavo','pescado','salmon','salmón','atun','atún','tilapia','camaron','camarón','mariscos','pulpo','calamar','mojarra','robalo','róbalo','cordero','pato','higado','hígado','chicharron','chicharrón','longaniza','pastor','carnitas','filete','sirloin','ribeye','milanesa']],
+  ['Lácteos y huevo','🥛',['leche','queso','crema','yogur','yoghurt','mantequilla','huevo','requeson','requesón','panela','manchego','oaxaca','mozzarella','parmesano','cheddar','gouda','ricotta','media crema','condensada','evaporada','nata','jocoque','cottage']],
+  ['Abarrotes y despensa','🥫',['arroz','frijol','lenteja','garbanzo','pasta','espagueti','spaghetti','fideo','macarron','macarrón','harina','azucar','azúcar','aceite','oliva','vinagre','atun lata','sardina','elote lata','puré','pure','salsa','catsup','ketchup','mayonesa','mostaza','miel','avena','cereal','granola','nuez','nueces','almendra','cacahuate','pistache','semilla','chia','chía','linaza','ajonjoli','ajonjolí','levadura','bicarbonato','polvo para hornear','maicena','fecula','fécula','caldo','consome','consomé','tostada','totopo','galleta','mermelada','cajeta','chocolate','cocoa','vainilla','gelatina','pan molido','tortilla','masa','nixtamal','soya','worcestershire','tabasco','sriracha','pesto','tahini','coco rallado','pasa','pasas']],
+  ['Especias y condimentos','🧂',['sal','pimienta','comino','oregano','orégano','paprika','pimenton','pimentón','curry','canela','clavo','nuez moscada','cardamomo','anis','anís','cúrcuma','curcuma','jengibre en polvo','ajo en polvo','cebolla en polvo','chile en polvo','sazonador','adobo','achiote','azafran','azafrán','hoja de laurel','condimento','especias']],
+  ['Panadería','🥖',['pan','bolillo','telera','baguette','croissant','bagel','tortilla de harina','pan de caja','pan integral','concha','hot dog','hamburguesa','pita','wrap','pan dulce','pastel','bizcocho']],
+  ['Congelados','🧊',['congelado','helado','nugget','papas a la francesa','verdura congelada','pizza congelada','hielo']],
+  ['Bebidas','🧃',['agua','jugo','refresco','cerveza','vino','tequila','ron','vodka','whisky','cafe','café','te ','té ','leche vegetal','almendras bebida','avena bebida','horchata','agua mineral','tonica','tónica','caldo de pollo líquido']],
+];
+const catDe = txt => {
+  const t = ' ' + txt.toLowerCase() + ' ';
+  let best = null, bestLen = 0;
+  for (const [nombre, icono, keys] of CATS)
+    for (const k of keys)
+      if (t.includes(k) && k.length > bestLen) { best = [nombre, icono]; bestLen = k.length; }
+  return best || ['Otros','🛒'];
+};
+
+// ---------- parser ----------
+const RUIDO = /^(ingredientes?|preparaci[oó]n|instrucciones|procedimiento|pasos?|elaboraci[oó]n|tiempo|porciones|rinde|dificultad|notas?|tips?|consejos?|para (la|el) |opcional:?)\s*:?\s*$/i;
+const NOTIENE = /^(sal y pimienta al gusto|al gusto|agua)$/i;
+
+function parsear(texto) {
+  const lineas = texto.split('\n').map(l => l.trim());
+  let titulo = '';
+  for (const l of lineas) {
+    if (!l) continue;
+    const limpio = l.replace(/^#+\s*/, '').replace(/\*\*/g, '').replace(/^[-•*]\s*/, '').trim();
+    if (limpio && !RUIDO.test(limpio) && limpio.length < 80) { titulo = limpio.replace(/[:.]$/, ''); break; }
+  }
+
+  const iIng = lineas.findIndex(l => /^\**\s*ingredientes?\b/i.test(l.replace(/^#+\s*/, '')));
+  const iPrep = lineas.findIndex((l, i) => i > iIng && /^\**\s*(preparaci[oó]n|instrucciones|procedimiento|pasos|elaboraci[oó]n|modo de)\b/i.test(l.replace(/^#+\s*/, '')));
+
+  let bloque;
+  if (iIng !== -1) bloque = lineas.slice(iIng + 1, iPrep === -1 ? lineas.length : iPrep);
+  else bloque = lineas.filter(l => /^[-•*]\s+/.test(l) || /^\d+\s*(g|kg|ml|l|taza|cda|cdta|pza|piezas?|dientes?)\b/i.test(l));
+
+  const ings = [];
+  for (let l of bloque) {
+    l = l.replace(/^[-•*]\s*/, '').replace(/^\d+[.)]\s+/, '').replace(/\*\*/g, '').replace(/^_+|_+$/g, '').trim();
+    if (!l || RUIDO.test(l) || NOTIENE.test(l)) continue;
+    if (l.length > 90) continue;
+    if (/^para (la|el|los|las)\b.*:$/i.test(l)) continue;
+    ings.push(l.replace(/[.;,]$/, ''));
+  }
+  return { titulo: titulo || 'Receta sin nombre', ingredientes: [...new Set(ings)], texto: texto.trim() };
+}
+
+// ---------- pegar ----------
+let pendiente = null;
+document.getElementById('procesar').onclick = () => {
+  const txt = document.getElementById('pegado').value.trim();
+  if (!txt) return toast('Pega primero una receta');
+  const r = parsear(txt);
+  const manual = document.getElementById('nombreManual').value.trim();
+  if (manual) r.titulo = manual;
+  if (!r.ingredientes.length) return toast('No encontré ingredientes — revisa que tenga una sección "Ingredientes"');
+  pendiente = r;
+  document.getElementById('previewTitulo').textContent = r.titulo;
+  document.getElementById('previewIngredientes').innerHTML =
+    '<ul class="items">' + r.ingredientes.map((ing, i) => {
+      const [c, ic] = catDe(ing);
+      return `<li><input type="checkbox" checked data-i="${i}"><span class="txt">${esc(ing)}<span class="src">${ic} ${c}</span></span></li>`;
+    }).join('') + '</ul>';
+  document.getElementById('previewCard').style.display = 'block';
+  document.getElementById('previewCard').scrollIntoView({ behavior: 'smooth' });
+};
+
+document.getElementById('cancelarPreview').onclick = () => {
+  document.getElementById('previewCard').style.display = 'none'; pendiente = null;
+};
+document.getElementById('limpiarPegado').onclick = () => {
+  document.getElementById('pegado').value = '';
+  document.getElementById('nombreManual').value = '';
+  document.getElementById('previewCard').style.display = 'none'; pendiente = null;
+};
+
+document.getElementById('confirmar').onclick = () => {
+  if (!pendiente) return;
+  const marcados = [...document.querySelectorAll('#previewIngredientes input:checked')].map(c => pendiente.ingredientes[+c.dataset.i]);
+  if (!marcados.length) return toast('Marca al menos un ingrediente');
+  const id = Date.now();
+  state.recetas.unshift({ id, titulo: pendiente.titulo, texto: pendiente.texto, fecha: new Date().toISOString(), hecha: false, ingredientes: pendiente.ingredientes });
+  for (const ing of marcados) {
+    if (state.lista.some(i => i.txt.toLowerCase() === ing.toLowerCase())) continue;
+    state.lista.push({ id: id + Math.random(), txt: ing, cat: catDe(ing)[0], receta: pendiente.titulo, done: false });
+  }
+  save(); render();
+  document.getElementById('limpiarPegado').click();
+  toast(`${marcados.length} ingredientes agregados`);
+  irA('lista');
+};
+
+// ---------- lista ----------
+document.getElementById('addItem').onclick = addSuelto;
+document.getElementById('nuevoItem').addEventListener('keydown', e => { if (e.key === 'Enter') addSuelto(); });
+function addSuelto() {
+  const el = document.getElementById('nuevoItem');
+  const v = el.value.trim(); if (!v) return;
+  state.lista.push({ id: Date.now() + Math.random(), txt: v, cat: catDe(v)[0], receta: '', done: false });
+  el.value = ''; save(); renderLista(); toast('Agregado');
+}
+
+function renderLista() {
+  const cont = document.getElementById('listaBody');
+  const acc = document.getElementById('listaAcciones');
+  if (!state.lista.length) {
+    cont.innerHTML = '<div class="empty"><span class="e">🛒</span>Tu lista está vacía.<br>Pega una receta y te la lleno sola.</div>';
+    acc.style.display = 'none';
+    document.getElementById('resumenLista').textContent = '';
+    return;
+  }
+  acc.style.display = 'flex';
+  const hechos = state.lista.filter(i => i.done).length;
+  document.getElementById('resumenLista').textContent = `${state.lista.length - hechos} pendientes · ${hechos} en el carrito`;
+
+  const orden = CATS.map(c => c[0]).concat('Otros');
+  const grupos = {};
+  for (const it of state.lista) (grupos[it.cat] = grupos[it.cat] || []).push(it);
+
+  cont.innerHTML = orden.filter(c => grupos[c]).map(c => {
+    const ic = (CATS.find(x => x[0] === c) || [, '🛒'])[1];
+    return `<div class="cat"><h3>${ic} ${c} <span class="n">${grupos[c].length}</span></h3><ul class="items">` +
+      grupos[c].map(it => `<li class="${it.done ? 'done' : ''}">
+        <input type="checkbox" ${it.done ? 'checked' : ''} onchange="toggleItem('${it.id}')">
+        <span class="txt">${esc(it.txt)}${it.receta ? `<span class="src">de: ${esc(it.receta)}</span>` : ''}</span>
+        <button class="del" onclick="delItem('${it.id}')">×</button></li>`).join('') + '</ul></div>';
+  }).join('');
+}
+
+window.toggleItem = id => { const i = state.lista.find(x => String(x.id) === id); if (i) { i.done = !i.done; save(); renderLista(); } };
+window.delItem = id => { state.lista = state.lista.filter(x => String(x.id) !== id); save(); renderLista(); };
+
+document.getElementById('limpiarMarcados').onclick = () => {
+  const n = state.lista.filter(i => i.done).length;
+  if (!n) return toast('No hay nada marcado');
+  state.lista = state.lista.filter(i => !i.done); save(); renderLista(); toast(`${n} quitados`);
+};
+document.getElementById('vaciarLista').onclick = () => {
+  if (!state.lista.length) return;
+  if (!confirm('¿Vaciar toda la lista de compras?')) return;
+  state.lista = []; save(); renderLista(); toast('Lista vacía');
+};
+
+document.getElementById('compartirWA').onclick = () => {
+  const pend = state.lista.filter(i => !i.done);
+  if (!pend.length) return toast('No hay pendientes que compartir');
+  const orden = CATS.map(c => c[0]).concat('Otros');
+  const grupos = {};
+  for (const it of pend) (grupos[it.cat] = grupos[it.cat] || []).push(it);
+  let msg = '*🛒 Lista de compras*\n';
+  for (const c of orden) {
+    if (!grupos[c]) continue;
+    const ic = (CATS.find(x => x[0] === c) || [, '🛒'])[1];
+    msg += `\n${ic} *${c}*\n` + grupos[c].map(i => `• ${i.txt}`).join('\n') + '\n';
+  }
+  const recetas = [...new Set(pend.map(i => i.receta).filter(Boolean))];
+  if (recetas.length) msg += `\n_Para: ${recetas.join(', ')}_`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+};
+
+// ---------- historial ----------
+function renderHistorial() {
+  const cont = document.getElementById('historialBody');
+  const st = document.getElementById('stats');
+  const hechas = state.recetas.filter(r => r.hecha).length;
+  st.innerHTML = `<div><b>${state.recetas.length}</b><span>guardadas</span></div>
+    <div><b>${hechas}</b><span>ya cocinadas</span></div>
+    <div><b>${state.recetas.length - hechas}</b><span>pendientes</span></div>`;
+
+  if (!state.recetas.length) {
+    cont.innerHTML = '<div class="empty"><span class="e">📖</span>Todavía no guardas recetas.<br>Las que pegues aparecerán aquí.</div>';
+    return;
+  }
+  cont.innerHTML = state.recetas.map(r => {
+    const f = new Date(r.fecha).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+    return `<div class="recipe">
+      <div class="top">
+        <div><h3>${esc(r.titulo)}</h3><div class="meta">${f} · ${r.ingredientes.length} ingredientes</div></div>
+        <span class="badge ${r.hecha ? 'hecha' : 'pend'}">${r.hecha ? '✓ Hecha' : 'Pendiente'}</span>
+      </div>
+      <div class="row mt">
+        <button class="btn ${r.hecha ? 'btn-ghost' : 'btn-main'} btn-sm" onclick="toggleHecha(${r.id})">${r.hecha ? 'Marcar pendiente' : 'Ya la hice'}</button>
+        <button class="btn btn-ghost btn-sm" onclick="reAgregar(${r.id})">Volver a comprar</button>
+        <button class="btn btn-ghost btn-sm" onclick="borrarReceta(${r.id})">Borrar</button>
+      </div>
+      <details><summary>Ver receta completa</summary><div class="body">${esc(r.texto)}</div></details>
+    </div>`;
+  }).join('');
+}
+
+window.toggleHecha = id => { const r = state.recetas.find(x => x.id === id); if (r) { r.hecha = !r.hecha; save(); renderHistorial(); toast(r.hecha ? '¡Buen provecho! 🍽️' : 'Marcada como pendiente'); } };
+window.borrarReceta = id => { if (!confirm('¿Borrar esta receta del historial?')) return; state.recetas = state.recetas.filter(x => x.id !== id); save(); renderHistorial(); };
+window.reAgregar = id => {
+  const r = state.recetas.find(x => x.id === id); if (!r) return;
+  let n = 0;
+  for (const ing of r.ingredientes) {
+    if (state.lista.some(i => i.txt.toLowerCase() === ing.toLowerCase())) continue;
+    state.lista.push({ id: Date.now() + Math.random(), txt: ing, cat: catDe(ing)[0], receta: r.titulo, done: false });
+    n++;
+  }
+  save(); renderLista(); toast(n ? `${n} ingredientes a la lista` : 'Ya estaban todos en la lista');
+  if (n) irA('lista');
+};
+
+// ---------- sugerencias ----------
+const IDEAS = [
+  { t: 'Pollo al limón con romero', d: 'Ligero, se hace en una sola sartén y sale en 25 minutos.', tags: ['Rápido', 'Alto en proteína'] },
+  { t: 'Tinga de pollo', d: 'Rinde para varios días y sabe mejor al día siguiente.', tags: ['Rinde', 'Mexicano'] },
+  { t: 'Salmón al horno con verduras', d: 'Charola única: pescado y guarnición al mismo tiempo.', tags: ['Horno', 'Omega 3'] },
+  { t: 'Chilaquiles verdes con huevo', d: 'Desayuno completo con lo que casi siempre hay en casa.', tags: ['Desayuno', 'Económico'] },
+  { t: 'Pasta al pesto con pollo', d: 'Treinta minutos y solo necesitas una olla y una sartén.', tags: ['Rápido', 'Italiano'] },
+  { t: 'Caldo de res con verduras', d: 'Para día frío o para recuperar. Se cocina solo.', tags: ['Reconfortante', 'Rinde'] },
+  { t: 'Bowl de arroz con atún y aguacate', d: 'Sin encender la estufa si tienes arroz del día anterior.', tags: ['Sin cocinar', 'Rápido'] },
+  { t: 'Enchiladas suizas', d: 'Buen destino para el pollo deshebrado que sobró.', tags: ['Aprovecha sobras', 'Mexicano'] },
+  { t: 'Tacos de camarón a la diabla', d: 'Picante, rápido y se siente de restaurante.', tags: ['Rápido', 'Mariscos'] },
+  { t: 'Sopa de lentejas con chorizo', d: 'Barata, llenadora y se congela bien en porciones.', tags: ['Económico', 'Congelable'] },
+  { t: 'Milanesas empanizadas con puré', d: 'Clásico de casa, siempre funciona.', tags: ['Clásico', 'Familiar'] },
+  { t: 'Curry de garbanzo con arroz', d: 'Vegetariano, casi todo de despensa.', tags: ['Vegetariano', 'Despensa'] },
+  { t: 'Fajitas de res con pimientos', d: 'Una sartén, mucho color, listo en 20 minutos.', tags: ['Rápido', 'Una sartén'] },
+  { t: 'Crema de calabaza', d: 'Suave y ligera, perfecta para cenar.', tags: ['Cena ligera', 'Vegetariano'] },
+];
+
+function renderSugerencias() {
+  const dia = Math.floor(Date.now() / 864e5);
+  const hoy = IDEAS[dia % IDEAS.length];
+  const fecha = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+  document.getElementById('sugHoy').innerHTML = `
+    <div class="k">Sugerencia de hoy · ${fecha}</div>
+    <h2>${hoy.t}</h2><p>${hoy.d}</p>
+    <div class="tags">${hoy.tags.map(t => `<span>${t}</span>`).join('')}</div>
+    <div class="row mt" style="justify-content:center">
+      <button class="btn btn-ghost btn-sm" onclick="copiarPrompt('${hoy.t.replace(/'/g, "\\'")}')">Copiar petición para Claude</button>
+    </div>`;
+
+  const otras = [1, 2, 3].map(o => IDEAS[(dia + o) % IDEAS.length]);
+  document.getElementById('otrasIdeas').innerHTML = otras.map(i => `
+    <div style="padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="font-weight:600;font-size:15px">${i.t}</div>
+      <div style="font-size:13px;color:var(--gray);margin-top:2px">${i.d}</div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="copiarPrompt('${i.t.replace(/'/g, "\\'")}')">Copiar petición</button>
+    </div>`).join('');
+}
+
+const plantilla = p => `Dame la receta de ${p} para 2 personas. Incluye una sección "Ingredientes" con cantidades y otra de "Preparación" paso a paso.`;
+window.copiarPrompt = p => { navigator.clipboard.writeText(plantilla(p)); toast('Copiado — pégalo en el chat con Claude'); };
+document.getElementById('copiarPlantilla').onclick = () => { navigator.clipboard.writeText(plantilla('[platillo]')); toast('Plantilla copiada'); };
+
+// ---------- tabs ----------
+function irA(t) {
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('active', b.dataset.t === t));
+  document.querySelectorAll('main section').forEach(s => s.classList.toggle('on', s.id === t));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => irA(b.dataset.t));
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const render = () => { renderLista(); renderHistorial(); renderSugerencias(); };
+render();
+</script>
+</body>
+</html>
