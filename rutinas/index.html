@@ -115,6 +115,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#0d0e12;color:#e8
 .chk-d{color:#60A5FA;font-weight:600;font-size:12px;}
 .chk-nota{font-size:11px;color:#8b93a3;font-style:italic;margin-top:2px;}
 .ex3d-btn{margin-left:8px;padding:2px 9px;border:1.5px solid #34363f;border-radius:12px;background:#21232b;color:#60A5FA;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.molestia-btn.on{background:rgba(251,146,60,.18);border-color:#FB923C;color:#FB923C;}
 .d3-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:120;display:flex;align-items:center;justify-content:center;padding:14px;}
 .d3-card{background:#16181d;border:1px solid #34363f;border-radius:16px;width:100%;max-width:460px;box-shadow:0 12px 44px rgba(0,0,0,.6);overflow:hidden;}
 .d3-hd{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:13px 15px;border-bottom:1px solid #262933;}
@@ -287,6 +288,13 @@ let perfil=JSON.parse(localStorage.getItem('rutinasPerfil')||'{}');
 let meta=JSON.parse(localStorage.getItem('rutinasMeta')||'null')||{inicioBF:33.6,actualBF:33.6,metaBF:15,deadline:'2026-10-31'};
 /* Mediciones corporales: [{f:'YYYY-MM-DD', kg:peso, bf:%grasa}] ordenadas de vieja a nueva */
 let pesos=JSON.parse(localStorage.getItem('rutinasPesos')||'[]');
+/* Metas de fuerza en los 3 básicos: a qué ejercicio de la rutina corresponde cada uno,
+   el peso objetivo y en cuántas semanas se quiere lograr. */
+let metasFuerza=JSON.parse(localStorage.getItem('rutinasMetasFuerza')||'null')||{
+ mapeo:{squat:'',bench:'',deadlift:''},
+ objetivo:{squat:null,bench:null,deadlift:null},
+ semanas:{squat:10,bench:10,deadlift:10}
+};
 let progMedida='kg';
 
 /* Migración: historial viejo {peso,hechas} → {sets:[{p,r}]} + vol */
@@ -352,7 +360,7 @@ else Object.keys(ses.dias).forEach(function(d){
  delete sd.pesos;
 });
 
-const LS_KEYS=['rutinasData','rutinasHist','rutinasUlt','rutinasPRs','rutinasSes','rutinasVista','rutinasPerfil','rutinasMeta','rutinasPesos','rutinasAutoT','rutinasBackup'];
+const LS_KEYS=['rutinasData','rutinasHist','rutinasUlt','rutinasPRs','rutinasSes','rutinasVista','rutinasPerfil','rutinasMeta','rutinasPesos','rutinasAutoT','rutinasBackup','rutinasMetasFuerza'];
 function saveAll(){
  if(onboarding)return; // no persistir hasta que elija plantilla
  localStorage.setItem('rutinasData',JSON.stringify(rutina));
@@ -364,6 +372,7 @@ function saveAll(){
  localStorage.setItem('rutinasPerfil',JSON.stringify(perfil));
  localStorage.setItem('rutinasMeta',JSON.stringify(meta));
  localStorage.setItem('rutinasPesos',JSON.stringify(pesos));
+ localStorage.setItem('rutinasMetasFuerza',JSON.stringify(metasFuerza));
 }
 saveAll(); // persiste las migraciones de formato al cargar
 
@@ -604,6 +613,7 @@ function renderNav(){
  });
  h+='<button class="nav-btn'+(vista===-1?' active':'')+'" onclick="setVista(-1)">📈 Progreso</button>';
  h+='<button class="nav-btn'+(vista===-3?' active':'')+'" onclick="setVista(-3)">🔥 Quema</button>';
+ h+='<button class="nav-btn'+(vista===-4?' active':'')+'" onclick="setVista(-4)">🎯 Metas</button>';
  h+='<button class="nav-btn'+(vista===-2?' active':'')+'" onclick="setVista(-2)">👤 Perfil</button>';
  nav.innerHTML=h;
 }
@@ -616,6 +626,7 @@ function render(){
  document.getElementById('btn-edit').style.display=(onboarding||vista<0)?'none':'';
  if(onboarding){c.innerHTML=renderOnboard();return;}
  if(vista===-3){c.innerHTML=renderQuema();return;}
+ if(vista===-4){c.innerHTML=renderMetas();return;}
  if(vista===-2){c.innerHTML=renderPerfil();return;}
  if(vista===-1){c.innerHTML=renderHist();return;}
  if(editMode){c.innerHTML=renderEdit();return;}
@@ -654,7 +665,8 @@ function render(){
     +'</div>';
   }
   h+='<div class="card'+(done?' done':'')+'">'
-   +'<div class="ex-hdr"><span class="ex-name">'+(done?'✅ ':'')+esc(ex.n)+(pr?'<span class="prb">🏆 '+fmt(pr.p)+'</span>':'')+'<button class="ex3d-btn" onclick="abrir3D(this.getAttribute(\'data-n\'))" data-n="'+esc(ex.n)+'">🧍 3D</button></span><span class="ex-meta">'+ex.s+' × '+esc(ex.r)+' · ⏱'+(ex.desc||90)+'s</span></div>'
+   +'<div class="ex-hdr"><span class="ex-name">'+(done?'✅ ':'')+esc(ex.n)+(pr?'<span class="prb">🏆 '+fmt(pr.p)+'</span>':'')+'<button class="ex3d-btn" onclick="abrir3D(this.getAttribute(\'data-n\'))" data-n="'+esc(ex.n)+'">🧍 3D</button>'
+   +'<button class="ex3d-btn molestia-btn'+(sd.molestia&&sd.molestia[i]?' on':'')+'" onclick="toggleMolestia('+i+')">⚠️'+(sd.molestia&&sd.molestia[i]?' Molestia':'')+'</button></span><span class="ex-meta">'+ex.s+' × '+esc(ex.r)+' · ⏱'+(ex.desc||90)+'s</span></div>'
    +rows
    +(ex.nota?'<p class="ex-nota">💡 '+esc(ex.nota)+'</p>':'')
    +'</div>';
@@ -681,6 +693,12 @@ function toggleSet(i,s){
  if(st.ok&&autoTimer){const ex=rutina[vista].ejercicios[i];startTimer(ex.desc||90);}
  render();
 }
+function toggleMolestia(i){
+ const sd=sesDia(vista);
+ if(!sd.molestia)sd.molestia={};
+ sd.molestia[i]=!sd.molestia[i];
+ saveAll();render();
+}
 function setVal(i,s,k,v){
  const sd=sesDia(vista);
  if(!sd.sets[i])sd.sets[i]=[];
@@ -698,7 +716,7 @@ function terminar(){
   const sets=[];
   arr.forEach(function(x){if(x&&x.ok)sets.push({p:x.p||'',r:x.r||''});});
   if(!sets.length)return;
-  regs.push({n:ex.n,sets:sets,total:ex.s,rec:recoDe(ex,sets)});
+  regs.push({n:ex.n,sets:sets,total:ex.s,rec:recoDe(ex,sets),molestia:!!(sd.molestia&&sd.molestia[i])});
   ultPesos[keyEx(ex.n)]={sets:sets};
   sets.forEach(function(s2){const p=parseFloat(s2.p),r=parseInt(s2.r);if(p&&r)vol+=p*r;});
  });
@@ -846,7 +864,7 @@ function renderHist(){
   h+='<div class="card"><div class="hist-hdr"><span class="hist-dia">'+esc(s.dia)+'</span><span class="hist-fecha">'+esc(s.fecha)+'</span></div>';
   s.ejercicios.forEach(function(e){
    const setsTxt=e.sets.map(function(st){return st.p?(fmt(parseFloat(st.p))+'×'+(st.r||'—')):'✓';}).join(', ');
-   h+='<div class="hist-row"><span>'+esc(e.n)+' <span style="color:#5b6270;">'+e.sets.length+'/'+e.total+'</span></span><span style="font-weight:600;color:#c7cbd4;">'+setsTxt+'</span></div>';
+   h+='<div class="hist-row"><span>'+esc(e.n)+(e.molestia?' <span style="color:#FB923C;">⚠️</span>':'')+' <span style="color:#5b6270;">'+e.sets.length+'/'+e.total+'</span></span><span style="font-weight:600;color:#c7cbd4;">'+setsTxt+'</span></div>';
   });
   if(s.vol)h+='<div style="font-size:12px;color:#FB7185;font-weight:700;margin-top:8px;">🏋️ Volumen: '+fmt(s.vol)+' kg</div>';
   h+='<div style="text-align:right;margin-top:8px;"><button class="btn-mini" onclick="borrarHist('+idx+')">🗑️ Borrar</button></div></div>';
@@ -965,6 +983,101 @@ function cardEstancamiento(){
   h+='<p style="font-size:12px;color:#a9b0bd;margin-top:10px;line-height:1.5;">Estancarte en déficit es normal y no es alarma. Mantén el peso y busca sumar reps. Si además empieza a <strong>bajar</strong> en varios ejercicios, ahí sí hay que aflojar el déficit.</p>';
  }
  return h+'</div>';
+}
+
+/* ===== 🎯 Metas de fuerza (sentadilla, banca, peso muerto) ===== */
+const LIFTS_META=[
+ {k:'squat',label:'🦵 Sentadilla libre',std:'sentadilla'},
+ {k:'bench',label:'🏋️ Press de banca libre',std:'press de banca'},
+ {k:'deadlift',label:'⚡ Peso muerto',std:'peso muerto'}
+];
+function setMapeoMeta(k,v){metasFuerza.mapeo[k]=v;saveAll();render();}
+function setObjetivoMeta(k,v){metasFuerza.objetivo[k]=parseFloat(v)||null;saveAll();render();}
+function setSemanasMeta(k,v){metasFuerza.semanas[k]=Math.max(1,Math.min(52,parseInt(v)||10));saveAll();render();}
+function renderMetas(){
+ let h='<div class="info">Pon una meta de peso para tus 3 básicos y te doy un plan semanal de sobrecarga progresiva <strong>realista</strong> para acercarte. Mejor una semana de más que forzar el peso y lesionarte.</div>';
+ const nombresDisponibles={};
+ Object.keys(prs).forEach(function(k){nombresDisponibles[k]=prs[k].n||k;});
+ rutina.forEach(function(d){d.ejercicios.forEach(function(e){nombresDisponibles[keyEx(e.n)]=e.n;});});
+ const opciones=Object.keys(nombresDisponibles).map(function(k){return {k:k,n:nombresDisponibles[k]};})
+  .sort(function(a,b){return a.n.localeCompare(b.n,'es');});
+
+ LIFTS_META.forEach(function(lift){
+  if(!metasFuerza.mapeo[lift.k]){
+   const match=opciones.find(function(o){
+    const s=keyEx(o.n);
+    if(s.indexOf(lift.std)<0)return false;
+    if(lift.k==='squat'&&(s.indexOf('frontal')>=0||s.indexOf('hack')>=0))return false;
+    if(lift.k==='deadlift'&&s.indexOf('ruman')>=0)return false;
+    return true;
+   });
+   if(match)metasFuerza.mapeo[lift.k]=match.k;
+  }
+  const exKey=metasFuerza.mapeo[lift.k];
+  const exNombre=exKey?(nombresDisponibles[exKey]||''):'';
+  const pr=exKey?prs[exKey]:null;
+  const actual=pr?parseFloat(pr.p):0;
+  const objetivo=metasFuerza.objetivo[lift.k];
+  const semanas=metasFuerza.semanas[lift.k]||10;
+
+  h+='<div class="card"><p class="sec-title">'+lift.label+'</p><div class="perfil-grid">'
+   +'<label>Ejercicio<select onchange="setMapeoMeta(\''+lift.k+'\',this.value)"><option value="">-- elegir --</option>'
+   +opciones.map(function(o){return '<option value="'+o.k+'"'+(o.k===exKey?' selected':'')+'>'+esc(o.n)+'</option>';}).join('')
+   +'</select></label>'
+   +'<label>Meta (kg)<input type="number" step="0.5" inputmode="decimal" value="'+(objetivo||'')+'" onchange="setObjetivoMeta(\''+lift.k+'\',this.value)"></label>'
+   +'<label>Semanas<input type="number" min="1" max="52" inputmode="numeric" value="'+semanas+'" onchange="setSemanasMeta(\''+lift.k+'\',this.value)"></label>'
+   +'</div>';
+
+  if(!exKey){h+='<p class="empty" style="padding:10px 0;">Elige a qué ejercicio de tu rutina corresponde este básico.</p></div>';return;}
+  if(!actual){h+='<p class="empty" style="padding:10px 0;">Aún no tienes un PR registrado en <strong>'+esc(exNombre)+'</strong>. Regístralo entrenando y vuelve aquí.</p></div>';return;}
+  if(!objetivo){h+='<p style="font-size:12px;color:#8b93a3;padding:6px 0;">Tu PR actual: <strong style="color:#e8e9ec;">'+fmt(actual)+' kg</strong>. Pon una meta arriba para ver tu plan semanal.</p></div>';return;}
+
+  const gap=objetivo-actual;
+  if(gap<=0){h+='<div class="hl">🎉 ¡Ya alcanzaste o superaste esta meta! Tu PR ('+fmt(actual)+' kg) ya llega o pasa de '+fmt(objetivo)+' kg. Pon una meta nueva más ambiciosa cuando quieras.</div></div>';return;}
+
+  // Ritmo semanal realista según tu nivel de fuerza (si hay perfil cargado)
+  let tasa=0.0075,nivelTxt=''; // 0.75%/semana por defecto (intermedio)
+  const std=stdDe(exNombre);
+  if(std&&perfilOk()){
+   const rm=est1RM(actual,pr.r);
+   const nv=nivelDe(rm,std);
+   if(nv){
+    const tasas=[0.015,0.0125,0.0075,0.004,0.002]; // principiante -> élite
+    tasa=tasas[Math.max(0,Math.min(4,nv.idx))];
+    nivelTxt=' · '+nivelTag(nv);
+   }
+  }
+  const incSemana=Math.max(0.5,Math.round(actual*tasa*2)/2);
+  const semanasNecesarias=Math.ceil(gap/incSemana);
+  const realista=semanasNecesarias<=semanas;
+
+  h+='<div class="metric"><span>PR actual</span><b>'+fmt(actual)+' kg'+nivelTxt+'</b></div>'
+   +'<div class="metric"><span>Meta</span><b>'+fmt(objetivo)+' kg (+'+fmt(gap)+' kg)</b></div>'
+   +'<div class="metric"><span>Ritmo realista para tu nivel</span><b>~+'+fmt(incSemana)+' kg/semana</b></div>'
+   +'<div class="metric"><span>Semanas que de verdad toma</span><b>'+semanasNecesarias+'</b></div>';
+
+  if(realista)h+='<p style="font-size:12.5px;color:#34D399;font-weight:700;margin-top:8px;line-height:1.5;">✅ Con '+semanas+' semanas llegas a tu meta a un ritmo sano.</p>';
+  else h+='<p style="font-size:12.5px;color:#FB923C;font-weight:700;margin-top:8px;line-height:1.5;">⏳ A un ritmo realista esto toma ~'+semanasNecesarias+' semanas, no '+semanas+'. No pasa nada — vas a necesitar más tiempo sin problema. Mejor eso que forzar el peso. Ajusta tus semanas arriba o ten paciencia.</p>';
+
+  // Última molestia registrada en este ejercicio
+  let ultimaMolestia=null;
+  for(let i=0;i<hist.length&&!ultimaMolestia;i++){
+   const e=hist[i].ejercicios.find(function(x){return keyEx(x.n)===exKey;});
+   if(e){if(e.molestia)ultimaMolestia=hist[i].fecha;break;}
+  }
+  if(ultimaMolestia)h+='<div class="hl" style="border-color:#FB7185;background:rgba(244,63,94,.10);color:#FB7185;margin-top:10px;">⚠️ Marcaste molestia la última vez que entrenaste esto ('+esc(ultimaMolestia)+'). <strong>No subas peso esta semana</strong> — repite el mismo peso o baja un poco, y solo avanza cuando entrenes sin dolor.</div>';
+
+  h+='<p class="sec-title" style="margin-top:12px;">Plan semanal</p>';
+  const topeSemanas=Math.min(semanasNecesarias,12);
+  for(let s=1;s<=topeSemanas;s++){
+   const pesoSem=Math.min(objetivo,Math.round((actual+incSemana*s)*2)/2);
+   h+='<div class="hist-row"><span>Semana '+s+'</span><span style="font-weight:700;color:#c7cbd4;">'+fmt(pesoSem)+' kg</span></div>';
+  }
+  if(semanasNecesarias>12)h+='<p style="font-size:11px;color:#5b6270;margin-top:6px;">Mostrando las primeras 12 semanas del plan.</p>';
+  h+='</div>';
+ });
+ h+='<p style="font-size:11px;color:#5b6270;margin-top:2px;">El ritmo semanal es una guía conservadora basada en tu nivel de fuerza estimado — no una promesa. Si sientes dolor (no solo fatiga muscular normal), marca "⚠️" en el ejercicio ese día: aquí se usará para decirte que mantengas el peso.</p>';
+ return h;
 }
 
 /* ===== 🔥 Quema de grasa ===== */
