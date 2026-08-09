@@ -97,8 +97,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
 <div class="nav">
   <button class="nav-btn active" data-page="compras" onclick="show('compras')">🛒 Compras</button>
   <button class="nav-btn" data-page="inventario" onclick="show('inventario')">📦 Inventario</button>
-  <button class="nav-btn" data-page="gym" onclick="show('gym')">🏋️ Día Gym</button>
-  <button class="nav-btn" data-page="descanso" onclick="show('descanso')">😴 Descanso</button>
+  <button class="nav-btn" data-page="plan" onclick="show('plan')">🍽️ Mi Plan</button>
   <button class="nav-btn" data-page="turno" onclick="show('turno')">🕐 Mi Turno</button>
   <button class="nav-btn" data-page="progreso" onclick="show('progreso')">📈 Progreso</button>
   <button class="nav-btn" data-page="supl" onclick="show('supl')">💊 Suplementos</button>
@@ -166,24 +165,17 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <div class="info"><strong>Con este inventario + lo que compras:</strong> tienes suficiente variedad para no repetir la misma comida dos veces seguidas en toda la semana. Eso es lo que hace sostenible el plan las 17 semanas.</div>
 </div>
 
-<!-- DÍA GYM -->
-<div id="p-gym" class="page">
-  <div id="gym-hdr"></div>
-  <div id="gym-comidas"></div>
-  <div id="gym-total"></div>
-</div>
-
-<!-- DÍA DESCANSO -->
-<div id="p-descanso" class="page">
-  <div id="desc-hdr"></div>
-  <div id="desc-comidas"></div>
-  <div id="desc-total"></div>
+<!-- MI PLAN -->
+<div id="p-plan" class="page">
+  <div id="plan-hdr"></div>
+  <div id="plan-comidas"></div>
+  <div id="plan-pie"></div>
 </div>
 
 <!-- MI TURNO -->
 <div id="p-turno" class="page">
   <p class="sec-title">Mi turno — acomoda comidas y sueño</p>
-  <div class="info">Elige tu turno de esta semana. Las <strong>comidas son las mismas</strong> — aquí se acomoda el <strong>horario</strong> y tu ventana de sueño. Los horarios de Día Gym, Descanso y Mi Cocina se ajustan solos con esta elección.</div>
+  <div class="info">Elige tu turno de esta semana. Las <strong>comidas son las mismas</strong> — aquí se acomoda el <strong>horario</strong> y tu ventana de sueño. Los horarios de Mi Plan y Mi Cocina se ajustan solos con esta elección.</div>
   <div class="seg" id="turno-seg">
     <button class="seg-btn" data-turno="noche" onclick="setTurno('noche')">🌙 Noche</button>
     <button class="seg-btn" data-turno="tarde" onclick="setTurno('tarde')">🌆 Tarde</button>
@@ -323,166 +315,69 @@ let turnoActual=localStorage.getItem('turnoActual')||'noche';
 if(!TURNOS[turnoActual])turnoActual='dia';
 function horaDe(slot){return HORAS_FIJAS[slot]||TURNOS[turnoActual].horas[slot]||'';}
 
-/* ================= PLAN DE COMIDAS (datos) =================
-   Los totales se calculan sumando estas comidas, así nunca se descuadran.
-   `ajustable` permite cambiar los gramos de la proteína principal: los macros
-   se recalculan sumando/restando la diferencia con `por100`. */
-const CERDO100={P:20.5,HC:0,L:6,kcal:143}; /* cerdo magro, crudo, por 100 g */
-function cocido(g){return Math.round(g*0.72);}
+/* ================= PLAN PROFESIONAL (del nutriólogo) =================
+   Mismo menú todos los días. Se maneja por PORCIONES / equivalencias, tal como
+   lo entregó el nutriólogo — sin inventar calorías. En comida y cena se puede
+   cambiar pollo por puerco con la porción equivalente. */
+function cocido(g){return Math.round(g*0.72);} /* usado por Mi Cocina */
 
-const PLAN={
- gym:{
-  titulo:'Día de entrenamiento',objetivo:2062,
-  comidas:[
-   {id:'g-cafe',slot:'cafe',ic:'☕',n:'Café de la mañana',borde:'#854F0B',
-    items:['<strong>Café</strong> — mayormente agua','<strong>3 cucharadas de leche Lala</strong> (~45 ml)','<strong>1 cucharadita de miel multiflora</strong> 100% orgánica (~7g)'],
-    P:2,HC:8,L:1,kcal:50,
-    nota:'💡 Muy ligero. La miel da dulzor natural sin disparar el día. Evita azúcar de mesa y cremas saborizadas — ahí se esconden las calorías.'},
-   {id:'g-desayuno',slot:'desayuno',ic:'🌅',n:'Desayuno',
-    items:['<strong>3 huevos enteros</strong> revueltos con nopales y chile poblano','<strong>1 taza leche Lala</strong> (240 ml)','<strong>150g papaya o piña</strong>'],
-    P:26,HC:29,L:20,kcal:410,
-    nota:'💡 Nopal con chile poblano sacia mucho a pocas calorías. El queso panela lo dejamos para la comida y así no se doblan los lípidos del día.'},
-   {id:'g-snack',slot:'snack',ic:'🍙',n:'Snack — Bolitas de arroz',
-    items:['<strong>1.5 latas atún Tuny</strong> drenado','<strong>1 taza arroz cocido</strong> (~180g)','<strong>Aderezo:</strong> poca crema + Valentina/Tapatío + limón','<strong>Ensalada:</strong> pepino + zanahoria + jitomate al lado'],
-    P:42,HC:45,L:7,kcal:410,
-    nota:'💡 El aderezo de crema + salsa compensa los lípidos del día.'},
-   {id:'g-comida',slot:'comida',ic:'🍛',n:'Comida',
-    ajustable:{nombre:'Cerdo',base:180,min:60,max:300,paso:10,por100:CERDO100,
-     texto:function(g){return '<strong>'+g+'g cerdo en crudo</strong> (~'+cocido(g)+'g ya cocido) a la plancha con ajo, comino y chile';}},
-    items:['<strong>½ elote</strong> o <strong>½ taza arroz</strong>','<strong>Ensalada:</strong> lechuga, jitomate, zanahoria, limón','<strong>30g queso panela</strong>'],
-    P:42,HC:30,L:19,kcal:460,
-    nota:'💡 Alterna elote y arroz para no repetir todos los días. ⚖️ Todas las carnes se pesan <strong>en crudo</strong>; al cocinarse pierden ~25-30%. Sin báscula: una porción del tamaño y grosor de tu palma.'},
-   {id:'g-pre',slot:'pre',ic:'💜',n:'Pre-entreno',borde:'#7F77DD',
-    items:['<strong>1 lata atún Tuny</strong> drenado','<strong>½ taza arroz cocido</strong>','<strong>1 plátano mediano</strong>'],
-    P:25,HC:49,L:2,kcal:320,
-    nota:'⚠️ Sin lípidos altos — digiere rápido y no te pesará en el gym.'},
-   {id:'g-post',slot:'post',ic:'💚',n:'Post-entreno',borde:'#1D9E75',
-    items:['<strong>1 taza leche Lala</strong> (240 ml) al llegar a casa'],
-    P:8,HC:12,L:5,kcal:130,
-    nota:'💡 Sin galletas. La leche sola aporta suero + caseína natural — proteína completa y de calidad, y así el día cae dentro del objetivo.'},
-   {id:'g-cena',slot:'cena',ic:'🌙',n:'Cena',
-    ajustable:{nombre:'Cerdo',base:120,min:60,max:250,paso:10,por100:CERDO100,
-     texto:function(g){return '<strong>'+g+'g cerdo en crudo</strong> (~'+cocido(g)+'g ya cocido) a la plancha';}},
-    items:['<strong>Rajas de chile poblano</strong> con cebolla salteadas','<strong>Ensalada:</strong> lechuga, pepino, zanahoria, limón'],
-    P:32,HC:12,L:9,kcal:255,
-    nota:'💡 Cena ligera en HC. Rajas con cerdo = rápido, sabroso, sin arroz necesario.'}
-  ]
- },
- descanso:{
-  titulo:'Día de descanso',objetivo:1940,
-  comidas:[
-   {id:'d-cafe',slot:'cafe',ic:'☕',n:'Café de la mañana',borde:'#854F0B',
-    items:['<strong>Café</strong> — mayormente agua','<strong>3 cucharadas de leche Lala</strong> (~45 ml)','<strong>1 cucharadita de miel multiflora</strong> 100% orgánica (~7g)'],
-    P:2,HC:8,L:1,kcal:50,
-    nota:'💡 Muy ligero. Evita azúcar de mesa y cremas saborizadas.'},
-   {id:'d-desayuno',slot:'desayuno',ic:'🌅',n:'Desayuno',
-    items:['<strong>3 huevos enteros</strong> con nopales, jitomate y chile','<strong>1 taza leche Lala</strong>','<strong>150g papaya</strong>'],
-    P:32,HC:30,L:20,kcal:420},
-   {id:'d-snack',slot:'snack',ic:'🍙',n:'Snack',
-    items:['<strong>1.5 latas atún Tuny</strong> drenado','<strong>1 taza arroz cocido</strong>','<strong>Ensalada:</strong> zanahoria, pepino, limón'],
-    P:46,HC:44,L:2,kcal:380},
-   {id:'d-comida',slot:'comida',ic:'🍛',n:'Comida',
-    ajustable:{nombre:'Cerdo',base:200,min:60,max:320,paso:10,por100:CERDO100,
-     texto:function(g){return '<strong>'+g+'g cerdo en crudo</strong> (~'+cocido(g)+'g ya cocido) al horno con ajo y limón';}},
-    items:['<strong>½ elote</strong> o <strong>½ taza arroz</strong>','<strong>Ensalada abundante:</strong> lechuga, jitomate, pepino, zanahoria','<strong>30g queso panela</strong>'],
-    P:58,HC:35,L:22,kcal:565},
-   {id:'d-merienda',slot:'merienda',ic:'🍎',n:'Merienda',
-    items:['<strong>2 huevos cocidos</strong>','<strong>150g piña o plátano</strong>','<strong>30g queso panela</strong>'],
-    P:20,HC:28,L:15,kcal:320,
-    nota:'💡 Piña + queso panela = snack de ~160 kcal listo en 30 segundos.'},
-   {id:'d-cena',slot:'cena',ic:'🌙',n:'Cena',
-    items:['<strong>1 lata atún Tuny</strong> drenado','<strong>Rajas de chile poblano</strong> con cebolla','<strong>Ensalada:</strong> lechuga, zanahoria, limón','<strong>30g queso panela</strong>'],
-    P:36,HC:10,L:8,kcal:255}
-  ]
- }
+const PROTS={
+ pollo:{lbl:'🐔 Pollo',item:'<strong>90 g de Pechuga de pollo</strong>'},
+ puerco:{lbl:'🐖 Puerco',item:'<strong>120 g de Pierna de cerdo</strong>'}
 };
+let proteinas=ls('proteinas',{});
+function protDe(id){return proteinas[id]==='puerco'?'puerco':'pollo';}
+function setProt(id,val){proteinas[id]=val;save('proteinas',proteinas);renderPlan();}
 
-/* ---- Porciones ajustables ---- */
-let porciones=ls('porciones',{});
-function gramosDe(m){
- if(!m.ajustable)return 0;
- const g=porciones[m.id];
- return (typeof g==='number'&&isFinite(g))?g:m.ajustable.base;
-}
-function ajustar(planKey,mealId,delta){
- const m=PLAN[planKey].comidas.find(c=>c.id===mealId);
- if(!m||!m.ajustable)return;
- const a=m.ajustable;
- let g=gramosDe(m)+delta;
- g=Math.max(a.min,Math.min(a.max,g));
- porciones[mealId]=g;save('porciones',porciones);
- renderPlan(planKey);
-}
-function resetPorcion(planKey,mealId){
- delete porciones[mealId];save('porciones',porciones);renderPlan(planKey);
-}
-function macrosDe(m){
- let P=m.P,HC=m.HC,L=m.L,kcal=m.kcal;
- if(m.ajustable){
-  const d=(gramosDe(m)-m.ajustable.base)/100,a=m.ajustable.por100;
-  P+=d*a.P;HC+=d*a.HC;L+=d*a.L;kcal+=d*a.kcal;
- }
- return {P:Math.round(P),HC:Math.round(HC),L:Math.round(L),kcal:Math.round(kcal)};
-}
-function totalesDe(planKey){
- let P=0,HC=0,L=0,kcal=0;
- PLAN[planKey].comidas.forEach(m=>{
-  if(m.opcional)return;
-  const x=macrosDe(m);P+=x.P;HC+=x.HC;L+=x.L;kcal+=x.kcal;
- });
- return {P,HC,L,kcal};
-}
+const PLAN=[
+ {id:'desayuno',slot:'desayuno',ic:'🍳',n:'Desayuno · Huevos a la mexicana',
+  items:['<strong>3 huevos enteros</strong>','<strong>3 tortillas de maíz</strong>','<strong>2 cucharaditas de aceite</strong>','<strong>½ pieza de jitomate</strong>','<strong>¼ taza de cebolla</strong> morada o blanca','sal y pimienta']},
+ {id:'colacion1',slot:'snack',ic:'🥒',n:'Colación 1 · Pepino con piña',
+  items:['<strong>2 tazas de piña picada</strong>','<strong>1 taza de pepino rebanado</strong>']},
+ {id:'comida',slot:'comida',ic:'🍛',n:'Comida · Estofado con arroz',swap:true,
+  items:['<strong>¾ taza de arroz cocido</strong>','<strong>3 cucharaditas de aceite</strong>','<strong>½ taza de zanahoria</strong> cruda picada/rallada','<strong>1 jitomate</strong>','<strong>¼ de cebolla chica</strong>','<strong>1 diente de ajo</strong>','<strong>½ taza de caldo</strong> (de pollo)','orégano en polvo, sal y pimienta']},
+ {id:'colacion2',slot:'merienda',ic:'🍍',n:'Colación 2 · Piña',
+  items:['<strong>2 tazas de piña picada</strong>']},
+ {id:'cena',slot:'cena',ic:'🌮',n:'Cena · Tacos con frijoles',swap:true,
+  items:['<strong>2 tortillas de maíz</strong>','<strong>2 cucharaditas de aceite</strong>','<strong>1 taza de frijol cocido</strong>','<strong>Pico de gallo:</strong> ½ jitomate + ¼ taza de cebolla + 1 cda de cilantro']}
+];
 
 /* ---- Comidas hechas (se reinicia cada día) ---- */
 let comidasHechas=ls('comidasHechas',null);
 if(!comidasHechas||comidasHechas.fecha!==hoyIso){comidasHechas={fecha:hoyIso};save('comidasHechas',comidasHechas);}
-function toggleComida(planKey,id){
- comidasHechas[id]=!comidasHechas[id];save('comidasHechas',comidasHechas);renderPlan(planKey);
-}
+function toggleComida(id){comidasHechas[id]=!comidasHechas[id];save('comidasHechas',comidasHechas);renderPlan();}
 
-function renderPlan(planKey){
- const pre=planKey==='gym'?'gym':'desc';
- const cont=document.getElementById(pre+'-comidas');
+function renderPlan(){
+ const cont=document.getElementById('plan-comidas');
  if(!cont)return;
- const D=PLAN[planKey],T=totalesDe(planKey);
- const oblig=D.comidas.filter(m=>!m.opcional);
- const hechas=oblig.filter(m=>comidasHechas[m.id]).length;
+ const hechas=PLAN.filter(function(m){return comidasHechas[m.id];}).length;
+ document.getElementById('plan-hdr').innerHTML=
+  '<div class="hl" style="margin-bottom:12px;">🍽️ <strong>Mi plan del día</strong> — plan del nutriólogo, el mismo todos los días.'
+  +'<br><span style="font-size:12px;">🕐 Horarios de <strong>'+TURNOS[turnoActual].label+'</strong> · ✅ '+hechas+' de '+PLAN.length+' comidas hechas hoy</span></div>';
 
- document.getElementById(pre+'-hdr').innerHTML=
-  '<div class="hl" style="margin-bottom:12px;">'+D.titulo+' — <strong>~'+T.kcal.toLocaleString('es-MX')+' kcal</strong> · P:~'+T.P+'g · HC:~'+T.HC+'g · L:~'+T.L+'g'
-  +'<br><span style="font-size:12px;">🕐 Horarios de <strong>'+TURNOS[turnoActual].label+'</strong> · ✅ '+hechas+' de '+oblig.length+' comidas hechas hoy</span></div>';
-
- cont.innerHTML=D.comidas.map(m=>{
-  const x=macrosDe(m),hecha=!!comidasHechas[m.id];
-  const borde=m.borde?'border:1.5px solid '+m.borde+';':'';
-  let items='';
-  if(m.ajustable)items+='<li>'+m.ajustable.texto(gramosDe(m))+'</li>';
-  items+=m.items.map(i=>'<li>'+i+'</li>').join('');
-  let h='<div class="card'+(hecha?' done':'')+'" style="'+borde+'">'
+ cont.innerHTML=PLAN.map(function(m){
+  const hecha=!!comidasHechas[m.id];
+  let lis='';
+  if(m.swap)lis+='<li>'+PROTS[protDe(m.id)].item+'</li>';
+  lis+=m.items.map(function(i){return '<li>'+i+'</li>';}).join('');
+  let h='<div class="card'+(hecha?' done':'')+'">'
    +'<div class="meal-hdr"><span class="meal-name">'+m.ic+' '+m.n+'</span><span class="meal-time">'+horaDe(m.slot)+'</span></div>'
-   +'<ul class="food-list">'+items+'</ul>'
-   +'<div class="macro-row"><span class="pill p-blue">P: ~'+x.P+'g</span><span class="pill p-amber">HC: ~'+x.HC+'g</span><span class="pill p-teal">L: ~'+x.L+'g</span><span class="pill p-coral">~'+x.kcal+' kcal</span></div>';
-  if(m.ajustable){
-   const g=gramosDe(m),a=m.ajustable;
-   h+='<div class="step"><span class="step-lbl">⚖️ '+a.nombre+' (crudo)</span>'
-    +'<button class="step-btn" onclick="ajustar(\''+planKey+'\',\''+m.id+'\',-'+a.paso+')" aria-label="Menos">−</button>'
-    +'<span class="step-val">'+g+' g</span>'
-    +'<button class="step-btn" onclick="ajustar(\''+planKey+'\',\''+m.id+'\','+a.paso+')" aria-label="Más">+</button>';
-   if(g!==a.base)h+='<button class="btn-sec" style="padding:5px 9px;font-size:11px;" onclick="resetPorcion(\''+planKey+'\',\''+m.id+'\')">↺ '+a.base+'g</button>';
-   h+='</div>';
+   +'<ul class="food-list">'+lis+'</ul>';
+  if(m.swap){
+   const p=protDe(m.id);
+   h+='<div class="seg" style="margin:6px 0 2px;">'
+    +'<button class="seg-btn'+(p==='pollo'?' active':'')+'" onclick="setProt(\''+m.id+'\',\'pollo\')">'+PROTS.pollo.lbl+' · 90 g</button>'
+    +'<button class="seg-btn'+(p==='puerco'?' active':'')+'" onclick="setProt(\''+m.id+'\',\'puerco\')">'+PROTS.puerco.lbl+' · 120 g</button>'
+    +'</div><p class="note">🔁 Cambia la proteína si quieres. Porción equivalente del plan: <strong>90 g de pollo ≈ 120 g de pierna de cerdo</strong>.</p>';
   }
   if(m.nota)h+='<p class="note">'+m.nota+'</p>';
-  h+='<button class="supl-toggle'+(hecha?' done':'')+'" onclick="toggleComida(\''+planKey+'\',\''+m.id+'\')">'+(hecha?'✅ Ya me la comí':'⏳ Marcar como hecha')+'</button>';
+  h+='<button class="supl-toggle'+(hecha?' done':'')+'" onclick="toggleComida(\''+m.id+'\')">'+(hecha?'✅ Ya me la comí':'⏳ Marcar como hecha')+'</button>';
   h+='</div>';
   return h;
  }).join('');
 
- const dif=T.kcal-D.objetivo;
- const sig=dif>0?'+':'';
- document.getElementById(pre+'-total').innerHTML=
-  '<div class="total-bar"><span style="font-weight:700;">Total '+(planKey==='gym'?'día gym':'día descanso')+'</span>'
-  +'<div><span class="pill p-blue">P: ~'+T.P+'g</span><span class="pill p-amber">HC: ~'+T.HC+'g</span><span class="pill p-teal">L: ~'+T.L+'g</span><span class="pill p-coral">~'+T.kcal.toLocaleString('es-MX')+' kcal</span></div></div>'
-  +'<p style="font-size:11px;color:#6b7280;margin-top:6px;">Objetivo: ~'+D.objetivo.toLocaleString('es-MX')+' kcal · vas <strong>'+sig+dif+' kcal</strong>. Los totales se calculan sumando las comidas de arriba, así que siempre cuadran.</p>';
+ document.getElementById('plan-pie').innerHTML=
+  '<div class="info">Plan profesional manejado por <strong>porciones / equivalencias</strong> (no por calorías). Respeta las cantidades tal cual. Este es el mismo menú los 7 días; en comida y cena eliges pollo o puerco.</div>';
 }
 
 /* ================= SUPLEMENTOS ================= */
@@ -514,7 +409,7 @@ function renderSupl(){
 function setTurno(id){
  if(!TURNOS[id])return;
  turnoActual=id;localStorage.setItem('turnoActual',id);
- renderTurno();renderSupl();renderPlan('gym');renderPlan('descanso');
+ renderTurno();renderSupl();renderPlan();
  if(window.syncTurnoRemoto)window.syncTurnoRemoto(id);
 }
 function renderTurno(){
@@ -840,9 +735,8 @@ function generarDia(){
   if(items.length)meals.push({ic:'🌙',n:'Cena',t:horaDe('cena'),items:items,saz:saz,nota:'💡 Cena ligera en HC — la proteína y verdura sacian sin frenar el déficit.'});
  })();
  /* Render */
- const T=totalesDe(tipoDia==='gym'?'gym':'descanso');
  let h=alerts.join('');
- h+='<div class="hl" style="margin-bottom:12px;">Menú de hoy — '+(tipoDia==='gym'?'🏋️ día de gym':'😴 día de descanso')+' (~'+T.kcal.toLocaleString('es-MX')+' kcal objetivo) · horarios de '+TURNOS[turnoActual].label+'</div>';
+ h+='<div class="hl" style="margin-bottom:12px;">Menú improvisado con lo que tienes — '+(tipoDia==='gym'?'🏋️ día con entreno':'😴 día sin entreno')+' · horarios de '+TURNOS[turnoActual].label+'</div>';
  meals.forEach(function(m){
   h+='<div class="card"><div class="meal-hdr"><span class="meal-name">'+m.ic+' '+m.n+'</span><span class="meal-time">'+m.t+'</span></div><ul class="food-list">'+m.items.map(function(i){return '<li>'+i+'</li>';}).join('')+'</ul>';
   const s=(m.saz||[]).filter(Boolean);
@@ -860,8 +754,7 @@ function generarDia(){
 renderChips();
 syncSegUI();
 renderLinkRutina();
-renderPlan('gym');
-renderPlan('descanso');
+renderPlan();
 renderSupl();
 renderTurno();
 renderProgreso();
