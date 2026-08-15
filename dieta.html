@@ -329,18 +329,41 @@ let proteinas=ls('proteinas',{});
 function protDe(id){return proteinas[id]==='puerco'?'puerco':'pollo';}
 function setProt(id,val){proteinas[id]=val;save('proteinas',proteinas);renderPlan();}
 
+/* Cada comida tiene una o varias OPCIONES intercambiables. La primera es la
+   del plan del nutriólogo; las demás las va agregando el usuario. Cada opción
+   puede tener pasos de preparación (`prep`) y su propio switch pollo/puerco. */
 const PLAN=[
- {id:'desayuno',slot:'desayuno',ic:'🍳',n:'Desayuno · Huevos a la mexicana',
-  items:['<strong>3 huevos enteros</strong>','<strong>3 tortillas de maíz</strong>','<strong>2 cucharaditas de aceite</strong>','<strong>½ pieza de jitomate</strong>','<strong>¼ taza de cebolla</strong> morada o blanca','sal y pimienta']},
- {id:'colacion1',slot:'snack',ic:'🥒',n:'Colación 1 · Pepino con piña',
-  items:['<strong>2 tazas de piña picada</strong>','<strong>1 taza de pepino rebanado</strong>']},
- {id:'comida',slot:'comida',ic:'🍛',n:'Comida · Estofado con arroz',swap:true,
-  items:['<strong>¾ taza de arroz cocido</strong>','<strong>3 cucharaditas de aceite</strong>','<strong>½ taza de zanahoria</strong> cruda picada/rallada','<strong>1 jitomate</strong>','<strong>¼ de cebolla chica</strong>','<strong>1 diente de ajo</strong>','<strong>½ taza de caldo</strong> (de pollo)','orégano en polvo, sal y pimienta']},
- {id:'colacion2',slot:'merienda',ic:'🍍',n:'Colación 2 · Piña',
-  items:['<strong>2 tazas de piña picada</strong>']},
- {id:'cena',slot:'cena',ic:'🌮',n:'Cena · Tacos con frijoles',swap:true,
-  items:['<strong>2 tortillas de maíz</strong>','<strong>2 cucharaditas de aceite</strong>','<strong>1 taza de frijol cocido</strong>','<strong>Pico de gallo:</strong> ½ jitomate + ¼ taza de cebolla + 1 cda de cilantro']}
+ {id:'desayuno',slot:'desayuno',slotLbl:'Desayuno',opciones:[
+   {ic:'🍳',n:'Huevos a la mexicana',
+    items:['<strong>3 huevos enteros</strong>','<strong>3 tortillas de maíz</strong>','<strong>2 cucharaditas de aceite</strong>','<strong>½ pieza de jitomate</strong>','<strong>¼ taza de cebolla</strong> morada o blanca','sal y pimienta']},
+   {ic:'🥧',n:'Tartita de huevo con atún',
+    items:['<strong>3 huevos enteros</strong>','<strong>1 lata de atún</strong> en agua, drenado','<strong>3 tortillas de maíz</strong>','<strong>2 cucharaditas de aceite</strong>','<strong>½ pieza de jitomate</strong> picado','<strong>¼ taza de cebolla</strong> picada','sal, pimienta y cilantro al gusto'],
+    prep:['Bate los 3 huevos con una pizca de sal y pimienta.','Sofríe la cebolla y el jitomate en 1 cucharadita de aceite hasta que suavicen (~3 min).','Agrega el atún drenado y mezcla 1 minuto.','Vierte el huevo batido encima, tapa a fuego bajo (o vacíalo en un molde con la otra cucharadita de aceite y hornéalo) hasta que cuaje, ~8-10 min.','Sirve la tartita con las 3 tortillas.'],
+    nota:'🐟 Esta versión añade 1 lata de atún al desayuno (más proteína que la mexicana). Si tu nutriólogo cuida ese aporte, confírmalo o retira 1 huevo.'}
+ ]},
+ {id:'colacion1',slot:'snack',slotLbl:'Colación 1',opciones:[
+   {ic:'🥒',n:'Pepino con piña',
+    items:['<strong>2 tazas de piña picada</strong>','<strong>1 taza de pepino rebanado</strong>']}
+ ]},
+ {id:'comida',slot:'comida',slotLbl:'Comida',opciones:[
+   {ic:'🍛',n:'Estofado con arroz',swap:true,
+    items:['<strong>¾ taza de arroz cocido</strong>','<strong>3 cucharaditas de aceite</strong>','<strong>½ taza de zanahoria</strong> cruda picada/rallada','<strong>1 jitomate</strong>','<strong>¼ de cebolla chica</strong>','<strong>1 diente de ajo</strong>','<strong>½ taza de caldo</strong> (de pollo)','orégano en polvo, sal y pimienta']}
+ ]},
+ {id:'colacion2',slot:'merienda',slotLbl:'Colación 2',opciones:[
+   {ic:'🍍',n:'Piña',
+    items:['<strong>2 tazas de piña picada</strong>']}
+ ]},
+ {id:'cena',slot:'cena',slotLbl:'Cena',opciones:[
+   {ic:'🌮',n:'Tacos con frijoles',swap:true,
+    items:['<strong>2 tortillas de maíz</strong>','<strong>2 cucharaditas de aceite</strong>','<strong>1 taza de frijol cocido</strong>','<strong>Pico de gallo:</strong> ½ jitomate + ¼ taza de cebolla + 1 cda de cilantro']}
+ ]}
 ];
+
+/* ---- Opción elegida por comida ---- */
+let opcionSel=ls('opcionSel',{});
+function opIdx(m){const i=opcionSel[m.id];return (typeof i==='number'&&i>=0&&i<m.opciones.length)?i:0;}
+function opActual(m){return m.opciones[opIdx(m)];}
+function setOpcion(id,i){opcionSel[id]=parseInt(i,10);save('opcionSel',opcionSel);renderPlan();}
 
 /* ---- Comidas hechas (se reinicia cada día) ---- */
 let comidasHechas=ls('comidasHechas',null);
@@ -357,27 +380,38 @@ function renderPlan(){
 
  cont.innerHTML=PLAN.map(function(m){
   const hecha=!!comidasHechas[m.id];
+  const op=opActual(m);
   let lis='';
-  if(m.swap)lis+='<li>'+PROTS[protDe(m.id)].item+'</li>';
-  lis+=m.items.map(function(i){return '<li>'+i+'</li>';}).join('');
+  if(op.swap)lis+='<li>'+PROTS[protDe(m.id)].item+'</li>';
+  lis+=op.items.map(function(i){return '<li>'+i+'</li>';}).join('');
   let h='<div class="card'+(hecha?' done':'')+'">'
-   +'<div class="meal-hdr"><span class="meal-name">'+m.ic+' '+m.n+'</span><span class="meal-time">'+horaDe(m.slot)+'</span></div>'
-   +'<ul class="food-list">'+lis+'</ul>';
-  if(m.swap){
+   +'<div class="meal-hdr"><span class="meal-name">'+(op.ic||'🍽️')+' '+m.slotLbl+' · '+op.n+'</span><span class="meal-time">'+horaDe(m.slot)+'</span></div>';
+  /* Selector de opciones (si hay más de una) */
+  if(m.opciones.length>1){
+   h+='<select class="qty-input" style="width:100%;margin-bottom:8px;" onchange="setOpcion(\''+m.id+'\',this.value)">'
+    +m.opciones.map(function(o,i){return '<option value="'+i+'"'+(i===opIdx(m)?' selected':'')+'>'+(o.ic||'')+' '+o.n+'</option>';}).join('')
+    +'</select>';
+  }
+  h+='<ul class="food-list">'+lis+'</ul>';
+  if(op.prep){
+   h+='<details style="margin-top:4px;"><summary style="font-size:12px;font-weight:700;color:#0F6E56;cursor:pointer;">👩‍🍳 Ver preparación</summary>'
+    +'<ol style="font-size:12px;color:#374151;padding-left:18px;margin-top:6px;line-height:1.5;">'+op.prep.map(function(p){return '<li style="margin-bottom:3px;">'+p+'</li>';}).join('')+'</ol></details>';
+  }
+  if(op.swap){
    const p=protDe(m.id);
-   h+='<div class="seg" style="margin:6px 0 2px;">'
+   h+='<div class="seg" style="margin:8px 0 2px;">'
     +'<button class="seg-btn'+(p==='pollo'?' active':'')+'" onclick="setProt(\''+m.id+'\',\'pollo\')">'+PROTS.pollo.lbl+' · 90 g</button>'
     +'<button class="seg-btn'+(p==='puerco'?' active':'')+'" onclick="setProt(\''+m.id+'\',\'puerco\')">'+PROTS.puerco.lbl+' · 120 g</button>'
     +'</div><p class="note">🔁 Cambia la proteína si quieres. Porción equivalente del plan: <strong>90 g de pollo ≈ 120 g de pierna de cerdo</strong>.</p>';
   }
-  if(m.nota)h+='<p class="note">'+m.nota+'</p>';
+  if(op.nota)h+='<p class="note">'+op.nota+'</p>';
   h+='<button class="supl-toggle'+(hecha?' done':'')+'" onclick="toggleComida(\''+m.id+'\')">'+(hecha?'✅ Ya me la comí':'⏳ Marcar como hecha')+'</button>';
   h+='</div>';
   return h;
  }).join('');
 
  document.getElementById('plan-pie').innerHTML=
-  '<div class="info">Plan profesional manejado por <strong>porciones / equivalencias</strong> (no por calorías). Respeta las cantidades tal cual. Este es el mismo menú los 7 días; en comida y cena eliges pollo o puerco.</div>';
+  '<div class="info">Plan profesional manejado por <strong>porciones / equivalencias</strong> (no por calorías). Cada comida tiene un menú ▾ para elegir entre opciones — se irán agregando más. Respeta las cantidades tal cual.</div>';
 }
 
 /* ================= SUPLEMENTOS ================= */
