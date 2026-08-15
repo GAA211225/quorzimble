@@ -335,27 +335,27 @@ function setProt(id,val){proteinas[id]=val;save('proteinas',proteinas);renderPla
 const PLAN=[
  {id:'desayuno',slot:'desayuno',slotLbl:'Desayuno',opciones:[
    {ic:'🍳',n:'Huevos a la mexicana',
-    items:['<strong>3 huevos enteros</strong>','<strong>3 tortillas de maíz</strong>','<strong>2 cucharaditas de aceite</strong>','<strong>½ pieza de jitomate</strong>','<strong>¼ taza de cebolla</strong> morada o blanca','sal y pimienta']},
+    items:['<strong>150 g de huevo</strong> (≈3 pzas)','<strong>90 g de tortilla de maíz</strong> (≈3)','<strong>10 ml de aceite</strong>','<strong>60 g de jitomate</strong>','<strong>40 g de cebolla</strong> morada o blanca','sal y pimienta']},
    {ic:'🥧',n:'Tartita de huevo con atún',
-    items:['<strong>3 huevos enteros</strong>','<strong>1 lata de atún</strong> en agua, drenado','<strong>3 tortillas de maíz</strong>','<strong>2 cucharaditas de aceite</strong>','<strong>½ pieza de jitomate</strong> picado','<strong>¼ taza de cebolla</strong> picada','sal, pimienta y cilantro al gusto'],
-    prep:['Bate los 3 huevos con una pizca de sal y pimienta.','Sofríe la cebolla y el jitomate en 1 cucharadita de aceite hasta que suavicen (~3 min).','Agrega el atún drenado y mezcla 1 minuto.','Vierte el huevo batido encima, tapa a fuego bajo (o vacíalo en un molde con la otra cucharadita de aceite y hornéalo) hasta que cuaje, ~8-10 min.','Sirve la tartita con las 3 tortillas.'],
-    nota:'🐟 Esta versión añade 1 lata de atún al desayuno (más proteína que la mexicana). Si tu nutriólogo cuida ese aporte, confírmalo o retira 1 huevo.'}
+    items:['<strong>150 g de huevo</strong> (≈3 pzas)','<strong>80 g de atún drenado</strong> (≈1 lata en agua)','<strong>90 g de tortilla de maíz</strong> (≈3)','<strong>10 ml de aceite</strong>','<strong>60 g de jitomate</strong> picado','<strong>40 g de cebolla</strong> picada','sal, pimienta y cilantro al gusto'],
+    prep:['Bate los 150 g de huevo con una pizca de sal y pimienta.','Sofríe la cebolla y el jitomate en 5 ml de aceite hasta que suavicen (~3 min).','Agrega los 80 g de atún drenado y mezcla 1 minuto.','Vierte el huevo batido encima, tapa a fuego bajo (o vacíalo en un molde con los otros 5 ml de aceite y hornéalo) hasta que cuaje, ~8-10 min.','Sirve la tartita con los 90 g de tortilla.'],
+    nota:'🐟 Esta versión añade 80 g de atún al desayuno (más proteína que la mexicana). Si tu nutriólogo cuida ese aporte, confírmalo o baja el huevo a 100 g.'}
  ]},
  {id:'colacion1',slot:'snack',slotLbl:'Colación 1',opciones:[
    {ic:'🥒',n:'Pepino con piña',
-    items:['<strong>2 tazas de piña picada</strong>','<strong>1 taza de pepino rebanado</strong>']}
+    items:['<strong>330 g de piña picada</strong>','<strong>120 g de pepino rebanado</strong>']}
  ]},
  {id:'comida',slot:'comida',slotLbl:'Comida',opciones:[
    {ic:'🍛',n:'Estofado con arroz',swap:true,
-    items:['<strong>¾ taza de arroz cocido</strong>','<strong>3 cucharaditas de aceite</strong>','<strong>½ taza de zanahoria</strong> cruda picada/rallada','<strong>1 jitomate</strong>','<strong>¼ de cebolla chica</strong>','<strong>1 diente de ajo</strong>','<strong>½ taza de caldo</strong> (de pollo)','orégano en polvo, sal y pimienta']}
+    items:['<strong>145 g de arroz cocido</strong>','<strong>15 ml de aceite</strong>','<strong>55 g de zanahoria</strong> cruda picada/rallada','<strong>120 g de jitomate</strong>','<strong>30 g de cebolla</strong>','<strong>3 g de ajo</strong> (1 diente)','<strong>120 ml de caldo</strong> (de pollo)','orégano en polvo, sal y pimienta']}
  ]},
  {id:'colacion2',slot:'merienda',slotLbl:'Colación 2',opciones:[
    {ic:'🍍',n:'Piña',
-    items:['<strong>2 tazas de piña picada</strong>']}
+    items:['<strong>330 g de piña picada</strong>']}
  ]},
  {id:'cena',slot:'cena',slotLbl:'Cena',opciones:[
    {ic:'🌮',n:'Tacos con frijoles',swap:true,
-    items:['<strong>2 tortillas de maíz</strong>','<strong>2 cucharaditas de aceite</strong>','<strong>1 taza de frijol cocido</strong>','<strong>Pico de gallo:</strong> ½ jitomate + ¼ taza de cebolla + 1 cda de cilantro']}
+    items:['<strong>60 g de tortilla de maíz</strong> (≈2)','<strong>10 ml de aceite</strong>','<strong>175 g de frijol cocido</strong>','<strong>Pico de gallo:</strong> 60 g jitomate + 40 g cebolla + 5 g cilantro']}
  ]}
 ];
 
@@ -411,7 +411,7 @@ function renderPlan(){
  }).join('');
 
  document.getElementById('plan-pie').innerHTML=
-  '<div class="info">Plan profesional manejado por <strong>porciones / equivalencias</strong> (no por calorías). Cada comida tiene un menú ▾ para elegir entre opciones — se irán agregando más. Respeta las cantidades tal cual.</div>';
+  '<div class="info">⚖️ Cantidades en <strong>gramos</strong> (líquidos en ml) para que peses cada porción y la dividas en tus toppers. Son la equivalencia aproximada de las porciones del nutriólogo — si tienes duda, su medida original manda. Cada comida tiene un menú ▾ para elegir entre opciones; se irán agregando más.</div>';
 }
 
 /* ================= SUPLEMENTOS ================= */
