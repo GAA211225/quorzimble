@@ -339,7 +339,11 @@ const PLAN=[
    {ic:'🥧',n:'Tartita de huevo con atún',
     items:['<strong>150 g de huevo</strong> (≈3 pzas)','<strong>80 g de atún drenado</strong> (≈1 lata en agua)','<strong>90 g de tortilla de maíz</strong> (≈3)','<strong>10 ml de aceite</strong>','<strong>60 g de jitomate</strong> picado','<strong>40 g de cebolla</strong> picada','sal, pimienta y cilantro al gusto'],
     prep:['Bate los 150 g de huevo con una pizca de sal y pimienta.','Sofríe la cebolla y el jitomate en 5 ml de aceite hasta que suavicen (~3 min).','Agrega los 80 g de atún drenado y mezcla 1 minuto.','Vierte el huevo batido encima, tapa a fuego bajo (o vacíalo en un molde con los otros 5 ml de aceite y hornéalo) hasta que cuaje, ~8-10 min.','Sirve la tartita con los 90 g de tortilla.'],
-    nota:'🐟 Esta versión añade 80 g de atún al desayuno (más proteína que la mexicana). Si tu nutriólogo cuida ese aporte, confírmalo o baja el huevo a 100 g.'}
+    nota:'🐟 Esta versión añade 80 g de atún al desayuno (más proteína que la mexicana). Si tu nutriólogo cuida ese aporte, confírmalo o baja el huevo a 100 g.'},
+   {ic:'🧆',n:'Tortitas de atún con huevo',
+    items:['<strong>80 g de atún drenado</strong> (≈1 lata en agua)','<strong>100 g de huevo</strong> (≈2 pzas)','<strong>90 g de tortilla de maíz</strong> (≈3)','<strong>10 ml de aceite</strong>','<strong>30 g de cebolla</strong> picada','<strong>30 g de jitomate</strong> picado','cilantro, sal y pimienta'],
+    prep:['Drena bien los 80 g de atún y desmenúzalo en un tazón.','Bate los 100 g de huevo y mézclalo con el atún, la cebolla, el jitomate, cilantro, sal y pimienta.','Calienta los 10 ml de aceite en un sartén a fuego medio.','Forma tortitas con la mezcla (2-3 cucharadas cada una) y dóralas ~2-3 min por lado hasta que cuajen.','Sirve con los 90 g de tortilla.'],
+    nota:'🐟 Igual que la tartita, añade 80 g de atún (más proteína que la mexicana). Confírmalo con tu nutriólogo si cuida ese aporte.'}
  ]},
  {id:'colacion1',slot:'snack',slotLbl:'Colación 1',opciones:[
    {ic:'🥒',n:'Pepino con piña',
@@ -365,6 +369,19 @@ function opIdx(m){const i=opcionSel[m.id];return (typeof i==='number'&&i>=0&&i<m
 function opActual(m){return m.opciones[opIdx(m)];}
 function setOpcion(id,i){opcionSel[id]=parseInt(i,10);save('opcionSel',opcionSel);renderPlan();}
 
+/* ---- Lote (meal-prep): multiplica los gramos/ml para cocinar varias porciones ---- */
+let raciones=parseInt(localStorage.getItem('racionesPlan')||'1',10)||1;
+const RACIONES=[1,3,5,7];
+function setRaciones(n){raciones=n;localStorage.setItem('racionesPlan',n);renderPlan();}
+function fmtNum(x){x=Math.round(x*10)/10;return (x%1===0)?String(x):x.toFixed(1);}
+function escala(str,n){
+ if(n===1)return str;
+ return str
+  .replace(/(\d+(?:\.\d+)?)(\s*(?:g|ml)\b)/g,function(_,num,u){return fmtNum(parseFloat(num)*n)+u;})
+  .replace(/≈\s*(\d+(?:\.\d+)?)/g,function(_,num){return '≈'+fmtNum(parseFloat(num)*n);})
+  .replace(/(\d+(?:\.\d+)?)(\s*dientes?)/g,function(_,num,u){return fmtNum(parseFloat(num)*n)+u;});
+}
+
 /* ---- Comidas hechas (se reinicia cada día) ---- */
 let comidasHechas=ls('comidasHechas',null);
 if(!comidasHechas||comidasHechas.fecha!==hoyIso){comidasHechas={fecha:hoyIso};save('comidasHechas',comidasHechas);}
@@ -374,16 +391,20 @@ function renderPlan(){
  const cont=document.getElementById('plan-comidas');
  if(!cont)return;
  const hechas=PLAN.filter(function(m){return comidasHechas[m.id];}).length;
- document.getElementById('plan-hdr').innerHTML=
-  '<div class="hl" style="margin-bottom:12px;">🍽️ <strong>Mi plan del día</strong> — plan del nutriólogo, el mismo todos los días.'
+ const lote=raciones>1;
+ let hdr='<div class="hl" style="margin-bottom:10px;">🍽️ <strong>Mi plan del día</strong> — plan del nutriólogo, el mismo todos los días.'
   +'<br><span style="font-size:12px;">🕐 Horarios de <strong>'+TURNOS[turnoActual].label+'</strong> · ✅ '+hechas+' de '+PLAN.length+' comidas hechas hoy</span></div>';
+ hdr+='<div class="card"><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:6px;">🍱 Preparar en lote (toppers)</p>'
+  +'<div class="seg" style="margin:0;">'+RACIONES.map(function(n){return '<button class="seg-btn'+(raciones===n?' active':'')+'" onclick="setRaciones('+n+')">'+n+'×</button>';}).join('')+'</div>'
+  +'<p class="note">'+(lote?'⚖️ Cantidades <strong>×'+raciones+'</strong> — pesa esto para cocinar y divídelo en '+raciones+' toppers. La preparación de abajo es la base (ajusta el tiempo de cocción a mayor volumen).':'Multiplica los gramos para cocinar varias porciones de una vez y dividir en toppers.')+'</p></div>';
+ document.getElementById('plan-hdr').innerHTML=hdr;
 
  cont.innerHTML=PLAN.map(function(m){
   const hecha=!!comidasHechas[m.id];
   const op=opActual(m);
   let lis='';
-  if(op.swap)lis+='<li>'+PROTS[protDe(m.id)].item+'</li>';
-  lis+=op.items.map(function(i){return '<li>'+i+'</li>';}).join('');
+  if(op.swap)lis+='<li>'+escala(PROTS[protDe(m.id)].item,raciones)+'</li>';
+  lis+=op.items.map(function(i){return '<li>'+escala(i,raciones)+'</li>';}).join('');
   let h='<div class="card'+(hecha?' done':'')+'">'
    +'<div class="meal-hdr"><span class="meal-name">'+(op.ic||'🍽️')+' '+m.slotLbl+' · '+op.n+'</span><span class="meal-time">'+horaDe(m.slot)+'</span></div>';
   /* Selector de opciones (si hay más de una) */
@@ -405,7 +426,7 @@ function renderPlan(){
     +'</div><p class="note">🔁 Cambia la proteína si quieres. Porción equivalente del plan: <strong>90 g de pollo ≈ 120 g de pierna de cerdo</strong>.</p>';
   }
   if(op.nota)h+='<p class="note">'+op.nota+'</p>';
-  h+='<button class="supl-toggle'+(hecha?' done':'')+'" onclick="toggleComida(\''+m.id+'\')">'+(hecha?'✅ Ya me la comí':'⏳ Marcar como hecha')+'</button>';
+  if(!lote)h+='<button class="supl-toggle'+(hecha?' done':'')+'" onclick="toggleComida(\''+m.id+'\')">'+(hecha?'✅ Ya me la comí':'⏳ Marcar como hecha')+'</button>';
   h+='</div>';
   return h;
  }).join('');
