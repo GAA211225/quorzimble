@@ -98,7 +98,6 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <button class="nav-btn active" data-page="compras" onclick="show('compras')">🛒 Compras</button>
   <button class="nav-btn" data-page="inventario" onclick="show('inventario')">📦 Inventario</button>
   <button class="nav-btn" data-page="plan" onclick="show('plan')">🍽️ Mi Plan</button>
-  <button class="nav-btn" data-page="turno" onclick="show('turno')">🕐 Mi Turno</button>
   <button class="nav-btn" data-page="progreso" onclick="show('progreso')">📈 Progreso</button>
   <button class="nav-btn" data-page="supl" onclick="show('supl')">💊 Suplementos</button>
   <button class="nav-btn" data-page="cocina" onclick="show('cocina')">🍳 Mi Cocina</button>
@@ -172,17 +171,6 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <div id="plan-pie"></div>
 </div>
 
-<!-- MI TURNO -->
-<div id="p-turno" class="page">
-  <p class="sec-title">Mi turno — acomoda comidas y sueño</p>
-  <div class="info">Elige tu turno de esta semana. Las <strong>comidas son las mismas</strong> — aquí se acomoda el <strong>horario</strong> y tu ventana de sueño. Los horarios de Mi Plan y Mi Cocina se ajustan solos con esta elección.</div>
-  <div class="seg" id="turno-seg">
-    <button class="seg-btn" data-turno="noche" onclick="setTurno('noche')">🌙 Noche</button>
-    <button class="seg-btn" data-turno="tarde" onclick="setTurno('tarde')">🌆 Tarde</button>
-    <button class="seg-btn" data-turno="dia" onclick="setTurno('dia')">☀️ Día</button>
-  </div>
-  <div id="turno-out"></div>
-</div>
 
 <!-- PROGRESO -->
 <div id="p-progreso" class="page">
@@ -280,40 +268,20 @@ const hoyIso=hoyISO();
 function ls(k,def){try{const v=JSON.parse(localStorage.getItem(k));return v===null||v===undefined?def:v;}catch(e){return def;}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 
-/* ================= TURNOS ================= */
-/* Los horarios de cada "slot" de comida salen de aquí, así Día Gym, Descanso
-   y Mi Cocina siempre coinciden con el turno elegido. */
-const TURNOS={
- noche:{
-  label:'🌙 Turno noche',
-  horario:'Trabajas 10:00 pm – 6:00 am',
-  sueno:'Dormir de ~7:30 am a ~2:30 pm (unas 7 h). Cuarto oscuro y antifaz ayudan muchísimo con el sueño de día.',
-  horas:{cafe:'2:30 pm · al despertar',desayuno:'2:30 – 3:00 pm',snack:'5:00 pm',comida:'8:00 pm · antes de entrar',merienda:'4:00 am · en el turno',cena:'12:30 am · en el turno'},
-  supl:{berberina:'8:00 pm — con la comida principal, antes de entrar',ashwagandha:'7:00 am — al salir del turno, antes de dormir'},
-  tip:'⚠️ Tu comida más fuerte va ANTES de entrar (noche), no en la madrugada — el cuerpo digiere peor de 1 a 5 am. Sin café después de las 2:00 am para no arruinar el sueño del día.'
- },
- tarde:{
-  label:'🌆 Turno tarde',
-  horario:'Trabajas 2:00 pm – 10:00 pm',
-  sueno:'Dormir de ~12:30 am a ~8:30 am (unas 8 h). Horario casi normal.',
-  horas:{cafe:'8:30 am · al despertar',desayuno:'8:30 – 9:00 am',snack:'11:00 am',comida:'1:00 pm · antes de entrar',merienda:'5:00 pm · en el turno',cena:'8:00 pm · en el turno'},
-  supl:{berberina:'1:00 pm — con la comida principal, antes de entrar',ashwagandha:'11:00 pm — al salir, antes de dormir'},
-  tip:'💡 Haz tu comida fuerte antes de entrar (mediodía). Durante el turno, una merienda y una comida moderada; al salir, cena ligera para dormir bien.'
- },
- dia:{
-  label:'☀️ Día estándar / libre',
-  horario:'Horario normal, sin turno nocturno',
-  sueno:'Dormir de ~11:00 pm a ~7:00 am.',
-  horas:{cafe:'Al despertar',desayuno:'7:00 – 8:00 am',snack:'10:30 – 11:00 am',comida:'2:00 – 3:00 pm',merienda:'5:00 pm',cena:'9:00 pm'},
-  supl:{berberina:'2:00 pm — con la comida principal',ashwagandha:'9:00 pm — con la cena o antes de dormir'},
-  tip:'💡 Horario estándar: comidas repartidas a lo largo del día.'
- }
+/* ================= HORARIO ================= */
+/* Horario fijo, acomodado a tu gym habitual (7:00 – 10:30 pm). Ya no depende
+   de turno de trabajo: la Colación 2 cae ~1.5-2h antes de entrar (pre-entreno,
+   digestión rápida) y la Cena se recorre a la salida (post-entreno, ligera en
+   volumen/grasa para no pegarle al sueño). */
+const GYM={ini:'7:00 pm',fin:'10:30 pm'};
+const HORARIO_FIJO={
+ cafe:'Al despertar',desayuno:'7:00 – 8:00 am',snack:'10:30 – 11:00 am',comida:'1:30 – 2:30 pm',
+ merienda:'5:00 – 5:30 pm',cena:'10:30 – 11:00 pm'
 };
+const SUPL_HORARIO={berberina:'2:00 pm — con la comida principal',ashwagandha:'9:00 pm — con la cena o antes de dormir'};
 /* Estos no dependen del reloj sino del entrenamiento */
 const HORAS_FIJAS={pre:'90 min antes del gym',intra:'Pasada la hora de entreno',post:'Antes de 45 min post-entreno'};
-let turnoActual=localStorage.getItem('turnoActual')||'noche';
-if(!TURNOS[turnoActual])turnoActual='dia';
-function horaDe(slot){return HORAS_FIJAS[slot]||TURNOS[turnoActual].horas[slot]||'';}
+function horaDe(slot){return HORAS_FIJAS[slot]||HORARIO_FIJO[slot]||'';}
 
 /* ================= PLAN PROFESIONAL (del nutriólogo) =================
    Mismo menú todos los días. Se maneja por PORCIONES / equivalencias, tal como
@@ -397,7 +365,7 @@ function renderPlan(){
  const hechas=PLAN.filter(function(m){return comidasHechas[m.id];}).length;
  const lote=raciones>1;
  let hdr='<div class="hl" style="margin-bottom:10px;">🍽️ <strong>Mi plan del día</strong> — plan del nutriólogo, el mismo todos los días.'
-  +'<br><span style="font-size:12px;">🕐 Horarios de <strong>'+TURNOS[turnoActual].label+'</strong> · ✅ '+hechas+' de '+PLAN.length+' comidas hechas hoy</span></div>';
+  +'<br><span style="font-size:12px;">🏋️ Horario acomodado a tu gym ('+GYM.ini+' – '+GYM.fin+') · ✅ '+hechas+' de '+PLAN.length+' comidas hechas hoy</span></div>';
  hdr+='<div class="card"><p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:6px;">🍱 Preparar en lote (toppers)</p>'
   +'<div class="seg" style="margin:0;">'+RACIONES.map(function(n){return '<button class="seg-btn'+(raciones===n?' active':'')+'" onclick="setRaciones('+n+')">'+n+'×</button>';}).join('')+'</div>'
   +'<p class="note">'+(lote?'⚖️ Cantidades <strong>×'+raciones+'</strong> — pesa esto para cocinar y divídelo en '+raciones+' toppers. La preparación de abajo es la base (ajusta el tiempo de cocción a mayor volumen).':'Multiplica los gramos para cocinar varias porciones de una vez y dividir en toppers.')+'</p></div>';
@@ -409,8 +377,9 @@ function renderPlan(){
   let lis='';
   if(op.swap)lis+='<li>'+escala(PROTS[protDe(m.id)].item,raciones)+'</li>';
   lis+=op.items.map(function(i){return '<li>'+escala(i,raciones)+'</li>';}).join('');
+  const califica=m.slot==='merienda'?' · pre-entreno':(m.slot==='cena'?' · post-entreno':'');
   let h='<div class="card'+(hecha?' done':'')+'">'
-   +'<div class="meal-hdr"><span class="meal-name">'+(op.ic||'🍽️')+' '+m.slotLbl+' · '+op.n+'</span><span class="meal-time">'+horaDe(m.slot)+'</span></div>';
+   +'<div class="meal-hdr"><span class="meal-name">'+(op.ic||'🍽️')+' '+m.slotLbl+' · '+op.n+'</span><span class="meal-time">'+horaDe(m.slot)+califica+'</span></div>';
   /* Selector de opciones (si hay más de una) */
   if(m.opciones.length>1){
    h+='<select class="qty-input" style="width:100%;margin-bottom:8px;" onchange="setOpcion(\''+m.id+'\',this.value)">'
@@ -452,41 +421,15 @@ function toggleSupl(id){suplEstado[id]=!suplEstado[id];save('suplEstado',suplEst
 function renderSupl(){
  const el=document.getElementById('supl-cards');
  if(!el)return;
- const S=TURNOS[turnoActual].supl;
- document.getElementById('supl-aviso').innerHTML='🔔 Horarios de <strong>'+TURNOS[turnoActual].label+'</strong>. El recordatorio te llega a esa hora y se ajusta solo si cambias de turno. Marca aquí si ya te lo tomaste — se reinicia cada día.';
+ document.getElementById('supl-aviso').innerHTML='🔔 Horario fijo. El recordatorio te llega a esa hora. Marca aquí si ya te lo tomaste — se reinicia cada día.';
  el.innerHTML=SUPLEMENTOS.map(s=>{
   const tomado=!!suplEstado[s.id];
   return '<div class="card'+(tomado?' done':'')+'" style="border:1.5px solid '+s.borde+';">'
    +'<div class="meal-hdr"><span class="meal-name">'+s.ic+' '+s.nombre+'</span></div>'
-   +'<ul class="food-list"><li><strong>'+s.dosis+'</strong></li><li><strong>Cuándo:</strong> '+S[s.id]+'</li></ul>'
+   +'<ul class="food-list"><li><strong>'+s.dosis+'</strong></li><li><strong>Cuándo:</strong> '+SUPL_HORARIO[s.id]+'</li></ul>'
    +'<button class="supl-toggle'+(tomado?' done':'')+'" onclick="toggleSupl(\''+s.id+'\')">'+(tomado?'✅ Ya me lo tomé hoy':'⏳ Aún no — toca para marcar')+'</button>'
    +'</div>';
  }).join('');
-}
-
-/* ================= MI TURNO ================= */
-function setTurno(id){
- if(!TURNOS[id])return;
- turnoActual=id;localStorage.setItem('turnoActual',id);
- renderTurno();renderSupl();renderPlan();
- if(window.syncTurnoRemoto)window.syncTurnoRemoto(id);
-}
-function renderTurno(){
- const out=document.getElementById('turno-out');
- if(!out)return;
- document.querySelectorAll('#turno-seg .seg-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-turno')===turnoActual));
- const T=TURNOS[turnoActual];
- let h='<div class="hl"><strong>'+T.label+'</strong> — '+T.horario+'</div>';
- h+='<div class="card" style="border:1.5px solid #7F77DD;"><div class="meal-hdr"><span class="meal-name">😴 Sueño</span></div><p style="font-size:13px;color:#374151;">'+T.sueno+'</p></div>';
- const orden=[['cafe','☕','Café'],['desayuno','🌅','Desayuno'],['snack','🍙','Snack'],['comida','🍛','Comida principal'],['merienda','🍎','Merienda'],['cena','🌙','Cena']];
- orden.forEach(function(o){
-  h+='<div class="card"><div class="meal-hdr"><span class="meal-name">'+o[1]+' '+o[2]+'</span><span class="meal-time">'+T.horas[o[0]]+'</span></div></div>';
- });
- h+='<div class="al">'+T.tip+'</div>';
- h+='<div class="card" style="border:1.5px solid #185FA5;"><div class="meal-hdr"><span class="meal-name">💊 Suplementos en este turno</span></div>'
-  +'<ul class="food-list"><li><strong>Berberina:</strong> '+T.supl.berberina+'</li><li><strong>Ashwagandha:</strong> '+T.supl.ashwagandha+'</li></ul></div>';
- h+='<div class="info">🏋️ <strong>Entreno:</strong> el pre-entreno va ~90 min antes y el post justo al terminar, a la hora que entrenes ese día. Estos horarios ya se aplican en <strong>Día Gym</strong>, <strong>Descanso</strong> y <strong>Mi Cocina</strong>.</div>';
- out.innerHTML=h;
 }
 
 /* ================= PROGRESO ================= */
@@ -795,7 +738,7 @@ function generarDia(){
  })();
  /* Render */
  let h=alerts.join('');
- h+='<div class="hl" style="margin-bottom:12px;">Menú improvisado con lo que tienes — '+(tipoDia==='gym'?'🏋️ día con entreno':'😴 día sin entreno')+' · horarios de '+TURNOS[turnoActual].label+'</div>';
+ h+='<div class="hl" style="margin-bottom:12px;">Menú improvisado con lo que tienes — '+(tipoDia==='gym'?'🏋️ día con entreno':'😴 día sin entreno')+' · horario fijo</div>';
  meals.forEach(function(m){
   h+='<div class="card"><div class="meal-hdr"><span class="meal-name">'+m.ic+' '+m.n+'</span><span class="meal-time">'+m.t+'</span></div><ul class="food-list">'+m.items.map(function(i){return '<li>'+i+'</li>';}).join('')+'</ul>';
   const s=(m.saz||[]).filter(Boolean);
@@ -815,7 +758,6 @@ syncSegUI();
 renderLinkRutina();
 renderPlan();
 renderSupl();
-renderTurno();
 renderProgreso();
 renderCompras();
 saveD();
@@ -864,11 +806,14 @@ const db = getFirestore(app);
 const messaging = getMessaging(app);
 const VAPID_KEY = "BEJm4aVSkUMdvwc5eHLdGaayMcCvnt4hVoatcaqdAfgjt9oz0sAyyZhA6zKz4Cwb9qRDZ0OuYwURBr4Uu1QhIaA";
 
-/* El turno vive en Firestore para que el robot de recordatorios sepa a qué
-   hora mandarte los suplementos. */
+/* El robot de recordatorios (repo CLAUDE/notifier) lee este doc en Firestore
+   para saber a qué hora mandarte los suplementos. Ya no hay selector de turno
+   en la app — el horario es fijo (acomodado al gym), así que aquí siempre se
+   sincroniza como 'dia' para que el robot use esas horas (berberina 2pm,
+   ashwagandha 9pm, hora CDMX). */
 window.syncTurnoRemoto = async function(turno){
   try{ await setDoc(doc(db,'dietaConfig','turno'),{turno:turno,updated:Date.now()}); }
-  catch(e){ console.warn('No se pudo sincronizar el turno:',e); }
+  catch(e){ console.warn('No se pudo sincronizar el horario:',e); }
 };
 
 async function registrarTokenFrase(){
@@ -900,7 +845,7 @@ window.activarFrase = async function(){
     if(t){
       localStorage.setItem('fraseNotif','1');
       marcarActivado();
-      window.syncTurnoRemoto(localStorage.getItem('turnoActual')||'noche');
+      window.syncTurnoRemoto('dia');
     }
     else alert('No se pudo registrar el dispositivo. Intenta de nuevo.');
   }catch(e){
@@ -910,7 +855,7 @@ window.activarFrase = async function(){
 if(('Notification' in window) && Notification.permission === 'granted' && localStorage.getItem('fraseNotif') === '1'){
   marcarActivado();
   registrarTokenFrase().catch(function(){});
-  window.syncTurnoRemoto(localStorage.getItem('turnoActual')||'noche');
+  window.syncTurnoRemoto('dia');
 }
 onMessage(messaging, function(payload){
   const n = payload.notification || {};

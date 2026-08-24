@@ -260,8 +260,40 @@ const FULL_BODY=[
   {n:'Extensión de tríceps en polea',s:3,r:'12',desc:60,nota:''},
   {n:'Crunch en polea',s:3,r:'12',desc:60,nota:''}]}
 ];
+/* Fase de reintroducción tras contractura de glúteo-cadera, en déficit.
+   Progresión: +2.5 kg cada 2-3 semanas si no hay molestia y la técnica es limpia.
+   Regla de oro: si sientes la molestia durante o después de un ejercicio, ese
+   movimiento se regresa o se retira esa semana. Nada de peso muerto convencional pesado por ahora. */
+const REINTRO=[
+ {nombre:'Día 1 · Lower 🦵',ejercicios:[
+  {n:'Sentadilla con barra',s:3,r:'8',desc:120,nota:'Peso sugerido: 75-80 kg (RPE 6-7). Regla de oro: si sientes la molestia de glúteo-cadera durante o después, este movimiento se regresa o se retira esa semana.'},
+  {n:'Zancadas con barra',s:3,r:'10 c/pierna',desc:90,nota:'Peso sugerido: peso corporal / ligero.'},
+  {n:'Puente de glúteo con barra',s:3,r:'12',desc:60,nota:'Peso sugerido: ligero-moderado.'},
+  {n:'Buenos días ligeros',s:3,r:'10',desc:60,nota:'Peso sugerido: muy ligero — técnica antes que carga.'},
+  {n:'Elevación de talones con barra',s:3,r:'15',desc:60,nota:'Peso sugerido: moderado.'}]},
+ {nombre:'Día 2 · Upper 💪',ejercicios:[
+  {n:'Press banca',s:3,r:'8',desc:120,nota:'Peso sugerido: 75-80 kg (RPE 6-7).'},
+  {n:'Remo con barra',s:3,r:'10',desc:90,nota:'Peso sugerido: moderado.'},
+  {n:'Press militar con barra',s:3,r:'10',desc:90,nota:'Peso sugerido: moderado.'},
+  {n:'Dominadas',s:3,r:'8 o al fallo técnico',desc:90,nota:'Peso corporal — usa banda de asistencia si hace falta.'},
+  {n:'Curl con barra',s:3,r:'12',desc:60,nota:'Peso sugerido: ligero.'},
+  {n:'Press francés',s:3,r:'12',desc:60,nota:'Peso sugerido: ligero.'}]},
+ {nombre:'Día 3 · Lower posterior 🦵',ejercicios:[
+  {n:'Peso muerto rumano',s:3,r:'8',desc:120,nota:'Peso sugerido: 40-50 kg (variante ligera). Nada de peso muerto convencional pesado por ahora.'},
+  {n:'Sentadilla búlgara (banco)',s:3,r:'10 c/pierna',desc:90,nota:'Peso sugerido: ligero-moderado.'},
+  {n:'Puente de glúteo a 1 pierna',s:3,r:'12 c/pierna',desc:60,nota:'Peso sugerido: peso corporal / ligero.'},
+  {n:'Elevación de talones',s:3,r:'15',desc:60,nota:'Peso sugerido: moderado.'},
+  {n:'Plancha',s:3,r:'30-45s',desc:60,nota:'Core — sin molestia en la zona.'}]},
+ {nombre:'Día 4 · Upper 🔥',ejercicios:[
+  {n:'Press inclinado con barra',s:3,r:'8',desc:90,nota:'Peso sugerido: moderado.'},
+  {n:'Remo a un brazo',s:3,r:'10',desc:90,nota:'Peso sugerido: moderado (mancuerna o barra).'},
+  {n:'Elevaciones laterales',s:3,r:'12',desc:60,nota:'Peso sugerido: ligero.'},
+  {n:'Pull-apart con barra',s:3,r:'15',desc:45,nota:'Peso sugerido: muy ligero.'},
+  {n:'Core',s:2,r:'a elegir',desc:60,nota:'Elige un ejercicio de core (plancha, rueda, etc.).'}]}
+];
 function copia(o){return JSON.parse(JSON.stringify(o));}
 const PLANTILLAS={
+ reintro:{nombre:'Programación de Fuerza — Reintroducción',dias:'4 días/sem',info:'Upper/Lower para recuperar base de sentadilla, banca y peso muerto tras contractura de glúteo-cadera, en déficit. +2.5 kg cada 2-3 semanas sin molestia.',get:function(){return copia(REINTRO);}},
  ppl4:{nombre:'Empuje / Jalón / Pierna + Full body',dias:'4 días/sem',info:'La más completa: cada músculo se trabaja 2 veces por semana.',get:function(){return copia(RUTINA_DEFAULT);}},
  ppl3:{nombre:'Push / Pull / Legs',dias:'3 días/sem',info:'El clásico split de empuje, jalón y pierna.',get:function(){return copia(RUTINA_DEFAULT.slice(0,3));}},
  torso:{nombre:'Torso / Pierna',dias:'4 días/sem',info:'Frecuencia 2 por músculo con sesiones más balanceadas.',get:function(){return copia(TORSO_PIERNA);}},
@@ -282,6 +314,7 @@ let prs=JSON.parse(localStorage.getItem('rutinasPRs')||'{}');
 let vista=parseInt(localStorage.getItem('rutinasVista')||'0');
 let autoTimer=localStorage.getItem('rutinasAutoT')!=='0';
 let editMode=false;
+let cambiandoPlantilla=false;
 let progEx=null,progMet='peso';
 let perfil=JSON.parse(localStorage.getItem('rutinasPerfil')||'{}');
 let meta=JSON.parse(localStorage.getItem('rutinasMeta')||'null')||(function(){
@@ -609,7 +642,7 @@ function actualizarLinkDieta(){
 /* ===== Nav ===== */
 function renderNav(){
  const nav=document.getElementById('nav');
- if(onboarding){nav.innerHTML='';return;}
+ if(onboarding||cambiandoPlantilla){nav.innerHTML='';return;}
  let h='';
  rutina.forEach(function(d,i){
   h+='<button class="nav-btn'+(vista===i?' active':'')+'" onclick="setVista('+i+')">'+esc(d.nombre)+'</button>';
@@ -626,8 +659,8 @@ function setVista(i){vista=i;editMode=false;document.getElementById('btn-edit').
 function render(){
  renderNav();
  const c=document.getElementById('contenido');
- document.getElementById('btn-edit').style.display=(onboarding||vista<0)?'none':'';
- if(onboarding){c.innerHTML=renderOnboard();return;}
+ document.getElementById('btn-edit').style.display=(onboarding||cambiandoPlantilla||vista<0)?'none':'';
+ if(onboarding||cambiandoPlantilla){c.innerHTML=renderOnboard();return;}
  if(vista===-3){c.innerHTML=renderQuema();return;}
  if(vista===-4){c.innerHTML=renderMetas();return;}
  if(vista===-2){c.innerHTML=renderPerfil();return;}
@@ -771,7 +804,9 @@ function terminar(){
 
 /* ===== Onboarding ===== */
 function renderOnboard(){
- let h='<div class="hl" style="margin-bottom:12px;">👋 <strong>¡Bienvenido!</strong> Elige una rutina para empezar. Después puedes editar todo: días, ejercicios, series, reps y descansos.</div>';
+ let h=cambiandoPlantilla
+  ?'<div class="hl" style="margin-bottom:12px;">🔄 <strong>Cambiar plantilla.</strong> Se reemplazan tus días y ejercicios actuales por los de la plantilla que elijas. Tu historial, PRs y perfil se conservan.</div><button class="btn-mini" style="margin-bottom:12px;" onclick="cancelarCambioPlantilla()">✕ Cancelar</button>'
+  :'<div class="hl" style="margin-bottom:12px;">👋 <strong>¡Bienvenido!</strong> Elige una rutina para empezar. Después puedes editar todo: días, ejercicios, series, reps y descansos.</div>';
  Object.keys(PLANTILLAS).forEach(function(k){
   const p=PLANTILLAS[k];
   const dias=p.get().map(function(d){return d.nombre;}).join(' · ');
@@ -784,8 +819,9 @@ function renderOnboard(){
  return h;
 }
 function elegirPlantilla(k){
+ if(cambiandoPlantilla&&!confirm('¿Reemplazar tu rutina actual por "'+PLANTILLAS[k].nombre+'"? Tu historial y PRs no se pierden.'))return;
  rutina=PLANTILLAS[k].get();
- onboarding=false;vista=0;editMode=(k==='cero');
+ onboarding=false;cambiandoPlantilla=false;vista=0;editMode=(k==='cero');
  ses={fecha:hoyStr(),dias:{}};
  saveAll();actualizarLinkDieta();
  document.getElementById('btn-edit').textContent=editMode?'✔️ Listo':'✏️ Editar';
@@ -891,6 +927,10 @@ function renderPerfil(){
   +'</div>'
   +(perfil.modo==='ciclo'?'<p style="font-size:11px;color:#8b93a3;margin-top:8px;">💉 En ciclo la vara sube ~15%: lo que para un natural es avanzado, con asistencia se espera más. Cuídate — chequeos médicos regulares.</p>':'')
   +'</div>';
+ h+='<div class="card"><p class="sec-title">📋 Mi programación</p>'
+  +'<p style="font-size:12px;color:#a9b0bd;margin-bottom:10px;">Cambia de plantilla (por ejemplo a la fase de reintroducción) sin perder tu historial ni tus récords.</p>'
+  +'<button class="btn-sec" style="width:100%;" onclick="mostrarSelectorPlantilla()">🔄 Cambiar plantilla</button>'
+  +'</div>';
  h+=cardRespaldo();
  h+='<p style="text-align:center;font-size:11px;color:#5b6270;margin:14px 0 4px;">IronTrack 3D · <a href="privacy.html" style="color:#5b6270;">Privacidad</a> · <a href="terminos.html" style="color:#5b6270;">Términos</a></p>';
  if(!perfilOk())return h+'<div class="empty">Pon tu peso corporal para ver tu nivel de fuerza en cada básico. 💪</div>';
@@ -919,6 +959,7 @@ function renderPerfil(){
  return h;
 }
 function edPerfil(k,v){perfil[k]=v;saveAll();render();}
+function mostrarSelectorPlantilla(){cambiandoPlantilla=true;render();}
 
 function cardRespaldo(){
  const d=diasDesdeBackup();
