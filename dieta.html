@@ -645,6 +645,46 @@ function has(n){return !!despensa[n];}
 function pick(a){return a[Math.floor(Math.random()*a.length)];}
 function pick2(a){const b=a.slice().sort(function(){return Math.random()-.5;});return b.slice(0,Math.min(2,b.length));}
 function qtyTag(n){return despensa[n]&&despensa[n].qty?' <span style="color:#6b7280;font-weight:400;font-size:11px;">(tienes: '+despensa[n].qty+')</span>':'';}
+/* Estima calorías APROXIMADAS de un renglón del menú improvisado. No es exacto;
+   es una referencia para el día. */
+function kcalItem(raw){
+ let s=' '+raw.toLowerCase().replace(/<[^>]+>/g,'')+' ';
+ let k=0,m;
+ /* carne en crudo con su equivalente cocido: "Ng de X en crudo (~Yg cocido)" */
+ if(m=s.match(/(\d+)\s*g de [^(]*en crudo\s*\(~\d+g[^)]*\)/)){ k+=Math.round(parseInt(m[1])*1.43); s=s.replace(m[0],' '); }
+ /* proteína genérica a la plancha: "(~Ng) a la plancha" */
+ if(m=s.match(/\(~(\d+)g\)\s*a la plancha/)){ k+=Math.round(parseInt(m[1])*1.5); s=s.replace(m[0],' '); }
+ /* atún en latas */
+ if(m=s.match(/([\d.]+)\s*lata/)) k+=Math.round(parseFloat(m[1])*90);
+ /* huevos y claras */
+ if(m=s.match(/(\d+)\s*huevo/)) k+=parseInt(m[1])*70;
+ if(/2 claras/.test(s)) k+=34;
+ /* queso panela por gramos */
+ if(m=s.match(/(\d+)\s*g\s+queso panela/)){ k+=Math.round(parseInt(m[1])*2.3); s=s.replace(m[0],' '); }
+ /* leche */
+ if(/taza de leche/.test(s)) k+=130;
+ /* arroz cocido */
+ if(/arroz cocido/.test(s)) k+=(/½\s*–\s*1/.test(s)?150:205);
+ if(/avena/.test(s)) k+=120;
+ /* tortillas */
+ if(m=s.match(/(\d+)\s*tortilla/)) k+=parseInt(m[1])*65;
+ else if(/tortillas con la prote/.test(s)) k+=130;
+ if(/elote/.test(s)) k+=70;
+ if(/papa mediana/.test(s)) k+=160;
+ if(/pasta cocida/.test(s)) k+=200;
+ if(/frijol/.test(s)) k+=(/¾/.test(s)?165:220);
+ if(/lenteja/.test(s)) k+=(/¾/.test(s)?170:230);
+ if(/plátano/.test(s)) k+=105;
+ if(/aguacate/.test(s)) k+=80;
+ if(/crema/.test(s)) k+=40;
+ /* fruta por gramos: "Ng de <fruta>" (la carne ya se quitó arriba) */
+ if(m=s.match(/(\d+)\s*g de [a-záéíóúñ]+/)) k+=Math.round(parseInt(m[1])*0.5);
+ /* fruta en piezas */
+ if(/pieza[s]? de fruta/.test(s)||/1 fruta/.test(s)) k+=75;
+ /* verdura/ensalada (bajo) */
+ if(/ensalada|rajas|nopales|salteado|salteada|verdura/.test(s)) k+=25;
+ return k;
+}
 function generarDia(){
  const out=document.getElementById('menu-out');
  const prots=de('proteina'),carbs=de('carbo'),vegs=de('verdura'),fruts=de('fruta');
@@ -768,14 +808,20 @@ function generarDia(){
  /* Render */
  let h=alerts.join('');
  h+='<div class="hl" style="margin-bottom:12px;">Menú improvisado con lo que tienes — '+(tipoDia==='gym'?'🏋️ día con entreno':'😴 día sin entreno')+' · horario fijo</div>';
+ let totalKcal=0;
  meals.forEach(function(m){
+  const mk=m.items.reduce(function(a,i){return a+kcalItem(i);},0);
+  totalKcal+=mk;
   h+='<div class="card"><div class="meal-hdr"><span class="meal-name">'+m.ic+' '+m.n+'</span><span class="meal-time">'+m.t+'</span></div><ul class="food-list">'+m.items.map(function(i){return '<li>'+i+'</li>';}).join('')+'</ul>';
+  h+='<div class="macro-row"><span class="pill p-coral">~'+mk+' kcal</span></div>';
   const s=(m.saz||[]).filter(Boolean);
   if(s.length)h+='<div class="sazon">🌶️ <strong>Sazón:</strong> '+s.join(' — ')+'</div>';
   if(m.nota)h+='<p class="note">'+m.nota+'</p>';
   h+='</div>';
  });
- h+='<div class="hl">🌶️ <strong>Recuerda:</strong> especias, chile, ajo, limón y hierbas aportan prácticamente 0 calorías — úsalas sin miedo. El sabor es lo que hace la dieta sostenible.</div>';
+ h+='<div class="total-bar"><span style="font-weight:700;">Total estimado del día</span><span class="pill p-coral" style="font-size:14px;">~'+totalKcal.toLocaleString('es-MX')+' kcal</span></div>';
+ h+='<p style="font-size:11px;color:#6b7280;margin-top:6px;">⚠️ Es un <strong>cálculo aproximado</strong> con base en las porciones sugeridas — puede variar ±15% según cantidades reales y preparación. Sirve como referencia, no como medida exacta.</p>';
+ h+='<div class="hl" style="margin-top:8px;">🌶️ <strong>Recuerda:</strong> especias, chile, ajo, limón y hierbas aportan prácticamente 0 calorías — úsalas sin miedo. El sabor es lo que hace la dieta sostenible.</div>';
  h+='<button class="btn-main" style="background:#185FA5;" onclick="generarDia()">🔄 Dame otra combinación</button>';
  out.innerHTML=h;
  out.scrollIntoView({behavior:'smooth',block:'start'});
