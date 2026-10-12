@@ -847,12 +847,21 @@ function generarDia(){
   if(protPrevia>=minP)return;
   const faltan=metaP-protPrevia; // apuntar al centro de la meta
   const ref=[];
-  if(has('Huevo')){ const n=Math.max(1,Math.round(faltan/3.6)); ref.push('<strong>'+n+' claras de huevo</strong> (magras, casi sin grasa)'); }
-  else if(has('Atún')){ const n=Math.max(1,Math.round(faltan/20)); ref.push('<strong>'+n+' lata'+(n>1?'s':'')+' de atún drenado</strong>'); }
+  const huevoRef=function(){ const n=Math.max(1,Math.round(faltan/3.6)); ref.push('<strong>'+n+' claras de huevo</strong> (magras, casi sin grasa)'); };
+  const atunRef =function(){ const n=Math.max(1,Math.round(faltan/20)); ref.push('<strong>'+n+' lata'+(n>1?'s':'')+' de atún drenado</strong>'); };
+  const tieneHuevo=has('Huevo'), tieneAtun=has('Atún');
+  if(tieneHuevo&&tieneAtun){
+   /* Alternar entre huevo y atún en cada menú que necesite refuerzo */
+   let t=parseInt(localStorage.getItem('refProtTurno')||'0',10)||0;
+   (t%2===0?huevoRef:atunRef)();
+   localStorage.setItem('refProtTurno',String((t+1)%2));
+  }
+  else if(tieneHuevo) huevoRef();
+  else if(tieneAtun) atunRef();
   else if(has('Pollo')){ const g=Math.max(50,Math.round(faltan/0.205/10)*10); ref.push('<strong>'+g+'g de pechuga de pollo</strong> en crudo (~'+cocido(g)+'g cocido) a la plancha'); }
   else if(has('Pescado')){ const g=Math.max(50,Math.round(faltan/0.205/10)*10); ref.push('<strong>'+g+'g de pescado</strong> en crudo (~'+cocido(g)+'g cocido) a la plancha'); }
   else if(has('Queso panela')){ const g=Math.max(30,Math.round(faltan/0.2/10)*10); ref.push('<strong>'+g+'g de queso panela</strong>'); }
-  if(ref.length)meals.push({ic:'💪',n:'Refuerzo de proteína',t:'reparte en el día',items:ref,saz:[],nota:'Agregado para llegar a tu meta de ~'+metaP+' g de proteína (1.8 g × '+pesoActual()+' kg). Repártelo entre tus comidas.'});
+  if(ref.length)meals.push({ic:'💪',n:'Refuerzo de proteína',t:'reparte en el día',items:ref,saz:[],nota:'Agregado para llegar a tu meta de ~'+metaP+' g de proteína (1.8 g × '+pesoActual()+' kg)'+(tieneHuevo&&tieneAtun?'. Va alternando entre huevo y atún en cada menú.':'. Repártelo entre tus comidas.')});
  })();
  /* Render */
  let h=alerts.join('');
