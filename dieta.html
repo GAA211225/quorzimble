@@ -685,6 +685,40 @@ function kcalItem(raw){
  if(/ensalada|rajas|nopales|salteado|salteada|verdura/.test(s)) k+=25;
  return k;
 }
+/* Estima PROTEÍNA (g) aproximada de un renglón del menú improvisado. */
+function protItem(raw){
+ let s=' '+raw.toLowerCase().replace(/<[^>]+>/g,'')+' ';
+ let p=0,m;
+ if(m=s.match(/(\d+)\s*g de [^(]*en crudo\s*\(~\d+g[^)]*\)/)){ p+=parseInt(m[1])*0.205; s=s.replace(m[0],' '); }
+ if(m=s.match(/\(~(\d+)g\)\s*a la plancha/)){ p+=parseInt(m[1])*0.2; s=s.replace(m[0],' '); }
+ if(m=s.match(/([\d.]+)\s*lata/)) p+=parseFloat(m[1])*20;
+ if(m=s.match(/(\d+)\s*huevo/)) p+=parseInt(m[1])*6.3;
+ if(/2 claras/.test(s)) p+=7;
+ if(m=s.match(/(\d+)\s*g\s+queso panela/)){ p+=parseInt(m[1])*0.2; s=s.replace(m[0],' '); }
+ if(/taza de leche/.test(s)) p+=8;
+ if(/arroz cocido/.test(s)) p+=(/½\s*–\s*1/.test(s)?3:4);
+ if(/avena/.test(s)) p+=5;
+ if(m=s.match(/(\d+)\s*tortilla/)) p+=parseInt(m[1])*1.5;
+ else if(/tortillas con la prote/.test(s)) p+=3;
+ if(/elote/.test(s)) p+=2;
+ if(/papa mediana/.test(s)) p+=3;
+ if(/pasta cocida/.test(s)) p+=6;
+ if(/frijol/.test(s)) p+=(/¾/.test(s)?11:15);
+ if(/lenteja/.test(s)) p+=(/¾/.test(s)?13:18);
+ if(/plátano/.test(s)) p+=1;
+ if(/aguacate/.test(s)) p+=1;
+ if(m=s.match(/(\d+)\s*g de [a-záéíóúñ]+/)) p+=parseInt(m[1])*0.006;
+ if(/pieza[s]? de fruta/.test(s)||/1 fruta/.test(s)) p+=1;
+ if(/ensalada|rajas|nopales|salteado|salteada|verdura/.test(s)) p+=1;
+ return Math.round(p);
+}
+/* Meta de proteína: 1.8 g por kg de peso. Peso = último registro de Progreso
+   (o 94 kg por defecto), así la meta baja sola conforme adelgazas. */
+function pesoActual(){
+ try{ const p=JSON.parse(localStorage.getItem('progreso')||'[]'); if(p.length) return p[p.length-1].peso; }catch(e){}
+ return 94;
+}
+function metaProteina(){ return Math.round(1.8*pesoActual()); }
 function generarDia(){
  const out=document.getElementById('menu-out');
  const prots=de('proteina'),carbs=de('carbo'),vegs=de('verdura'),fruts=de('fruta');
@@ -808,18 +842,24 @@ function generarDia(){
  /* Render */
  let h=alerts.join('');
  h+='<div class="hl" style="margin-bottom:12px;">Menú improvisado con lo que tienes — '+(tipoDia==='gym'?'🏋️ día con entreno':'😴 día sin entreno')+' · horario fijo</div>';
- let totalKcal=0;
+ let totalKcal=0,totalProt=0;
  meals.forEach(function(m){
   const mk=m.items.reduce(function(a,i){return a+kcalItem(i);},0);
-  totalKcal+=mk;
+  const mp=m.items.reduce(function(a,i){return a+protItem(i);},0);
+  totalKcal+=mk;totalProt+=mp;
   h+='<div class="card"><div class="meal-hdr"><span class="meal-name">'+m.ic+' '+m.n+'</span><span class="meal-time">'+m.t+'</span></div><ul class="food-list">'+m.items.map(function(i){return '<li>'+i+'</li>';}).join('')+'</ul>';
-  h+='<div class="macro-row"><span class="pill p-coral">~'+mk+' kcal</span></div>';
+  h+='<div class="macro-row"><span class="pill p-blue">P: ~'+mp+' g</span><span class="pill p-coral">~'+mk+' kcal</span></div>';
   const s=(m.saz||[]).filter(Boolean);
   if(s.length)h+='<div class="sazon">🌶️ <strong>Sazón:</strong> '+s.join(' — ')+'</div>';
   if(m.nota)h+='<p class="note">'+m.nota+'</p>';
   h+='</div>';
  });
- h+='<div class="total-bar"><span style="font-weight:700;">Total estimado del día</span><span class="pill p-coral" style="font-size:14px;">~'+totalKcal.toLocaleString('es-MX')+' kcal</span></div>';
+ const meta=metaProteina();
+ const faltan=meta-totalProt;
+ h+='<div class="total-bar"><span style="font-weight:700;">Total estimado del día</span><div><span class="pill p-blue" style="font-size:14px;">P: ~'+totalProt+' g</span><span class="pill p-coral" style="font-size:14px;">~'+totalKcal.toLocaleString('es-MX')+' kcal</span></div></div>';
+ h+=(faltan<=0
+   ? '<div class="hl" style="margin-top:6px;">✅ <strong>Meta de proteína cubierta:</strong> ~'+totalProt+' g de ~'+meta+' g (1.8 g × '+pesoActual()+' kg).</div>'
+   : '<div class="al" style="margin-top:6px;">💪 <strong>Te faltan ~'+faltan+' g de proteína</strong> para tu meta de ~'+meta+' g/día (1.8 g × '+pesoActual()+' kg). Suma huevo, atún, pollo o panela.</div>');
  h+='<p style="font-size:11px;color:#6b7280;margin-top:6px;">⚠️ Es un <strong>cálculo aproximado</strong> con base en las porciones sugeridas — puede variar ±15% según cantidades reales y preparación. Sirve como referencia, no como medida exacta.</p>';
  h+='<div class="hl" style="margin-top:8px;">🌶️ <strong>Recuerda:</strong> especias, chile, ajo, limón y hierbas aportan prácticamente 0 calorías — úsalas sin miedo. El sabor es lo que hace la dieta sostenible.</div>';
  h+='<button class="btn-main" style="background:#185FA5;" onclick="generarDia()">🔄 Dame otra combinación</button>';
