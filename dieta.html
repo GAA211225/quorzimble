@@ -457,12 +457,13 @@ const DIETAS_FIJAS=[
     prep:['Cocina el lote de lomo: 1 kg con 2 cucharadas de aceite de oliva.','Arma el sándwich con 120 g de lomo, cebolla y jitomate.','Sin mayonesa.']},
    {ic:'🥚',slot:'snack',slotLbl:'Colación 1',n:'Huevos cocidos + fruta',kcal:290,prot:20,
     items:['<strong>3 huevos cocidos</strong>','<strong>1 manzana</strong> (~150 g)']},
-   {ic:'🐟',slot:'comida',slotLbl:'Comida',n:'Atún con arroz',kcal:305,prot:43,
-    items:['<strong>2 latas de atún drenado</strong>','<strong>½ taza de arroz cocido</strong>','<strong>Ensalada:</strong> lechuga, jitomate, pepino con limón']},
+   {ic:'🥩',slot:'comida',slotLbl:'Comida',n:'Lomo con arroz',kcal:375,prot:34,
+    items:['<strong>150 g de lomo de cerdo</strong> en crudo (~110 g cocido)','<strong>½ taza de arroz cocido</strong>','<strong>Ensalada:</strong> lechuga, jitomate, pepino con limón','🫒 aceite de oliva prorrateado del lote'],
+    prep:['Usa el lomo del mismo lote (1 kg con 2 cucharadas de aceite de oliva).','Acompaña con ½ taza de arroz y ensalada.']},
    {ic:'🥚',slot:'merienda',slotLbl:'Colación 2',n:'Huevos + atún',kcal:300,prot:39,
     items:['<strong>3 huevos cocidos</strong>','<strong>1 lata de atún drenado</strong>']},
-   {ic:'🥩',slot:'cena',slotLbl:'Cena',n:'Lomo con ensalada',kcal:280,prot:32,
-    items:['<strong>150 g de lomo de cerdo</strong> en crudo (~110 g cocido)','<strong>Ensalada</strong> con limón','🫒 aceite de oliva prorrateado del lote']}
+   {ic:'🐟',slot:'cena',slotLbl:'Cena',n:'Atún con ensalada',kcal:205,prot:41,
+    items:['<strong>2 latas de atún drenado</strong>','<strong>Ensalada</strong> con limón']}
   ]}
 ];
 let dietaFijaSel=parseInt(localStorage.getItem('dietaFijaSel')||'0',10)||0;
