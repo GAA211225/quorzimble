@@ -98,6 +98,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <button class="nav-btn active" data-page="compras" onclick="show('compras')">🛒 Compras</button>
   <button class="nav-btn" data-page="inventario" onclick="show('inventario')">📦 Inventario</button>
   <button class="nav-btn" data-page="plan" onclick="show('plan')">🍽️ Mi Plan</button>
+  <button class="nav-btn" data-page="fijas" onclick="show('fijas')">📋 Dietas Fijas</button>
   <button class="nav-btn" data-page="progreso" onclick="show('progreso')">📈 Progreso</button>
   <button class="nav-btn" data-page="quema" onclick="show('quema')">🔥 Quema</button>
   <button class="nav-btn" data-page="supl" onclick="show('supl')">💊 Suplementos</button>
@@ -170,6 +171,14 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
   <div id="plan-hdr"></div>
   <div id="plan-comidas"></div>
   <div id="plan-pie"></div>
+</div>
+
+<!-- DIETAS FIJAS -->
+<div id="p-fijas" class="page">
+  <p class="sec-title">Dietas fijas</p>
+  <div class="info">Días completos ya armados, que iremos agregando. Cada uno muestra sus calorías y proteína, y apunta a tu meta de proteína (1.8 g/kg).</div>
+  <div id="fijas-sel"></div>
+  <div id="fijas-out"></div>
 </div>
 
 
@@ -435,6 +444,59 @@ function renderPlan(){
 
  document.getElementById('plan-pie').innerHTML=
   '<div class="info">⚖️ Cantidades en <strong>gramos</strong> (líquidos en ml) para que peses cada porción y la dividas en tus toppers. Son la equivalencia aproximada de las porciones del nutriólogo — si tienes duda, su medida original manda. Cada comida tiene un menú ▾ para elegir entre opciones; se irán agregando más.</div>';
+}
+
+/* ================= DIETAS FIJAS =================
+   Días completos ya armados (con kcal y proteína ya calculadas). Para agregar
+   una nueva dieta, copia un bloque y ajusta. Horarios salen del turno. */
+const DIETAS_FIJAS=[
+ {nombre:'Dieta 1 · Sándwich de lomo', nota:'Centrada en tu sándwich de lomo; el resto con huevo cocido y atún para pegarle a la proteína.',
+  comidas:[
+   {ic:'🥪',slot:'desayuno',slotLbl:'Desayuno',n:'Sándwich de lomo',kcal:390,prot:32,
+    items:['<strong>120 g de lomo de cerdo</strong> en crudo (~90 g cocido)','<strong>2 rebanadas de pan Bimbo Linaza</strong>','<strong>Cebolla y jitomate</strong> (~100 g)','🫒 aceite de oliva prorrateado del lote (~3.6 ml)','sin mayonesa'],
+    prep:['Cocina el lote de lomo: 1 kg con 2 cucharadas de aceite de oliva.','Arma el sándwich con 120 g de lomo, cebolla y jitomate.','Sin mayonesa.']},
+   {ic:'🥚',slot:'snack',slotLbl:'Colación 1',n:'Huevos cocidos + fruta',kcal:290,prot:20,
+    items:['<strong>3 huevos cocidos</strong>','<strong>1 manzana</strong> (~150 g)']},
+   {ic:'🐟',slot:'comida',slotLbl:'Comida',n:'Atún con arroz',kcal:305,prot:43,
+    items:['<strong>2 latas de atún drenado</strong>','<strong>½ taza de arroz cocido</strong>','<strong>Ensalada:</strong> lechuga, jitomate, pepino con limón']},
+   {ic:'🥚',slot:'merienda',slotLbl:'Colación 2',n:'Huevos + atún',kcal:300,prot:39,
+    items:['<strong>3 huevos cocidos</strong>','<strong>1 lata de atún drenado</strong>']},
+   {ic:'🥩',slot:'cena',slotLbl:'Cena',n:'Lomo con ensalada',kcal:280,prot:32,
+    items:['<strong>150 g de lomo de cerdo</strong> en crudo (~110 g cocido)','<strong>Ensalada</strong> con limón','🫒 aceite de oliva prorrateado del lote']}
+  ]}
+];
+let dietaFijaSel=parseInt(localStorage.getItem('dietaFijaSel')||'0',10)||0;
+function setDietaFija(i){dietaFijaSel=i;localStorage.setItem('dietaFijaSel',String(i));renderFijas();}
+function renderFijas(){
+ const cont=document.getElementById('fijas-out');
+ if(!cont)return;
+ if(dietaFijaSel>=DIETAS_FIJAS.length||dietaFijaSel<0)dietaFijaSel=0;
+ /* Selector si hay más de una dieta */
+ const sel=document.getElementById('fijas-sel');
+ sel.innerHTML=DIETAS_FIJAS.length>1
+  ? '<select class="qty-input" style="width:100%;margin-bottom:10px;" onchange="setDietaFija(this.value)">'+DIETAS_FIJAS.map(function(d,i){return '<option value="'+i+'"'+(i===dietaFijaSel?' selected':'')+'>'+d.nombre+'</option>';}).join('')+'</select>'
+  : '';
+ const D=DIETAS_FIJAS[dietaFijaSel];
+ const totalK=D.comidas.reduce(function(a,m){return a+m.kcal;},0);
+ const totalP=D.comidas.reduce(function(a,m){return a+m.prot;},0);
+ const meta=metaProteina();
+ let h='<div class="hl" style="margin-bottom:12px;">📋 <strong>'+D.nombre+'</strong>'+(D.nota?'<br><span style="font-size:12px;">'+D.nota+'</span>':'')+'</div>';
+ h+=D.comidas.map(function(m){
+  let lis=m.items.map(function(i){return '<li>'+i+'</li>';}).join('');
+  let c='<div class="card"><div class="meal-hdr"><span class="meal-name">'+m.ic+' '+m.slotLbl+' · '+m.n+'</span><span class="meal-time">'+horaDe(m.slot)+'</span></div>'
+   +'<ul class="food-list">'+lis+'</ul>'
+   +'<div class="macro-row"><span class="pill p-blue">P: ~'+m.prot+' g</span><span class="pill p-coral">~'+m.kcal+' kcal</span></div>';
+  if(m.prep)c+='<details style="margin-top:4px;"><summary style="font-size:12px;font-weight:700;color:#0F6E56;cursor:pointer;">👩‍🍳 Ver preparación</summary><ol style="font-size:12px;color:#374151;padding-left:18px;margin-top:6px;line-height:1.5;">'+m.prep.map(function(p){return '<li style="margin-bottom:3px;">'+p+'</li>';}).join('')+'</ol></details>';
+  c+='</div>';
+  return c;
+ }).join('');
+ h+='<div class="total-bar"><span style="font-weight:700;">Total del día</span><div><span class="pill p-blue" style="font-size:14px;">P: ~'+totalP+' g</span><span class="pill p-coral" style="font-size:14px;">~'+totalK.toLocaleString('es-MX')+' kcal</span></div></div>';
+ const faltan=Math.round(meta*0.95)-totalP;
+ h+=(faltan<=0
+   ? '<div class="hl" style="margin-top:6px;">✅ <strong>Proteína en meta:</strong> ~'+totalP+' g de ~'+meta+' g (1.8 g × '+pesoActual()+' kg).</div>'
+   : '<div class="al" style="margin-top:6px;">💪 Esta dieta da ~'+totalP+' g de proteína; tu meta es ~'+meta+' g. Te faltarían ~'+faltan+' g (suma huevo o atún).</div>');
+ h+='<p style="font-size:11px;color:#6b7280;margin-top:6px;">⚠️ Calorías y proteína <strong>estimadas</strong> (±10%). El lomo se cuenta en crudo; el aceite del lote va prorrateado por porción.</p>';
+ cont.innerHTML=h;
 }
 
 /* ================= SUPLEMENTOS ================= */
@@ -899,6 +961,7 @@ renderPlan();
 renderSupl();
 renderProgreso();
 renderCompras();
+renderFijas();
 saveD();
 
 if(location.hash==='#supl')show('supl');
