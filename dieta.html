@@ -217,6 +217,17 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fc;color:#1a
     <div class="row"><span>🚶 Caminar rápido</span><span class="pill p-amber">150–200 kcal</span></div>
   </div>
 
+  <div class="card" style="border:1.5px solid #1D9E75;">
+    <div class="meal-hdr"><span class="meal-name">🚴 Tu sesión: recumbent bike</span><span class="meal-time">1 h · dentro de tu gym</span></div>
+    <ul class="food-list">
+      <li><strong>Gym 6 días/semana, de 7:30 a 10</strong> (hay sauna)</li>
+      <li><strong>60 min</strong> de recumbent bike a ritmo constante (~65-75% de tu frecuencia máxima)</li>
+      <li>Calentamiento 5 min suave y enfriamiento 5 min al final, dentro de la hora</li>
+      <li>Quema aproximada: <strong>~450–600 kcal</strong> (varía con tu peso, resistencia y ritmo)</li>
+    </ul>
+    <p class="note">💡 La recumbent es de bajo impacto: aguanta 6 días a la semana mejor que correr. Alterna un día más fuerte (intervalos de 1 min duro / 2 min suave) con días de ritmo estable para no acumular fatiga. El sauna no cuenta como quema de grasa — solo pierde agua.</p>
+  </div>
+
   <div class="card" style="border:1.5px solid #EF9F27;">
     <div class="meal-hdr"><span class="meal-name">💥 Circuito quema express</span><span class="meal-time">~20 min · sin equipo</span></div>
     <p style="font-size:12px;color:#6b7280;margin-bottom:8px;">40 s de trabajo / 20 s de descanso · <strong>3–4 rondas</strong>:</p>
@@ -464,9 +475,28 @@ const DIETAS_FIJAS=[
     items:['<strong>3 huevos cocidos</strong>','<strong>1 lata de atún drenado</strong>']},
    {ic:'🐟',slot:'cena',slotLbl:'Cena',n:'Atún con ensalada',kcal:205,prot:41,
     items:['<strong>2 latas de atún drenado</strong>','<strong>Ensalada</strong> con limón']}
+  ]},
+ {nombre:'Dieta 2 · Apretada + cardio', nota:'Misma base que la Dieta 1, sin fruta y con menos arroz, más 1 hora de recumbent bike. Proteína alta para cuidar músculo.',
+  cardio:{ic:'🚴',n:'Cardio · 1 h en recumbent bike',kcalMin:450,kcalMax:600,
+   items:['<strong>60 min</strong> a ritmo constante: puedes hablar entrecortado, ~65-75% de tu frecuencia máxima','Resistencia media; no a tope todo el rato','Toma agua antes, durante y después'],
+   hora:'dentro de tu sesión de gym (7:30–10)'},
+  comidas:[
+   {ic:'🥪',slot:'desayuno',slotLbl:'Desayuno',n:'Sándwich de lomo',kcal:390,prot:32,
+    items:['<strong>120 g de lomo de cerdo</strong> en crudo (~90 g cocido)','<strong>2 rebanadas de pan Bimbo Linaza</strong>','<strong>Cebolla y jitomate</strong> (~100 g)','🫒 aceite de oliva prorrateado del lote (~3.6 ml)','sin mayonesa'],
+    prep:['Cocina el lote de lomo: 1 kg con 2 cucharadas de aceite de oliva.','Arma el sándwich con 120 g de lomo, cebolla y jitomate.','Sin mayonesa.']},
+   {ic:'🥚',slot:'snack',slotLbl:'Colación 1',n:'Huevos cocidos + pepino',kcal:225,prot:20,
+    items:['<strong>3 huevos cocidos</strong>','<strong>100 g de pepino</strong> con limón y chile (sin fruta)']},
+   {ic:'🥩',slot:'comida',slotLbl:'Comida',n:'Lomo con poco arroz',kcal:340,prot:33,
+    items:['<strong>150 g de lomo de cerdo</strong> en crudo (~110 g cocido)','<strong>⅓ taza de arroz cocido</strong> (~65 g)','<strong>Ensalada abundante:</strong> lechuga, jitomate, pepino con limón','🫒 aceite de oliva prorrateado del lote'],
+    prep:['Usa el lomo del mismo lote (1 kg con 2 cucharadas de aceite de oliva).','Arroz reducido a ⅓ de taza; rellena el plato con ensalada.']},
+   {ic:'🥚',slot:'merienda',slotLbl:'Colación 2',n:'Huevos + atún',kcal:300,prot:39,
+    items:['<strong>3 huevos cocidos</strong>','<strong>1 lata de atún drenado</strong>']},
+   {ic:'🐟',slot:'cena',slotLbl:'Cena',n:'Atún con ensalada',kcal:205,prot:41,
+    items:['<strong>2 latas de atún drenado</strong>','<strong>Ensalada</strong> con limón']}
   ]}
 ];
-let dietaFijaSel=parseInt(localStorage.getItem('dietaFijaSel')||'0',10)||0;
+/* Si el usuario nunca ha elegido, abre la dieta más reciente */
+let dietaFijaSel=parseInt(localStorage.getItem('dietaFijaSel')||String(DIETAS_FIJAS.length-1),10)||0;
 function setDietaFija(i){dietaFijaSel=i;localStorage.setItem('dietaFijaSel',String(i));renderFijas();}
 function renderFijas(){
  const cont=document.getElementById('fijas-out');
@@ -491,11 +521,23 @@ function renderFijas(){
   c+='</div>';
   return c;
  }).join('');
+ if(D.cardio){
+  const C=D.cardio;
+  h+='<div class="card" style="border:1.5px solid #EF9F27;"><div class="meal-hdr"><span class="meal-name">'+C.ic+' '+C.n+'</span><span class="meal-time">'+C.hora+'</span></div>'
+   +'<ul class="food-list">'+C.items.map(function(i){return '<li>'+i+'</li>';}).join('')+'</ul>'
+   +'<div class="macro-row"><span class="pill p-amber">🔥 quema ~'+C.kcalMin+'–'+C.kcalMax+' kcal</span></div></div>';
+ }
  h+='<div class="total-bar"><span style="font-weight:700;">Total del día</span><div><span class="pill p-blue" style="font-size:14px;">P: ~'+totalP+' g</span><span class="pill p-coral" style="font-size:14px;">~'+totalK.toLocaleString('es-MX')+' kcal</span></div></div>';
  const faltan=Math.round(meta*0.95)-totalP;
  h+=(faltan<=0
    ? '<div class="hl" style="margin-top:6px;">✅ <strong>Proteína en meta:</strong> ~'+totalP+' g de ~'+meta+' g (1.8 g × '+pesoActual()+' kg).</div>'
    : '<div class="al" style="margin-top:6px;">💪 Esta dieta da ~'+totalP+' g de proteína; tu meta es ~'+meta+' g. Te faltarían ~'+faltan+' g (suma huevo o atún).</div>');
+ if(D.cardio){
+  const C=D.cardio,mid=Math.round((C.kcalMin+C.kcalMax)/2);
+  h+='<div class="info" style="margin-top:6px;">🚴 Con el cardio (~'+mid+' kcal) tu balance de comida del día queda en ~<strong>'+(totalK-mid).toLocaleString('es-MX')+' kcal netas</strong> <span style="font-size:11px;">(comes ~'+totalK.toLocaleString('es-MX')+', quemas ~'+mid+' extra, sin contar el resto de tu gasto).</span></div>';
+  h+='<div class="al" style="margin-top:6px;"><strong>⚠️ Ojo con el ritmo:</strong> 6 días/semana de gym + 1 h de cardio con ~'+totalK.toLocaleString('es-MX')+' kcal es muy exigente. Si notas mareo, mala recuperación, sueño malo o fuerza que se desploma, sube comida (empieza por arroz o fruta antes de entrenar) o descansa un día — es mejor eso que perder músculo.</div>';
+  h+='<div class="al" style="margin-top:6px;"><strong>🧖 Sauna:</strong> no quema grasa — el peso que baja es <strong>agua</strong> y regresa al hidratarte. En déficit fuerte úsala poco (10–15 min), nunca en lugar de hidratarte, y no la combines con mareo o ayuno largo.</div>';
+ }
  h+='<p style="font-size:11px;color:#6b7280;margin-top:6px;">⚠️ Calorías y proteína <strong>estimadas</strong> (±10%). El lomo se cuenta en crudo; el aceite del lote va prorrateado por porción.</p>';
  cont.innerHTML=h;
 }
