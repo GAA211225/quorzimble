@@ -536,7 +536,7 @@ function renderFijas(){
   const C=D.cardio,mid=Math.round((C.kcalMin+C.kcalMax)/2);
   h+='<div class="info" style="margin-top:6px;">🚴 Con el cardio (~'+mid+' kcal) tu balance de comida del día queda en ~<strong>'+(totalK-mid).toLocaleString('es-MX')+' kcal netas</strong> <span style="font-size:11px;">(comes ~'+totalK.toLocaleString('es-MX')+', quemas ~'+mid+' extra, sin contar el resto de tu gasto).</span></div>';
   h+='<div class="al" style="margin-top:6px;"><strong>⚠️ Ojo con el ritmo:</strong> 6 días/semana de gym + 1 h de cardio con ~'+totalK.toLocaleString('es-MX')+' kcal es muy exigente. Si notas mareo, mala recuperación, sueño malo o fuerza que se desploma, sube comida (empieza por arroz o fruta antes de entrenar) o descansa un día — es mejor eso que perder músculo.</div>';
-  h+='<div class="al" style="margin-top:6px;"><strong>🧖 Sauna:</strong> no quema grasa — el peso que baja es <strong>agua</strong> y regresa al hidratarte. En déficit fuerte úsala poco (10–15 min), nunca en lugar de hidratarte, y no la combines con mareo o ayuno largo.</div>';
+  h+='<div class="al" style="margin-top:6px;"><strong>🧖 Sauna (20 min a ~70 °C):</strong> es una duración y temperatura razonables, pero no quema grasa — el peso que baja es <strong>agua</strong> y regresa al hidratarte. Úsala al <strong>final</strong> de la sesión (no antes de entrenar), repón ~500–750 ml de agua después, y sal si sientes mareo, náusea o palpitaciones. No la cuentes como quema ni como "pérdida real".</div>';
  }
  h+='<p style="font-size:11px;color:#6b7280;margin-top:6px;">⚠️ Calorías y proteína <strong>estimadas</strong> (±10%). El lomo se cuenta en crudo; el aceite del lote va prorrateado por porción.</p>';
  cont.innerHTML=h;
